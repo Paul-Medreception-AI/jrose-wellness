@@ -16,9 +16,12 @@
 import type { ConditionPageContent, FAQ, IconCard, RelatedLink } from '@/components/templates/ConditionPageTemplate'
 import { PAGE_IMAGES, imageFor, type SiteImage } from '@/lib/images'
 import { AGES, CRISIS, NAV_CTA, PRACTICE_FAQS, PROVIDER, SITE_NAME, SITE_URL } from '@/lib/site'
+import { postLinks } from '@/lib/posts'
 
 /** A condition page plus a one-line summary for hub cards and home-page tiles. */
-export type ConditionEntry = ConditionPageContent & { summary: string }
+// summary is optional so an entry appended in the canonical page schema (no summary) still type-checks;
+// the /conditions hub falls back to its description.
+export type ConditionEntry = ConditionPageContent & { summary?: string }
 
 const BASE = {
   siteUrl: SITE_URL,
@@ -273,7 +276,16 @@ export const CONDITIONS: ConditionEntry[] = [
       FAQ_MED_OPTIONAL,
       { q: 'Do you see teenagers with anxiety?', a: `Yes. ${AGES_SENTENCE}` },
     ],
-    relatedLinks: [REL.ocd, REL.burnout, REL.adhd],
+    relatedLinks: [
+      REL.ocd,
+      REL.burnout,
+      REL.adhd,
+      ...postLinks(
+        'panic-attacks-symptoms-triggers-and-treatment-options',
+        'social-anxiety-more-than-just-shyness',
+        'when-worry-becomes-problematic-recognizing-generalized-anxie',
+      ),
+    ],
     ctaHeading: 'Ready to feel steadier?',
     ctaBody: CTA_BODY,
   },
@@ -362,7 +374,16 @@ export const CONDITIONS: ConditionEntry[] = [
       },
       { q: 'What if I am having thoughts of harming myself?', a: CRISIS.full },
     ],
-    relatedLinks: [REL.bipolar, REL.anxiety, REL.olderAdults],
+    relatedLinks: [
+      REL.bipolar,
+      REL.anxiety,
+      REL.olderAdults,
+      ...postLinks(
+        'supporting-a-loved-one-struggling-with-depression',
+        'depression-and-motivation-why-it-s-so-hard-and-what-helps',
+        'managing-seasonal-depression-and-winter-blues',
+      ),
+    ],
     ctaHeading: 'You do not have to push through alone',
     ctaBody: CTA_BODY,
   },
@@ -448,7 +469,16 @@ export const CONDITIONS: ConditionEntry[] = [
       FAQ_HOW_DECIDE,
       FAQ_THERAPY_OR_MEDS,
     ],
-    relatedLinks: [REL.depression, REL.psychosis, REL.medication],
+    relatedLinks: [
+      REL.depression,
+      REL.psychosis,
+      REL.medication,
+      ...postLinks(
+        'understanding-mood-swings-when-are-they-a-concern',
+        'understanding-medication-management-in-psychiatric-care',
+        'the-importance-of-follow-up-care-in-mental-health-treatment',
+      ),
+    ],
     ctaHeading: 'Steady care, from home',
     ctaBody: CTA_BODY,
   },
@@ -599,7 +629,16 @@ export const CONDITIONS: ConditionEntry[] = [
       FAQ_THERAPY_OR_MEDS,
       FAQ_MED_OPTIONAL,
     ],
-    relatedLinks: [REL.anxiety, REL.depression, REL.substance],
+    relatedLinks: [
+      REL.anxiety,
+      REL.depression,
+      REL.substance,
+      ...postLinks(
+        'the-impact-of-trauma-on-mental-health',
+        'understanding-recovery-what-it-means-in-mental-health',
+        'building-resilience-strengthening-your-mental-health-foundat',
+      ),
+    ],
     ctaHeading: 'A judgment-free place to start',
     ctaBody: CTA_BODY,
   },
@@ -757,7 +796,7 @@ export const CONDITIONS: ConditionEntry[] = [
         heading: 'When a higher level of care is needed',
         body: [
           'Detox and medically supervised withdrawal are outside the scope of telehealth care. Stopping some substances suddenly, including alcohol, can be dangerous without medical support, so talk with a medical professional before you stop.',
-          'If you need more support than telehealth can offer, Jessica can help you connect with the right level of care.',
+          'If you need more support than scheduled telehealth visits can offer, a higher level of care, such as a detox or intensive program, may be the right fit.',
           `If you or someone else is in danger, or you have signs of severe withdrawal, get emergency help right away. ${CRISIS.short}`,
         ],
       },
@@ -770,11 +809,20 @@ export const CONDITIONS: ConditionEntry[] = [
       },
       {
         q: 'Do you offer detox?',
-        a: 'No. Detox and medically supervised withdrawal are outside the scope of telehealth care. If you need that level of care, Jessica can help you connect with the right level of care.',
+        a: 'No. Detox and medically supervised withdrawal are outside the scope of telehealth care. If you need that level of care, please reach out to a detox or treatment program, and call 911 in an emergency.',
       },
       FAQ_THERAPY_OR_MEDS,
     ],
-    relatedLinks: [REL.depression, REL.ptsd, REL.anxiety],
+    relatedLinks: [
+      REL.depression,
+      REL.ptsd,
+      REL.anxiety,
+      ...postLinks(
+        'understanding-dual-diagnosis-mental-health-and-substance-use',
+        'breaking-the-stigma-why-seeking-help-for-substance-use-is-st',
+        'understanding-recovery-what-it-means-in-mental-health',
+      ),
+    ],
     ctaHeading: 'Start wherever you are',
     ctaBody: CTA_BODY,
   },
@@ -796,7 +844,7 @@ export const CONDITIONS: ConditionEntry[] = [
     introHeading: 'When you are running on empty',
     intro: [
       'Burnout creeps in. At first you push through. Then the exhaustion stops lifting on weekends, small things feel huge, and you notice you are short with the people you care about.',
-      'Big life changes can do the same thing, even good ones: a new job, a move, a breakup, a new baby, retirement, or a loss.',
+      'Big life changes can do the same thing, even good ones: a new job, a move, a breakup, retirement, or a loss.',
       "Stress and burnout, relationship challenges, self-esteem, and life transitions are among Jessica's clinical interests. Care focuses on building resilience and making realistic, sustainable changes that improve how you function day to day.",
     ],
     signsHeading: 'Signs stress is taking a toll',
@@ -857,7 +905,16 @@ export const CONDITIONS: ConditionEntry[] = [
       FAQ_THERAPY_OR_MEDS,
       FAQ_MED_OPTIONAL,
     ],
-    relatedLinks: [REL.anxiety, REL.depression, REL.adults],
+    relatedLinks: [
+      REL.anxiety,
+      REL.depression,
+      REL.adults,
+      ...postLinks(
+        'understanding-adjustment-disorders-when-life-changes-overwhe',
+        'addressing-burnout-more-than-just-stress',
+        'managing-mental-health-during-major-life-transitions',
+      ),
+    ],
     ctaHeading: 'Ready for some support?',
     ctaBody: CTA_BODY,
   },

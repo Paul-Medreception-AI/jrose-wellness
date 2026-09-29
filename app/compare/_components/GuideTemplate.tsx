@@ -348,7 +348,9 @@ export function GuideTemplate({ c }: { c: GuideContent }) {
         <Container size="narrow">
           <SectionHeading id="guide-faq-heading" eyebrow="Questions" title="Common questions" />
           <div className="mt-8">
-            <FaqList faqs={c.faqs} withSchema />
+            {/* No FAQPage markup here: the guides repeat practice FAQs and near-duplicates of service
+                page questions, and a Q&A may be marked up only once across the site (see lib/faqs.ts). */}
+            <FaqList faqs={c.faqs} />
           </div>
         </Container>
       </section>

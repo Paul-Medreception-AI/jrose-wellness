@@ -1,19 +1,8 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import {
-  AGES,
-  BOOKING,
-  CONTACT,
-  CRISIS,
-  NAV_CTA,
-  NO_MEDICAL_ADVICE,
-  PRACTICE_FAQS,
-  PRICING,
-  PROVIDER,
-  SITE_NAME,
-  withBrand,
-} from '@/lib/site'
+import { CONTACT, NAV_CTA, NO_MEDICAL_ADVICE, PRACTICE_FAQS, PROVIDER, SITE_NAME, withBrand } from '@/lib/site'
 import { PAGE_IMAGES } from '@/lib/images'
+import { GETTING_STARTED, NP_ROLE, type Faq } from '@/lib/faqs'
 import PageHero from '@/components/site/PageHero'
 import Container from '@/components/site/Container'
 import FaqList from '@/components/site/FaqList'
@@ -47,35 +36,12 @@ export const metadata: Metadata = {
 /* Page data                                                           */
 /* ------------------------------------------------------------------ */
 
-type Faq = { q: string; a: string }
-
 const FIRST_NAME = PROVIDER.name.split(' ')[0]
 
-// Approved new answers (FACTS.md section 10), built from lib/site.ts values. The unanswered
-// questions listed there (consultations, school/work forms, where you must be during visits,
-// cancellations, availability) stay off the page until the practice answers them.
-const NP_ROLE: Faq = {
-  q: 'Is a psychiatric NP a psychiatrist?',
-  a: `No. ${FIRST_NAME} is a board-certified psychiatric-mental health nurse practitioner (an APRN), not a physician, and is licensed in ${CONTACT.state} to evaluate, diagnose, treat, and prescribe.`,
-}
-
-const GETTING_STARTED: Faq[] = [
-  { q: 'What ages do you see?', a: `${FIRST_NAME} sees ${AGES.short.toLowerCase()}.` },
-  {
-    q: 'How long is the first visit?',
-    a: `${BOOKING.alma.note} If you book another way, ask about visit length when you schedule.`,
-  },
-  {
-    q: 'Do you take insurance?',
-    a: 'Yes, by booking through Alma or Headway. Plans are listed on our Insurance & Pricing page.',
-  },
-  {
-    q: 'How much does it cost?',
-    a: `Self-pay visits are ${PRICING.initialEvaluation.price} for the initial evaluation and ${PRICING.followUp.price} for follow-up and medication management. With insurance through Alma or Headway, your cost depends on your plan.`,
-  },
-  { q: 'Is there a sliding scale?', a: `Yes. ${PRICING.slidingScale}` },
-  { q: 'Is this an emergency service?', a: `No. ${CRISIS.full}` },
-]
+// NP_ROLE and GETTING_STARTED (FACTS.md section 10) live in lib/faqs.ts so other pages reuse the
+// same wording and FaqList can skip them when it adds FAQPage markup. The unanswered questions listed
+// there (consultations, school/work forms, where you must be during visits, cancellations,
+// availability) stay off the page until the practice answers them.
 
 const GROUPS: { id: string; title: string; intro: string; faqs: Faq[] }[] = [
   {

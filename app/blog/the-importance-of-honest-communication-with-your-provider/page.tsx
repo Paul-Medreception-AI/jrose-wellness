@@ -1,303 +1,317 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
+import PageHero from '@/components/site/PageHero'
+import CrisisNotice from '@/components/site/CrisisNotice'
+import CrisisText from '@/components/site/CrisisText'
+import JsonLd from '@/components/site/JsonLd'
+import { BUTTON } from '@/components/site/SmartLink'
+import { ArrowRight, CheckIcon, PhoneIcon } from '@/components/site/icons'
+import { AGES, CONTACT, NAV_CTA, NO_MEDICAL_ADVICE, PROVIDER, SITE_NAME, SITE_URL, withBrand } from '@/lib/site'
+import { imageFor } from '@/lib/images'
+import { getPost, postHref, postRobots } from '@/lib/posts'
+
+// Autobuilt post, rewritten against FACTS.md: the journal percentage statistic and evidence claims
+// removed, "provider" used throughout, alternative-medicine framing and the city location claim removed,
+// the invented publish date removed, and examples moved from general medicine to psychiatric care
+// (side effects, missed doses, alcohol, sleep, safety).
+
+const SLUG = 'the-importance-of-honest-communication-with-your-provider'
+const post = getPost(SLUG)
+const PATH = postHref(SLUG)
+const TITLE = withBrand(post.title)
+const DESCRIPTION =
+  'Why honest conversations with your provider matter, what to share at your visits, and how to bring up side effects, missed doses, or slow progress.'
+const IMAGE = imageFor('/services/psychiatric-evaluation')
+
+// Jessica's own words (Headway profile).
+const HONESTY_IN_HER_WORDS =
+  'I work closely with clients to create a supportive and nonjudgmental environment where they feel comfortable being honest, vulnerable, and fully themselves.'
+const INFORMED_IN_HER_WORDS =
+  'If medication management is appropriate, we will discuss options thoughtfully, including benefits, risks, and your comfort level with treatment. I believe clients should feel informed and actively involved in decisions about their care.'
 
 export const metadata: Metadata = {
-  title: 'The Importance of Honest Communication with Your Provider',
-  description: 'Learn why open, honest communication with your healthcare provider is essential for effective treatment, better outcomes, and a stronger therapeutic relationship.',
-  alternates: { canonical: '/blog/the-importance-of-honest-communication-with-your-provider' },
+  title: TITLE,
+  // Noindex until Jessica reviews this autobuilt post (INDEXED_POST_SLUGS in lib/posts.ts).
+  ...postRobots(SLUG),
+  description: DESCRIPTION,
+  alternates: { canonical: PATH },
   openGraph: {
-    title: 'The Importance of Honest Communication with Your Provider',
-    description: 'Learn why open, honest communication with your healthcare provider is essential for effective treatment, better outcomes, and a stronger therapeutic relationship.',
-    url: 'https://jrosewellness.com/blog/the-importance-of-honest-communication-with-your-provider',
-    siteName: 'JROSE WELLNESS',
-    type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }]
+    title: TITLE,
+    description: DESCRIPTION,
+    url: PATH,
+    siteName: SITE_NAME,
+    type: 'article',
+    images: [{ url: IMAGE.src, alt: IMAGE.alt }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'The Importance of Honest Communication with Your Provider',
-    description: 'Learn why open, honest communication with your healthcare provider is essential for effective treatment, better outcomes, and a stronger therapeutic relationship.',
-    images: ['/og-image.png']
-  }
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [IMAGE.src] },
 }
 
-export default function BlogPost() {
+const RELATED = [
+  {
+    href: '/services/psychiatric-evaluation',
+    eyebrow: 'Services',
+    title: 'Psychiatric Evaluation',
+    body: 'What happens at a first visit, and how it leads to a plan that fits.',
+  },
+  {
+    href: '/blog/the-role-of-a-psychiatric-nurse-practitioner-in-your-care',
+    eyebrow: 'Blog',
+    title: 'The Role of a Psychiatric Nurse Practitioner in Your Care',
+    body: 'What a PMHNP does, from evaluation to medication management and supportive therapy.',
+  },
+  {
+    href: '/faq',
+    eyebrow: 'FAQ',
+    title: 'Frequently Asked Questions',
+    body: 'Medication, telehealth, therapy, and more, answered in the practice’s own words.',
+  },
+]
+
+const H2 = 'mt-14 mb-4 font-cormorant text-[1.9rem] font-semibold leading-tight text-primary sm:text-[2.25rem]'
+const LEAD = 'font-semibold text-ink'
+const LINK = 'font-semibold text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent'
+
+function CheckList({ items }: { items: ReactNode[] }) {
   return (
-    <main className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white">
-        <div className="max-w-4xl mx-auto px-6">
-          {/* Breadcrumb */}
-          <div className="text-sm text-white/80 mb-6 text-center">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <span className="mx-2">›</span>
-            <Link href="/blog" className="hover:text-white transition-colors">Resources</Link>
-            <span className="mx-2">›</span>
-            <span>Article</span>
+    <ul className="mb-6 space-y-3">
+      {items.map((item, i) => (
+        <li key={i} className="flex items-start gap-3">
+          <CheckIcon className="mt-1 h-5 w-5 shrink-0 text-accent" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+const articleSchema = {
+  '@type': 'Article',
+  headline: post.title,
+  ...(post.updated ? { dateModified: post.updated } : {}),
+  description: DESCRIPTION,
+  image: [new URL(IMAGE.src, SITE_URL).toString()],
+  inLanguage: 'en-US',
+  author: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  mainEntityOfPage: new URL(PATH, SITE_URL).toString(),
+}
+
+export default function HonestCommunicationPost() {
+  return (
+    <main>
+      <JsonLd data={articleSchema} />
+      <PageHero
+        eyebrow={post.category}
+        title={post.title}
+        subtitle={DESCRIPTION}
+        image={IMAGE}
+        priority
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }]}
+      />
+
+      <article className="bg-white py-14 sm:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <p className="border-b border-border pb-6 text-sm text-muted">
+            By <span className="font-semibold text-ink">{SITE_NAME}</span>
+          </p>
+
+          <div className="mt-10 text-[1.0625rem] leading-[1.8] text-ink/85 [&>p]:mb-5">
+            <p className="text-xl leading-relaxed text-ink">
+              You are in the middle of a visit with your provider, and something is on the tip of your tongue. Then you
+              hold back. Maybe it feels embarrassing. Maybe you worry about being judged, or you don&apos;t want to seem
+              difficult. That small moment of holding back can shape the care you get.
+            </p>
+            <p>
+              Good mental health care is built on trust, and trust grows from honest, open conversation. Knowing why it
+              matters, and how to make it easier, can help you get care that truly fits.
+            </p>
+
+            <h2 className={H2}>Why people hold back</h2>
+            <p>
+              Holding things back from a provider is very common. People worry about being judged for their habits,
+              feel embarrassed about symptoms, don&apos;t want to waste the provider&apos;s time, or feel anxious about
+              what the answer might mean.
+            </p>
+            <p>
+              Some people downplay symptoms, hoping they will pass. Some don&apos;t mention alcohol or other substances.
+              Many find it hard to admit they have skipped doses or stopped a medication. These small gaps can lead to
+              the wrong dose, a medication that is not working, or side effects nobody knows about.
+            </p>
+
+            <div className="my-10 rounded-r-2xl border-l-4 border-accent bg-light/70 px-6 py-5">
+              <p className="font-cormorant text-[1.4rem] leading-snug text-primary">
+                Your provider can only help as well as the information they have. Honest communication is part of
+                keeping your care safe and effective.
+              </p>
+            </div>
+
+            <h2 className={H2}>The cost of an incomplete picture</h2>
+            <p>
+              When your provider is working with only part of the story, it is harder to get things right. A symptom
+              that seems minor to you might be an important clue. Something you take over the counter might interact
+              with a prescription. A habit you are embarrassed to mention might explain why you still feel stuck.
+            </p>
+            <p>
+              Over time, missing information can lead to a plan that does not fit, changes that do not help, and longer
+              struggles than necessary. Mental health care in particular depends on the full picture: your symptoms,
+              sleep, stress, relationships, substance use, and what daily life actually looks like.
+            </p>
+
+            <h2 className={H2}>What honest communication looks like</h2>
+            <p>
+              Honesty does not mean sharing every detail of your life. It means answering questions truthfully,
+              mentioning things that might matter, and being willing to talk about uncomfortable topics when they affect
+              your care.
+            </p>
+            <CheckList
+              items={[
+                <>
+                  <strong className={LEAD}>Be specific about symptoms.</strong> Instead of &ldquo;I feel off,&rdquo; try &ldquo;I&apos;ve
+                  been waking up at 3 a.m. most nights for two weeks and can&apos;t fall back asleep.&rdquo;
+                </>,
+                <>
+                  <strong className={LEAD}>Share everything you take.</strong> That includes over-the-counter medicines, vitamins, and
+                  anything else, plus alcohol, cannabis, or other substances. A written list helps.
+                </>,
+                <>
+                  <strong className={LEAD}>Say so if you have not followed the plan.</strong> If you skipped doses or stopped a medication,
+                  your provider needs to know to adjust your care safely.
+                </>,
+                <>
+                  <strong className={LEAD}>Bring up side effects, even awkward ones.</strong> Changes in sleep, appetite, weight, energy, or
+                  sexual function are clinical information. They are not a judgment on you.
+                </>,
+                <>
+                  <strong className={LEAD}>Mention thoughts of harming yourself.</strong> This can be the hardest thing to say, and one of
+                  the most important. A good provider will respond with care, not judgment. If the thoughts feel urgent,
+                  don&apos;t wait for a visit:{' '}
+                  <CrisisText text="call or text 988, or call 911." linkClassName={LINK} />
+                </>,
+                <>
+                  <strong className={LEAD}>Ask when something is unclear.</strong> If a term or recommendation does not make sense, speak up.
+                  Good communication goes both ways.
+                </>,
+              ]}
+            />
+
+            <h2 className={H2}>Making honesty easier</h2>
+            <p>
+              If speaking up is hard for you, you are not alone, and there are ways to make it easier. Providers who
+              work in mental health have heard it all. What feels shocking or embarrassing to you is usually familiar
+              to them.
+            </p>
+            <p>
+              If anxiety makes it hard to talk during visits, write your concerns down beforehand and keep the list next
+              to you. You can simply start with &ldquo;There&apos;s something hard I want to bring up.&rdquo;
+            </p>
+            <p>
+              The right fit matters, too. A provider who listens, takes your concerns seriously, explains things clearly,
+              and treats you as a partner makes honesty much easier. If you consistently feel judged, dismissed, or
+              rushed, it may be time to look for someone else. You deserve care where it feels safe to be honest.
+            </p>
+            <blockquote className="my-8 rounded-r-2xl border-l-4 border-accent bg-light/70 px-6 py-5">
+              <p className="font-cormorant text-[1.35rem] leading-snug text-primary">
+                &ldquo;{HONESTY_IN_HER_WORDS}&rdquo;
+              </p>
+              <cite className="mt-2 block text-sm not-italic text-muted">{PROVIDER.byline}</cite>
+            </blockquote>
+
+            <h2 className={H2}>A partnership, not a performance</h2>
+            <p>
+              The best care is not a performance where you show only your &ldquo;best&rdquo; self. It is a partnership.
+              Your provider brings clinical training. You bring your own experience and what you know about yourself.
+              Both matter.
+            </p>
+            <p>
+              When you are open about what is really happening, your provider can adjust your care based on what is
+              actually working, not on assumptions. In Jessica&apos;s words: &ldquo;{INFORMED_IN_HER_WORDS}&rdquo;
+            </p>
+
+            <h2 className={H2}>A note about texts, emails, and forms</h2>
+            <p>
+              Honest conversation belongs in your visit, where your provider can respond properly. {NO_MEDICAL_ADVICE}
+            </p>
+
+            <h2 className={H2}>Moving forward with confidence</h2>
+            <p>
+              If you have held something back before, it is never too late to start fresh. At your next visit, you might
+              say, &ldquo;There are a few things I should have mentioned.&rdquo; Most providers will be glad you did.
+            </p>
+            <p>
+              Honesty gets easier with practice. Each time you share something hard and are met with care instead of
+              judgment, the next time is a little easier. Over time, that builds the kind of trust that makes treatment
+              work.
+            </p>
+            <p>
+              At {SITE_NAME}, {PROVIDER.byline} sees {AGES.short.toLowerCase()} in {CONTACT.state} by secure video. Care
+              starts with a{' '}
+              <Link href="/services/psychiatric-evaluation" className={LINK}>
+                psychiatric evaluation
+              </Link>
+              , and you can read answers to common questions on the{' '}
+              <Link href="/faq" className={LINK}>
+                FAQ page
+              </Link>
+              .
+            </p>
           </div>
 
-          {/* Category */}
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 text-center">
-            Patient Education
-          </div>
-
-          {/* Title */}
-          <h1 className="font-cormorant text-5xl font-light leading-tight max-w-3xl mx-auto text-center mb-8">
-            The Importance of Honest Communication with Your Provider
-          </h1>
-
-          {/* Meta */}
-          <div className="flex items-center justify-center gap-6 text-sm text-white/80">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-              </svg>
-              <span>January 15, 2025</span>
+          <aside className="mt-14 rounded-2xl bg-cream p-6 sm:p-8">
+            <p className="font-semibold text-ink">About this article</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              This article is general information from {SITE_NAME}, not medical advice for your situation. Talk with
+              your own clinician before starting, stopping, or changing any treatment.
+            </p>
+            <div className="mt-4">
+              <CrisisNotice variant="compact" />
             </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>7 min read</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-              </svg>
-              <span>JROSE WELLNESS Team</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Article Body */}
-      <article className="bg-white py-20 max-w-3xl mx-auto px-6">
-        <div className="text-[var(--color-ink)] leading-loose text-base">
-          <p className="text-xl mb-6">
-            You sit across from your healthcare provider, clipboard in hand, a question on the tip of your tongue. But something holds you back. Maybe it's embarrassment. Maybe you worry about being judged. Or perhaps you simply don't want to seem difficult or demanding. Whatever the reason, that moment of hesitation—that small decision to withhold information—can have profound implications for your health and wellbeing.
-          </p>
-
-          <p className="mb-6">
-            The relationship between patient and provider is built on trust, and that trust thrives on honest, open communication. Yet research shows that many patients regularly withhold important information from their healthcare providers, sometimes with serious consequences. Understanding why honest communication matters—and how to cultivate it—is essential to receiving the best possible care.
-          </p>
-
-          <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-            Why Patients Hold Back
-          </h2>
-
-          <p className="mb-6">
-            A 2018 study published in JAMA Network Open found that up to 81% of patients admitted to withholding information from their doctors. The reasons varied widely: fear of being judged for unhealthy habits, embarrassment about symptoms, concerns about wasting the provider's time, or anxiety about what the information might reveal about their health.
-          </p>
-
-          <p className="mb-6">
-            Some patients minimize symptoms, hoping they'll resolve on their own. Others avoid mentioning alternative treatments or supplements they're using, worried their provider might disapprove. Many struggle to admit they haven't been following treatment recommendations, fearing disappointment or criticism. These seemingly small omissions can derail diagnosis, delay treatment, or lead to dangerous drug interactions.
-          </p>
-
-          <div className="bg-[var(--color-light)] border-l-4 border-[var(--color-primary)] p-6 my-8 text-[var(--color-ink)] italic text-xl font-cormorant">
-            "Your provider can only help you as effectively as the information you provide allows. Honest communication isn't just recommended—it's essential for your safety and wellbeing."
-          </div>
-
-          <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-            The Real Cost of Incomplete Information
-          </h2>
-
-          <p className="mb-6">
-            When healthcare providers work with incomplete information, they're essentially navigating in the dark. A symptom you consider minor might be a crucial diagnostic clue. An over-the-counter supplement you forgot to mention could interact dangerously with prescribed medication. A lifestyle habit you're embarrassed to discuss might be the key to understanding why your symptoms persist.
-          </p>
-
-          <p className="mb-6">
-            The consequences extend beyond individual appointments. Incomplete information can lead to unnecessary testing, incorrect diagnoses, ineffective treatment plans, and prolonged suffering. It can also damage the therapeutic relationship itself—when important information emerges later, providers may feel blindsided, and trust on both sides can erode.
-          </p>
-
-          <p className="mb-6">
-            In integrative wellness care, where treatment considers the whole person—physical, emotional, and lifestyle factors—complete information becomes even more critical. Your provider needs to understand not just your symptoms, but your daily habits, stress levels, sleep patterns, dietary choices, and emotional wellbeing to create a truly effective, personalized treatment plan.
-          </p>
-
-          <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-            What Honest Communication Looks Like
-          </h2>
-
-          <p className="mb-6">
-            Honest communication doesn't mean you need to share every detail of your life unprompted. It means answering questions truthfully, volunteering information that might be relevant to your care, and being willing to discuss uncomfortable topics when they matter for your health. Here's what that looks like in practice:
-          </p>
-
-          <div className="my-8 space-y-4">
-            <div className="flex gap-3">
-              <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <p className="flex-1"><strong>Be specific about symptoms.</strong> Instead of saying "I feel off," describe exactly what you're experiencing: "I've had a dull headache behind my right eye for three days, worse in the morning."</p>
-            </div>
-            <div className="flex gap-3">
-              <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <p className="flex-1"><strong>Disclose all medications and supplements.</strong> This includes over-the-counter drugs, vitamins, herbal remedies, and recreational substances. Bring a list or your actual bottles to appointments.</p>
-            </div>
-            <div className="flex gap-3">
-              <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <p className="flex-1"><strong>Admit when you haven't followed recommendations.</strong> If you stopped taking a medication or skipped prescribed exercises, say so. Your provider can't adjust your plan effectively without knowing what's actually happening.</p>
-            </div>
-            <div className="flex gap-3">
-              <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <p className="flex-1"><strong>Share lifestyle factors honestly.</strong> Your sleep patterns, stress levels, alcohol consumption, exercise habits, and dietary choices all impact your health. Accurate information leads to better recommendations.</p>
-            </div>
-            <div className="flex gap-3">
-              <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <p className="flex-1"><strong>Bring up concerns, even uncomfortable ones.</strong> Sexual health, mental health, bowel habits, and other sensitive topics are clinical information, not personal judgments. Your provider needs to know.</p>
-            </div>
-            <div className="flex gap-3">
-              <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-              </svg>
-              <p className="flex-1"><strong>Ask questions when you don't understand.</strong> If terminology confuses you or recommendations seem unclear, speak up. Communication is a two-way street.</p>
-            </div>
-          </div>
-
-          <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-            Overcoming Barriers to Honesty
-          </h2>
-
-          <p className="mb-6">
-            If you struggle with honest communication, you're not alone—and there are strategies that can help. Start by remembering that your provider has likely heard it all before. What seems shocking or embarrassing to you is usually routine clinical information to them. They're trained to listen without judgment and to help, not to criticize.
-          </p>
-
-          <p className="mb-6">
-            If anxiety makes it hard to speak up during appointments, write down your concerns beforehand. Bring a list of questions, symptoms, and information you want to share. You might even hand the list to your provider directly if verbal communication feels too difficult. Many patients find that breaking the ice with "I have something difficult to discuss" helps them push through initial discomfort.
-          </p>
-
-          <p className="mb-6">
-            Consider also that choosing the right provider matters. A provider who listens attentively, validates your concerns, explains things clearly, and treats you as a partner in your care makes honest communication infinitely easier. If you consistently feel judged, dismissed, or rushed during appointments, it might be time to seek care elsewhere. You deserve a provider relationship where you feel safe being honest.
-          </p>
-
-          <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-            Building a Partnership, Not a Performance
-          </h2>
-
-          <p className="mb-6">
-            The most effective healthcare relationships aren't performances where patients present only their "best" selves. They're partnerships where both parties work together toward shared goals. Your provider brings medical expertise; you bring lived experience and knowledge of your own body. Both contributions matter equally.
-          </p>
-
-          <p className="mb-6">
-            When you communicate honestly, you help your provider see the complete picture. You enable them to give you personalized, effective care rather than generic advice based on assumptions. You create space for genuine collaboration, where treatment plans can be adjusted in real-time based on what's actually working—not what theoretically should work.
-          </p>
-
-          <p className="mb-6">
-            This partnership approach is particularly important in integrative wellness care, where treatment success often depends on lifestyle modifications, stress management, and long-term behavior changes. These approaches only work when providers understand your real challenges, motivations, and daily life—not an idealized version you think they want to hear.
-          </p>
-
-          <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-            Moving Forward with Confidence
-          </h2>
-
-          <p className="mb-6">
-            If you've previously withheld information from your provider, it's never too late to start fresh. At your next appointment, you might simply say, "There are some things I should have mentioned before," and open up about what you've been holding back. Most providers will appreciate your honesty and work with you to get your care back on track.
-          </p>
-
-          <p className="mb-6">
-            Remember that honest communication is a skill that improves with practice. Each time you push through discomfort to share something important, it becomes a little easier. Each time your provider responds with professionalism and care rather than judgment, your confidence grows. Over time, these small acts of honesty build into a therapeutic relationship characterized by trust, effectiveness, and genuine partnership.
-          </p>
-
-          <p className="mb-6">
-            Your health is too important to let embarrassment, fear, or miscommunication stand in the way of excellent care. When you communicate honestly with your provider, you're not being difficult or demanding—you're being a responsible partner in your own wellbeing. And that partnership, built on trust and complete information, is the foundation of truly transformative healthcare.
-          </p>
+          </aside>
         </div>
       </article>
 
-      {/* Author Box */}
-      <div className="bg-[var(--color-cream)] rounded-2xl p-8 max-w-3xl mx-auto my-12 mx-6 flex gap-6 items-start">
-        <div className="bg-[var(--color-light)] rounded-full w-16 h-16 flex items-center justify-center flex-shrink-0">
-          <svg className="w-8 h-8 text-[var(--color-primary)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-          </svg>
-        </div>
-        <div>
-          <div className="font-semibold text-[var(--color-ink)] mb-2">Reviewed by JROSE WELLNESS</div>
-          <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-            This article has been reviewed for accuracy and clarity by our team. We are committed to providing evidence-based information that supports your journey toward optimal health and wellbeing in Fairfield, CT and beyond.
-          </p>
-        </div>
-      </div>
-
-      {/* Related Articles */}
-      <section className="bg-[var(--color-cream)] py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <h3 className="font-cormorant text-3xl text-[var(--color-ink)] mb-8 text-center">Related Resources</h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Card 1 */}
-            <Link href="/blog" className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
-              <div className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] h-48 flex items-center justify-center">
-                <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-widest text-[var(--color-primary)] mb-2">Resource Hub</div>
-                <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-3 group-hover:text-[var(--color-primary)] transition-colors">
-                  Explore All Articles
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-                  Browse our complete library of health and wellness resources.
-                </p>
-              </div>
-            </Link>
-
-            {/* Card 2 */}
-            <Link href="/services" className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
-              <div className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] h-48 flex items-center justify-center">
-                <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-widest text-[var(--color-primary)] mb-2">Our Services</div>
-                <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-3 group-hover:text-[var(--color-primary)] transition-colors">
-                  Integrative Wellness Services
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-                  Discover our comprehensive approach to whole-person care.
-                </p>
-              </div>
-            </Link>
-
-            {/* Card 3 */}
-            <Link href="/contact" className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group">
-              <div className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] h-48 flex items-center justify-center">
-                <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-widest text-[var(--color-primary)] mb-2">Get Started</div>
-                <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-3 group-hover:text-[var(--color-primary)] transition-colors">
-                  Schedule a Consultation
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-                  Begin your journey toward better health with personalized care.
-                </p>
-              </div>
-            </Link>
+      <section className="bg-cream py-16 sm:py-20" aria-labelledby="related-heading">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 id="related-heading" className="text-center font-cormorant text-3xl font-semibold text-primary sm:text-4xl">
+            Related resources
+          </h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {RELATED.map((r) => (
+              <Link
+                key={r.href}
+                href={r.href}
+                className="group flex flex-col rounded-2xl border border-border bg-white p-7 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <span className="text-xs font-semibold uppercase tracking-wider text-accent">{r.eyebrow}</span>
+                <h3 className="mt-2 font-cormorant text-2xl font-semibold leading-snug text-ink transition-colors group-hover:text-primary">
+                  {r.title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{r.body}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent">
+                  Read more <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl font-light mb-4">Ready to Take the Next Step?</h2>
-          <p className="text-xl text-white/90 mb-8">Our team is here to help.</p>
-          <Link
-            href="/contact"
-            className="inline-block bg-white text-[var(--color-primary)] px-8 py-4 rounded-full font-semibold hover:bg-[var(--color-cream)] transition-all duration-300 shadow-lg hover:shadow-xl"
-          >
-            Contact Us Today
-          </Link>
+      <section className="bg-gradient-to-br from-dark to-primary py-20 text-center text-white">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <h2 className="font-cormorant text-4xl font-semibold leading-tight sm:text-5xl">Ready to take the next step?</h2>
+          <p className="mt-4 text-lg leading-relaxed text-white/90">
+            Secure video visits with {PROVIDER.byline} for {AGES.short.toLowerCase()} in {CONTACT.state}. Book with
+            insurance through Alma or Headway, or request a self-pay appointment.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link href={NAV_CTA.href} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.accent}`}>
+              {NAV_CTA.label}
+            </Link>
+            <a href={CONTACT.phoneHref} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.outlineLight}`}>
+              <PhoneIcon />
+              Call {CONTACT.phone}
+            </a>
+          </div>
         </div>
       </section>
     </main>

@@ -51,7 +51,7 @@ export default function SelfPayMedicationManagementPost() {
       after={
         <BookingOptions
           heading="Self-pay or insurance: your choice"
-          intro="Use your insurance by booking through Alma or Headway, or book a self-pay visit directly with the practice. Every visit is by secure video."
+          intro="Use your insurance by booking through Alma or Headway, or request a self-pay visit directly with the practice. Every visit is by secure video."
         />
       }
     >
@@ -106,7 +106,7 @@ export default function SelfPayMedicationManagementPost() {
           ))}
         </dl>
       </Callout>
-      <p>{PRICING.slidingScale} Ask about it when you reach out.</p>
+      <p>{PRICING.slidingScale} Ask whether it applies to your visits when you reach out.</p>
       <p>{PRICING.goodFaithEstimate}</p>
       <p>
         See the <Link href="/insurance">insurance and pricing page</Link> for every detail in one place.

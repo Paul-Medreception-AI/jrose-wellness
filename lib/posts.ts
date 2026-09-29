@@ -43,6 +43,22 @@ export const REAL_POST_SLUGS = [
   'holistic-medication-management-services-in-connecticut',
 ] as const
 
+/**
+ * Posts that search engines may index. The IA plan launches with only the practice's three posts;
+ * every autobuilt article stays noindex (and out of the sitemap) until Jessica has reviewed it
+ * clinically (CONFIRM_BEFORE_LAUNCH). Add a slug here once she approves that post.
+ */
+export const INDEXED_POST_SLUGS: readonly string[] = [...REAL_POST_SLUGS]
+
+export function isIndexedPost(slug: string): boolean {
+  return INDEXED_POST_SLUGS.includes(slug)
+}
+
+/** Robots metadata for a post: `{}` when indexable, noindex (links still followed) otherwise. */
+export function postRobots(slug: string): { robots?: { index: boolean; follow: boolean } } {
+  return isIndexedPost(slug) ? {} : { robots: { index: false, follow: true } }
+}
+
 const ORIGINAL_DATE = '2025-08-13'
 const REVISED = '2026-09-29'
 
@@ -82,13 +98,15 @@ export const POSTS: PostMeta[] = [
     image: heroSrc('holistic-medication-management-services-in-connecticut'),
   },
 
-  // Autobuilt articles (one entry per folder under app/blog).
+  // Autobuilt articles (one entry per folder under app/blog). Rewritten in the September 2026
+  // rebuild, so `updated` is REVISED; their first publish date is unknown, so `date` is left out.
   {
     slug: 'addressing-burnout-more-than-just-stress',
     title: 'Addressing Burnout: More Than Just Stress',
     description:
       'How burnout differs from everyday stress, the warning signs to watch for, and practical steps to recover your energy and balance at work and at home.',
     category: 'Wellbeing',
+    updated: REVISED,
   },
   {
     slug: 'anxiety-vs-stress-how-to-tell-the-difference-and-when-to-see',
@@ -96,6 +114,7 @@ export const POSTS: PostMeta[] = [
     description:
       'The key differences between anxiety and stress, how each shows up in your body and mind, and signs it may be time to talk with a professional.',
     category: 'Anxiety',
+    updated: REVISED,
   },
   {
     slug: 'breaking-the-stigma-why-seeking-help-for-substance-use-is-st',
@@ -103,6 +122,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Why reaching out for support with alcohol or substance use takes courage, how stigma keeps people from asking, and how to take a first step.',
     category: 'Substance Use',
+    updated: REVISED,
   },
   {
     slug: 'building-resilience-strengthening-your-mental-health-foundat',
@@ -110,6 +130,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Practical ways to build resilience, manage stress, and recover from setbacks, and how support from a mental health professional can help along the way.',
     category: 'Wellbeing',
+    updated: REVISED,
   },
   {
     slug: 'coping-strategies-for-managing-daily-anxiety',
@@ -117,6 +138,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Practical coping strategies for everyday anxiety, including breathing exercises, mindfulness, and daily habits that can help you feel steadier.',
     category: 'Anxiety',
+    updated: REVISED,
   },
   {
     slug: 'depression-and-motivation-why-it-s-so-hard-and-what-helps',
@@ -124,6 +146,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Why depression can make simple tasks feel impossible, and small, realistic steps that can help you move forward when your motivation is low.',
     category: 'Depression',
+    updated: REVISED,
   },
   {
     slug: 'how-personalized-treatment-plans-improve-mental-health-outco',
@@ -131,6 +154,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Why a treatment plan built around your symptoms, history, and goals matters, and what personalized psychiatric care looks like from visit to visit.',
     category: 'Getting Care',
+    updated: REVISED,
   },
   {
     slug: 'how-to-prepare-for-your-first-telehealth-appointment',
@@ -138,6 +162,7 @@ export const POSTS: PostMeta[] = [
     description:
       'What to expect at your first video visit, how to set up your space and technology, and what to have ready so the appointment goes smoothly for you.',
     category: 'Telehealth',
+    updated: REVISED,
   },
   {
     slug: 'lifestyle-factors-that-impact-mental-health',
@@ -145,6 +170,7 @@ export const POSTS: PostMeta[] = [
     description:
       'How sleep, movement, stress, social connection, and daily routines can affect your mood and energy, with practical tips you can start using this week.',
     category: 'Wellbeing',
+    updated: REVISED,
   },
   {
     slug: 'managing-depression-beyond-medication',
@@ -152,6 +178,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Ways to manage depression alongside medication or without it, including therapy, steady daily routines, and support from the people around you.',
     category: 'Depression',
+    updated: REVISED,
   },
   {
     slug: 'managing-mental-health-during-major-life-transitions',
@@ -159,6 +186,7 @@ export const POSTS: PostMeta[] = [
     description:
       'How big life changes can affect your mental health, and practical ways to protect your well-being through a move, a new job, a loss, or a new chapter.',
     category: 'Wellbeing',
+    updated: REVISED,
   },
   {
     slug: 'managing-seasonal-depression-and-winter-blues',
@@ -166,6 +194,7 @@ export const POSTS: PostMeta[] = [
     description:
       'How to tell the winter blues from seasonal depression, practical ways to cope with shorter days, and when to reach out for professional help.',
     category: 'Depression',
+    updated: REVISED,
   },
   {
     slug: 'medication-myths-common-misconceptions-about-psychiatric-med',
@@ -173,6 +202,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Common myths about psychiatric medications, what taking medication really involves, and questions worth asking your provider before you start.',
     category: 'Medication',
+    updated: REVISED,
   },
   {
     slug: 'overcoming-barriers-to-mental-health-treatment',
@@ -180,6 +210,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Common barriers to mental health care, including stigma, cost, and time, and practical ways to get past them and find care that fits your life.',
     category: 'Getting Care',
+    updated: REVISED,
   },
   {
     slug: 'panic-attacks-symptoms-triggers-and-treatment-options',
@@ -187,6 +218,7 @@ export const POSTS: PostMeta[] = [
     description:
       'What a panic attack feels like, common triggers, and treatment options for panic disorder, from coping skills to psychiatric medication management.',
     category: 'Anxiety',
+    updated: REVISED,
   },
   {
     slug: 'recognizing-the-physical-symptoms-of-anxiety',
@@ -194,6 +226,7 @@ export const POSTS: PostMeta[] = [
     description:
       'How anxiety can show up in your body, from a racing heart and muscle tension to an upset stomach and poor sleep, and when to get it checked.',
     category: 'Anxiety',
+    updated: REVISED,
   },
   {
     slug: 'self-care-isn-t-selfish-prioritizing-mental-health',
@@ -201,6 +234,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Why self-care matters for your mental health, and practical ways to make room for your own needs without guilt, even when your schedule feels full.',
     category: 'Wellbeing',
+    updated: REVISED,
   },
   {
     slug: 'social-anxiety-more-than-just-shyness',
@@ -208,6 +242,7 @@ export const POSTS: PostMeta[] = [
     description:
       'The difference between shyness and social anxiety, the signs to watch for, and how treatment can help you feel more at ease around other people.',
     category: 'Anxiety',
+    updated: REVISED,
   },
   {
     slug: 'supporting-a-loved-one-struggling-with-depression',
@@ -215,6 +250,7 @@ export const POSTS: PostMeta[] = [
     description:
       'How to support someone you love through depression: what to say, what to avoid, how to look after yourself, and when to encourage professional help.',
     category: 'Depression',
+    updated: REVISED,
   },
   {
     slug: 'the-benefits-of-continuity-of-care-in-mental-health-treatmen',
@@ -222,6 +258,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Why seeing the same provider over time matters in mental health care, from building trust to adjusting your treatment plan as your needs change.',
     category: 'Getting Care',
+    updated: REVISED,
   },
   {
     slug: 'the-benefits-of-telehealth-for-mental-health-care',
@@ -229,6 +266,7 @@ export const POSTS: PostMeta[] = [
     description:
       'How telehealth makes mental health care easier to fit into your life, with secure video visits from home, no commute, and a private space you choose.',
     category: 'Telehealth',
+    updated: REVISED,
   },
   {
     slug: 'the-connection-between-chronic-stress-and-mental-health',
@@ -236,6 +274,7 @@ export const POSTS: PostMeta[] = [
     description:
       'How long-term stress affects your mood, sleep, and focus, the signs it is taking a toll, and practical ways to manage stress before it builds.',
     category: 'Wellbeing',
+    updated: REVISED,
   },
   {
     slug: 'the-connection-between-physical-health-conditions-and-mental',
@@ -243,6 +282,7 @@ export const POSTS: PostMeta[] = [
     description:
       'How living with a physical health condition can affect your mental health, and why it helps to talk about both with the clinicians who treat you.',
     category: 'Wellbeing',
+    updated: REVISED,
   },
   {
     slug: 'the-impact-of-trauma-on-mental-health',
@@ -250,6 +290,7 @@ export const POSTS: PostMeta[] = [
     description:
       'How trauma can affect your mood, sleep, and relationships, common signs of PTSD, and how psychiatric care can support you as you heal and move forward.',
     category: 'Wellbeing',
+    updated: REVISED,
   },
   {
     slug: 'the-importance-of-follow-up-care-in-mental-health-treatment',
@@ -257,6 +298,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Why regular follow-up visits matter in mental health care, what happens at a follow-up, and how check-ins keep your treatment plan on track.',
     category: 'Getting Care',
+    updated: REVISED,
   },
   {
     slug: 'the-importance-of-honest-communication-with-your-provider',
@@ -264,6 +306,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Why open, honest conversations with your provider matter, what to share at your visits, and how to bring up side effects or progress that feels slow.',
     category: 'Getting Care',
+    updated: REVISED,
   },
   {
     slug: 'the-role-of-a-psychiatric-nurse-practitioner-in-your-care',
@@ -271,15 +314,7 @@ export const POSTS: PostMeta[] = [
     description:
       'What a psychiatric nurse practitioner does, from evaluation and diagnosis to medication management and supportive therapy within your visits.',
     category: 'Getting Care',
-  },
-  {
-    // Autobuilt topic outside the practice's services (FACTS.md section 11). Listed under a neutral
-    // title until it is rewritten or removed.
-    slug: 'the-role-of-nutrition-in-mental-health',
-    title: 'Everyday Eating Habits and Your Mood',
-    description:
-      'How regular meals and everyday eating habits can relate to your mood and energy, and why changes in appetite are worth mentioning at your visits.',
-    category: 'Wellbeing',
+    updated: REVISED,
   },
   {
     slug: 'the-role-of-sleep-in-mental-health-and-wellness',
@@ -287,6 +322,7 @@ export const POSTS: PostMeta[] = [
     description:
       'How sleep and mental health affect each other, signs your sleep may be part of the problem, and practical habits that can help you rest better.',
     category: 'Wellbeing',
+    updated: REVISED,
   },
   {
     slug: 'understanding-adjustment-disorders-when-life-changes-overwhe',
@@ -294,6 +330,7 @@ export const POSTS: PostMeta[] = [
     description:
       'What an adjustment disorder is, how it differs from ordinary stress after a big change, and how psychiatric care can help you cope and move forward.',
     category: 'Wellbeing',
+    updated: REVISED,
   },
   {
     slug: 'understanding-dual-diagnosis-mental-health-and-substance-use',
@@ -301,6 +338,7 @@ export const POSTS: PostMeta[] = [
     description:
       'What a dual diagnosis means, how mental health conditions and substance use affect each other, and why it matters to address both at the same time.',
     category: 'Substance Use',
+    updated: REVISED,
   },
   {
     slug: 'understanding-medication-management-in-psychiatric-care',
@@ -308,6 +346,7 @@ export const POSTS: PostMeta[] = [
     description:
       'How psychiatric medication management works, from your first evaluation to follow-up visits, and what to expect as your treatment is adjusted.',
     category: 'Medication',
+    updated: REVISED,
   },
   {
     slug: 'understanding-mood-swings-when-are-they-a-concern',
@@ -315,6 +354,7 @@ export const POSTS: PostMeta[] = [
     description:
       'The difference between ordinary ups and downs and mood changes worth a closer look, including signs that may point to depression or bipolar disorder.',
     category: 'Depression',
+    updated: REVISED,
   },
   {
     slug: 'understanding-recovery-what-it-means-in-mental-health',
@@ -322,22 +362,7 @@ export const POSTS: PostMeta[] = [
     description:
       'What recovery can mean in mental health, why it rarely follows a straight line, and how to recognize the progress you are making along the way.',
     category: 'Getting Care',
-  },
-  {
-    slug: 'understanding-the-mind-body-connection-in-mental-health-trea',
-    title: 'Understanding the Mind-Body Connection in Mental Health Treatment',
-    description:
-      'How your physical and mental health affect each other, from stress and sleep to the physical symptoms of anxiety, and how to talk about both at visits.',
-    category: 'Wellbeing',
-  },
-  {
-    // The autobuilt title uses framing the practice does not use (FACTS.md section 11). Listed under a
-    // neutral title until it is rewritten or removed.
-    slug: 'what-is-integrative-mental-health-care',
-    title: 'What Is Whole-Person Mental Health Care?',
-    description:
-      'What whole-person mental health care means in practice: looking at your symptoms, history, sleep, stress, and goals together when planning treatment.',
-    category: 'Getting Care',
+    updated: REVISED,
   },
   {
     slug: 'what-makes-a-treatment-plan-personalized',
@@ -345,6 +370,7 @@ export const POSTS: PostMeta[] = [
     description:
       'What goes into a personalized mental health treatment plan, from your history and symptoms to your preferences, and how the plan changes over time.',
     category: 'Getting Care',
+    updated: REVISED,
   },
   {
     slug: 'what-to-expect-during-your-first-psychiatric-evaluation',
@@ -352,6 +378,7 @@ export const POSTS: PostMeta[] = [
     description:
       'What happens at a first psychiatric evaluation, the questions you may be asked, and how to prepare so you can get the most out of your first visit.',
     category: 'Getting Care',
+    updated: REVISED,
   },
   {
     slug: 'when-to-consider-changing-your-mental-health-treatment',
@@ -359,6 +386,7 @@ export const POSTS: PostMeta[] = [
     description:
       'Signs it may be time to revisit your mental health treatment plan, what to discuss with your provider, and steps to take before making changes.',
     category: 'Medication',
+    updated: REVISED,
   },
   {
     slug: 'when-worry-becomes-problematic-recognizing-generalized-anxie',
@@ -366,12 +394,24 @@ export const POSTS: PostMeta[] = [
     description:
       'How to tell everyday worry from generalized anxiety disorder (GAD), the common symptoms, and when to talk with a professional about ongoing anxiety.',
     category: 'Anxiety',
+    updated: REVISED,
   },
 ]
 
 /** Route for a post. */
 export function postHref(slug: string): string {
   return `/blog/${slug}`
+}
+
+/**
+ * "Keep exploring" cards for service and condition pages. Titles come from POSTS so a card always
+ * matches its post; a slug that is no longer in POSTS is skipped rather than linking to a 404.
+ */
+export function postLinks(...slugs: string[]): { href: string; label: string; eyebrow: string; body: string }[] {
+  return slugs.flatMap((slug) => {
+    const post = POSTS.find((p) => p.slug === slug)
+    return post ? [{ href: postHref(post.slug), label: post.title, eyebrow: 'Blog', body: post.description }] : []
+  })
 }
 
 /** A post's metadata by slug. Throws at build time if the slug is not in POSTS. */

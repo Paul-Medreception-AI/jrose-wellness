@@ -14,6 +14,7 @@ import {
   SITE_URL,
 } from '@/lib/site'
 import { PAGE_IMAGES } from '@/lib/images'
+import { postLinks } from '@/lib/posts'
 
 // Service pages for a telehealth psychiatry practice (Jessica Logel, MSN, PMHNP-BC, FNP; patients
 // in Connecticut). Every practice fact comes from lib/site.ts; copy follows FACTS.md (PUBLISH items
@@ -207,7 +208,7 @@ export const SERVICES: ServicePageContent[] = [
       {
         heading: 'Length and cost',
         body: [
-          `The self-pay initial evaluation is ${PRICING.initialEvaluation.price}. ${PRICING.slidingScale}`,
+          `The self-pay initial evaluation is ${PRICING.initialEvaluation.price}.`,
           `${BOOKING.alma.note} ${INSURANCE_COST}`,
           PRICING.goodFaithEstimate,
         ],
@@ -224,7 +225,7 @@ export const SERVICES: ServicePageContent[] = [
       { q: 'How long is the first visit?', a: BOOKING.alma.note },
       {
         q: 'How much does the evaluation cost?',
-        a: `The self-pay initial evaluation is ${PRICING.initialEvaluation.price}. ${INSURANCE_COST} ${PRICING.slidingScale}`,
+        a: `The self-pay initial evaluation is ${PRICING.initialEvaluation.price}. ${INSURANCE_COST}`,
       },
       { q: 'What ages do you see?', a: `${AGES.short}.` },
       FAQ.virtualOnly,
@@ -252,7 +253,7 @@ export const SERVICES: ServicePageContent[] = [
         body: 'Booking through Alma or Headway, and self-pay rates.',
       },
     ],
-    ctaHeading: 'Ready to schedule your evaluation?',
+    ctaHeading: 'Ready for your first visit?',
     ctaBody: 'Book with insurance through Alma or Headway, or request a self-pay visit. Every visit is by secure video.',
   },
 
@@ -332,7 +333,7 @@ export const SERVICES: ServicePageContent[] = [
       {
         heading: 'Visit cost',
         body: [
-          `Self-pay follow-up and medication management visits are ${PRICING.followUp.price}. ${PRICING.slidingScale}`,
+          `Self-pay follow-up and medication management visits are ${PRICING.followUp.price}.`,
           INSURANCE_COST,
         ],
       },
@@ -602,6 +603,11 @@ export const SERVICES: ServicePageContent[] = [
         eyebrow: 'New patients',
         body: 'What to expect and how to get started.',
       },
+      ...postLinks(
+        'the-benefits-of-telehealth-for-mental-health-care',
+        'how-to-prepare-for-your-first-telehealth-appointment',
+        'the-benefits-of-continuity-of-care-in-mental-health-treatmen',
+      ),
     ],
     ctaHeading: 'Ready to meet by video?',
     ctaBody: 'Book with insurance through Alma or Headway, or request a self-pay visit.',
@@ -681,7 +687,7 @@ export const SERVICES: ServicePageContent[] = [
       {
         heading: 'Cost',
         body: [
-          `An ADHD evaluation is an initial evaluation: ${PRICING.initialEvaluation.price} self-pay, with follow-up and medication management visits at ${PRICING.followUp.price}. ${PRICING.slidingScale}`,
+          `An ADHD evaluation is an initial evaluation: ${PRICING.initialEvaluation.price} self-pay, with follow-up and medication management visits at ${PRICING.followUp.price}.`,
           INSURANCE_COST,
         ],
       },

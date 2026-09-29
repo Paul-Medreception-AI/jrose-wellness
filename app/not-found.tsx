@@ -30,7 +30,9 @@ export default function NotFound() {
         className="pointer-events-none absolute -right-16 -top-10 -z-10 h-auto w-64 opacity-20 sm:w-80"
       />
       <Container size="medium" className="text-center">
-        <p className="font-cormorant text-8xl font-semibold leading-none text-peach sm:text-9xl">404</p>
+        <p aria-hidden="true" className="font-cormorant text-8xl font-semibold leading-none text-peach sm:text-9xl">
+          404
+        </p>
         <h1 className="mt-4 font-cormorant text-4xl font-semibold text-primary sm:text-5xl">We couldn&rsquo;t find that page</h1>
         <p className="mx-auto mt-4 max-w-xl text-lg leading-relaxed text-muted">
           The link may be old or the page may have moved. These are good places to pick up from.

@@ -38,7 +38,7 @@ function practiceFaq(phrase: string): FAQ {
   return { q: f.q, a: f.a }
 }
 
-const SELF_PAY = `You can also pay directly: ${PRICING.initialEvaluation.price} for the initial evaluation and ${PRICING.followUp.price} for follow-up and medication management. ${PRICING.slidingScale}`
+const SELF_PAY = `You can also pay directly: ${PRICING.initialEvaluation.price} for the initial evaluation and ${PRICING.followUp.price} for follow-up and medication management.`
 
 const INSURANCE_FAQ: FAQ = {
   q: 'Do you take insurance?',
@@ -77,7 +77,7 @@ export const AUDIENCES: ServicePageContent[] = [
     metaTitle: 'Teen Psychiatric Care Online in CT',
     headline: 'Telehealth Psychiatric Care for Teens in Connecticut',
     heroEyebrow: `Adolescents ${AGES.minimum} and older`,
-    heroSubhead: `Psychiatric evaluation, medication management, and supportive therapy by secure video, for adolescents ${AGES.minimum} and older, with a parent or guardian involved from the first booking.`,
+    heroSubhead: `Psychiatric evaluation, medication management, and supportive therapy by secure video, for adolescents ${AGES.minimum} and older.`,
     description:
       'Telehealth psychiatric care for teens 15 and older in Connecticut: evaluations, medication management, and support for anxiety, depression, ADHD, and stress.',
     heroImage: PAGE_IMAGES['/who-we-help/teens'],
@@ -111,8 +111,8 @@ export const AUDIENCES: ServicePageContent[] = [
       'You know your teen well, and your help matters, especially at the start. Here is what to know before you book.',
     approach: [
       {
-        title: 'Booking and consent',
-        body: 'For patients under 18, a parent or guardian helps book the first visit and gives consent for care.',
+        title: 'Booking for a teen',
+        body: `Booking for a teen aged ${AGES.minimum} to 17? Call ${CONTACT.phone} and we will walk you through how a parent or guardian takes part in booking and consent.`,
         iconPath: ICON.calendar,
       },
       {
@@ -127,7 +127,7 @@ export const AUDIENCES: ServicePageContent[] = [
       },
       {
         title: 'Questions first?',
-        body: `Not sure whether this is the right fit, or how consent and privacy work for teens? Call ${CONTACT.phone} before you book and we will walk you through it.`,
+        body: `Not sure whether this is the right fit for your teen? Call ${CONTACT.phone} before you book and we will talk it through with you.`,
         iconPath: ICON.chat,
       },
     ],
@@ -138,8 +138,8 @@ export const AUDIENCES: ServicePageContent[] = [
         body: 'Use insurance by booking through Alma or Headway, or request a self-pay appointment directly with the practice.',
       },
       {
-        title: 'Complete booking and consent',
-        body: 'A parent or guardian completes booking and consent for patients under 18.',
+        title: 'Talk with us first',
+        body: `For patients under 18, call ${CONTACT.phone} before booking so we can go over how a parent or guardian takes part.`,
       },
       {
         title: 'Meet Jessica by video',
@@ -168,7 +168,7 @@ export const AUDIENCES: ServicePageContent[] = [
       },
       {
         q: 'Does a parent or guardian need to be involved?',
-        a: `Yes, for patients under 18. A parent or guardian helps book the first visit and gives consent for care. ${AGES.smsNote}`,
+        a: `For patients under 18, call ${CONTACT.phone} before you book and we will walk you through how a parent or guardian takes part. ${AGES.smsNote}`,
       },
       practiceFaq("don't want to take medication"),
       practiceFaq('controlled substances'),

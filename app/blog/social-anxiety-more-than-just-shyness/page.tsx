@@ -1,311 +1,341 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
+import PageHero from '@/components/site/PageHero'
+import CrisisNotice from '@/components/site/CrisisNotice'
+import JsonLd from '@/components/site/JsonLd'
+import { BUTTON } from '@/components/site/SmartLink'
+import { ArrowRight, CheckIcon, PhoneIcon } from '@/components/site/icons'
+import { AGES, CONTACT, NAV_CTA, PRACTICE_FAQS, PROVIDER, SITE_NAME, SITE_URL, withBrand } from '@/lib/site'
+import { imageFor } from '@/lib/images'
+import { getPost, postHref, postRobots } from '@/lib/posts'
+
+// Autobuilt post, rewritten against FACTS.md: prevalence and income statistics removed, evidence and
+// "gold standard" claims removed, the alternative-approaches section reframed as coping skills and
+// daily habits, and treatment tied to what the practice offers.
+
+const SLUG = 'social-anxiety-more-than-just-shyness'
+const post = getPost(SLUG)
+const PATH = postHref(SLUG)
+const TITLE = withBrand(post.title)
+const DESCRIPTION =
+  'The difference between shyness and social anxiety, the signs to watch for, and how treatment can help you feel more at ease around people at school and at work.'
+const IMAGE = imageFor('/services/supportive-therapy')
+
+// PRACTICE_FAQS: [2] therapy and medication, [4] how medication is chosen.
+const THERAPY_AND_MEDICATION = PRACTICE_FAQS[2].a
+const HOW_MEDICATION_IS_CHOSEN = PRACTICE_FAQS[4].a
 
 export const metadata: Metadata = {
-  title: 'Social Anxiety: More Than Just Shyness | JROSE WELLNESS',
-  description: 'Social anxiety disorder affects millions. Learn the difference between shyness and clinical anxiety, recognize symptoms, and discover evidence-based treatment approaches.',
-  alternates: { canonical: '/blog/social-anxiety-more-than-just-shyness' },
+  title: TITLE,
+  // Noindex until Jessica reviews this autobuilt post (INDEXED_POST_SLUGS in lib/posts.ts).
+  ...postRobots(SLUG),
+  description: DESCRIPTION,
+  alternates: { canonical: PATH },
   openGraph: {
-    title: 'Social Anxiety: More Than Just Shyness | JROSE WELLNESS',
-    description: 'Social anxiety disorder affects millions. Learn the difference between shyness and clinical anxiety, recognize symptoms, and discover evidence-based treatment approaches.',
-    url: 'https://jrosewellness.com/blog/social-anxiety-more-than-just-shyness',
-    siteName: 'JROSE WELLNESS',
-    type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }]
+    title: TITLE,
+    description: DESCRIPTION,
+    url: PATH,
+    siteName: SITE_NAME,
+    type: 'article',
+    images: [{ url: IMAGE.src, alt: IMAGE.alt }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Social Anxiety: More Than Just Shyness | JROSE WELLNESS',
-    description: 'Social anxiety disorder affects millions. Learn the difference between shyness and clinical anxiety, recognize symptoms, and discover evidence-based treatment approaches.',
-    images: ['/og-image.png']
-  }
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [IMAGE.src] },
 }
 
-export default function SocialAnxietyArticle() {
+const RELATED = [
+  {
+    href: '/conditions/anxiety',
+    eyebrow: 'Conditions',
+    title: 'Anxiety & Panic',
+    body: 'How Jessica evaluates and treats ongoing worry, panic attacks, and social anxiety by secure video.',
+  },
+  {
+    href: '/who-we-help/teens',
+    eyebrow: 'Who we help',
+    title: 'Teens (15+)',
+    body: 'Psychiatric care for adolescents 15 and older, from the privacy of home.',
+  },
+  {
+    href: '/services/supportive-therapy',
+    eyebrow: 'Services',
+    title: 'Supportive Therapy',
+    body: 'Coping skills and support built into your visits with Jessica.',
+  },
+]
+
+const H2 = 'mt-14 mb-4 font-cormorant text-[1.9rem] font-semibold leading-tight text-primary sm:text-[2.25rem]'
+const H3 = 'mt-8 mb-3 text-xl font-semibold leading-snug text-primary'
+const LEAD = 'font-semibold text-ink'
+const LINK = 'font-semibold text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent'
+
+function CheckList({ items }: { items: ReactNode[] }) {
   return (
-    <main className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white">
-        <div className="max-w-4xl mx-auto px-6">
-          {/* Breadcrumb */}
-          <div className="text-sm text-white/80 mb-6 text-center">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <span className="mx-2">›</span>
-            <Link href="/blog" className="hover:text-white transition-colors">Resources</Link>
-            <span className="mx-2">›</span>
-            <span>Article</span>
-          </div>
+    <ul className="mb-6 space-y-3">
+      {items.map((item, i) => (
+        <li key={i} className="flex items-start gap-3">
+          <CheckIcon className="mt-1 h-5 w-5 shrink-0 text-accent" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
 
-          {/* Category Tag */}
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 text-center">
-            Mental Health
-          </div>
+const articleSchema = {
+  '@type': 'Article',
+  headline: post.title,
+  ...(post.updated ? { dateModified: post.updated } : {}),
+  description: DESCRIPTION,
+  image: [new URL(IMAGE.src, SITE_URL).toString()],
+  inLanguage: 'en-US',
+  author: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  mainEntityOfPage: new URL(PATH, SITE_URL).toString(),
+}
 
-          {/* Title */}
-          <h1 className="font-cormorant text-5xl font-light leading-tight text-center mb-6">
-            Social Anxiety: More Than Just Shyness
-          </h1>
+export default function SocialAnxietyPost() {
+  return (
+    <main>
+      <JsonLd data={articleSchema} />
+      <PageHero
+        eyebrow={post.category}
+        title={post.title}
+        subtitle={DESCRIPTION}
+        image={IMAGE}
+        priority
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }]}
+      />
 
-          {/* Meta Information */}
-          <div className="flex flex-wrap justify-center gap-6 text-sm text-white/80">
-            <span>Published January 2025</span>
-            <span>•</span>
-            <span>7 min read</span>
-            <span>•</span>
-            <span>Reviewed by JROSE WELLNESS Team</span>
-          </div>
-        </div>
-      </section>
+      <article className="bg-white py-14 sm:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <p className="border-b border-border pb-6 text-sm text-muted">
+            By <span className="font-semibold text-ink">{SITE_NAME}</span>
+          </p>
 
-      {/* Article Body */}
-      <article className="bg-white py-20">
-        <div className="max-w-3xl mx-auto px-6">
-          {/* Opening Hook */}
-          <div className="text-[var(--color-ink)] leading-loose text-base mb-8">
-            <p className="mb-6">
-              Walking into a crowded room shouldn't feel like stepping onto a stage under harsh lights. For millions of people living with social anxiety disorder, everyday interactions—ordering coffee, making small talk, attending meetings—can trigger overwhelming fear and self-consciousness that goes far beyond ordinary nervousness or shyness.
+          <div className="mt-10 text-[1.0625rem] leading-[1.8] text-ink/85 [&>p]:mb-5">
+            <p className="text-xl leading-relaxed text-ink">
+              Walking into a crowded room should not feel like stepping onto a stage under hot lights. For people
+              living with social anxiety, everyday moments like ordering coffee, making small talk, or speaking up in a
+              meeting can bring a wave of fear and self-consciousness that goes far beyond ordinary nerves.
             </p>
-            <p className="mb-6">
-              While everyone feels shy or anxious in social situations from time to time, social anxiety disorder is a persistent mental health condition that can significantly impact quality of life, relationships, and professional opportunities. Understanding the difference between typical social discomfort and a clinical anxiety disorder is the first step toward finding effective help.
+            <p>
+              Everyone feels shy or awkward sometimes. Social anxiety disorder is different: it is a persistent mental
+              health condition that can shape your relationships, your schooling, and your work. Knowing the difference
+              is the first step toward getting the right help.
             </p>
-          </div>
 
-          {/* Section 1 */}
-          <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-            What Is Social Anxiety Disorder?
-          </h2>
-          <div className="text-[var(--color-ink)] leading-loose text-base mb-8">
-            <p className="mb-6">
-              Social anxiety disorder (SAD), also known as social phobia, is characterized by an intense, persistent fear of social situations where a person might be judged, embarrassed, or scrutinized by others. This fear is disproportionate to the actual threat posed by the situation and can lead to significant avoidance behaviors.
+            <h2 className={H2}>What is social anxiety disorder?</h2>
+            <p>
+              Social anxiety disorder, sometimes called social phobia, is an intense, lasting fear of situations where
+              you might be judged, embarrassed, or watched by others. The fear is out of proportion to the actual
+              situation, and it often leads people to avoid those situations altogether.
             </p>
-            <p className="mb-6">
-              According to the Anxiety and Depression Association of America, approximately 15 million American adults have social anxiety disorder, making it one of the most common mental health conditions. Symptoms typically begin around age 13, though the disorder can develop at any age.
+            <p>
+              Social anxiety often starts in the teen years, though it can begin at any age. Many people with social
+              anxiety know their fear is bigger than the situation calls for, yet still feel unable to control it.
             </p>
-            <p className="mb-6">
-              Unlike shyness, which is a personality trait that may cause temporary discomfort but doesn't significantly interfere with daily life, social anxiety disorder creates substantial distress and functional impairment. People with SAD often recognize their fears are excessive, yet feel powerless to control them.
+            <p>
+              Shyness is a personality trait. It may make a first meeting uncomfortable, but it does not usually get in
+              the way of daily life. Social anxiety causes real distress and makes it harder to do the things you want
+              and need to do.
             </p>
-          </div>
 
-          {/* Section 2 */}
-          <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-            Recognizing the Signs and Symptoms
-          </h2>
-          <div className="text-[var(--color-ink)] leading-loose text-base mb-8">
-            <p className="mb-6">
-              Social anxiety disorder manifests through emotional, physical, and behavioral symptoms that occur before, during, and after social interactions:
+            <h2 className={H2}>Recognizing the signs</h2>
+            <p>Social anxiety can show up before, during, and after social situations:</p>
+            <CheckList
+              items={[
+                <>
+                  <strong className={LEAD}>Emotional:</strong> intense fear of being judged, worry about embarrassing yourself or offending
+                  someone, dreading an event for days or weeks ahead.
+                </>,
+                <>
+                  <strong className={LEAD}>Physical:</strong> racing heart, sweating, trembling, nausea, trouble breathing, dizziness,
+                  muscle tension, blushing.
+                </>,
+                <>
+                  <strong className={LEAD}>Behavioral:</strong> avoiding social situations, needing someone with you, over-preparing or
+                  rehearsing, using alcohol or other substances to get through.
+                </>,
+                <>
+                  <strong className={LEAD}>Thinking patterns:</strong> harsh self-talk, expecting the worst, replaying conversations over and
+                  over afterward.
+                </>,
+              ]}
+            />
+            <p>
+              These feelings can come up when speaking in public, eating in front of others, meeting new people, making
+              phone calls, or being the center of attention. For some people, the anxiety is tied to performing. For
+              others, it shows up in almost every social setting.
             </p>
-            <div className="space-y-4 my-6">
-              <div className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Emotional symptoms:</strong> Intense fear of judgment, worry about embarrassment, fear of offending others, dread of upcoming social events days or weeks in advance</span>
-              </div>
-              <div className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Physical symptoms:</strong> Rapid heartbeat, sweating, trembling, nausea, difficulty breathing, dizziness, muscle tension, blushing</span>
-              </div>
-              <div className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Behavioral symptoms:</strong> Avoiding social situations, needing a companion in social settings, excessive preparation or rehearsing, substance use to cope with anxiety</span>
-              </div>
-              <div className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Cognitive symptoms:</strong> Negative self-talk, catastrophic thinking, excessive rumination after social interactions, harsh self-criticism</span>
-              </div>
-            </div>
-            <p className="mb-6">
-              These symptoms can occur in a wide range of situations, including speaking in public, eating in front of others, meeting new people, making phone calls, or being the center of attention. For some, the anxiety is specific to certain situations (performance-only type), while others experience anxiety across virtually all social interactions (generalized type).
-            </p>
-          </div>
 
-          {/* Pull Quote */}
-          <blockquote className="bg-[var(--color-light)] border-l-4 border-[var(--color-primary)] p-6 my-8 text-[var(--color-ink)] italic text-xl font-cormorant">
-            "Social anxiety disorder is not a character flaw or weakness—it's a treatable medical condition with well-established, evidence-based interventions."
-          </blockquote>
-
-          {/* Section 3 */}
-          <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-            The Impact on Daily Life
-          </h2>
-          <div className="text-[var(--color-ink)] leading-loose text-base mb-8">
-            <p className="mb-6">
-              The effects of untreated social anxiety disorder extend far beyond momentary discomfort. Research shows that people with SAD face significant challenges across multiple life domains:
-            </p>
-            <p className="mb-6">
-              <strong>Academic and professional impacts:</strong> Students with social anxiety may avoid class participation, group projects, or presentations, which can affect grades and learning. In the workplace, SAD can limit career advancement opportunities, as networking, meetings, and public speaking are often essential for professional growth. Studies indicate that people with social anxiety disorder have lower educational attainment and income levels compared to those without the condition.
-            </p>
-            <p className="mb-6">
-              <strong>Relationship challenges:</strong> Social anxiety can make it difficult to form and maintain friendships and romantic relationships. The fear of rejection or negative evaluation may lead to social isolation, which can contribute to loneliness and depression. Family relationships may also be strained, particularly if loved ones misinterpret avoidance behaviors as disinterest or rudeness.
-            </p>
-            <p className="mb-6">
-              <strong>Mental and physical health consequences:</strong> Social anxiety disorder commonly co-occurs with other mental health conditions, including depression, other anxiety disorders, and substance use disorders. The chronic stress associated with persistent anxiety can also contribute to physical health problems, including cardiovascular issues, weakened immune function, and gastrointestinal difficulties.
-            </p>
-          </div>
-
-          {/* Section 4 */}
-          <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-            Evidence-Based Treatment Approaches
-          </h2>
-          <div className="text-[var(--color-ink)] leading-loose text-base mb-8">
-            <p className="mb-6">
-              The good news is that social anxiety disorder is highly treatable. Multiple evidence-based approaches have demonstrated significant effectiveness:
-            </p>
-            <p className="mb-6">
-              <strong>Cognitive Behavioral Therapy (CBT):</strong> CBT is considered the gold-standard psychotherapy for social anxiety. This structured approach helps individuals identify and challenge negative thought patterns, develop more realistic interpretations of social situations, and gradually face feared scenarios through exposure exercises. Research consistently shows that CBT produces substantial improvements in social anxiety symptoms, with benefits that persist long after treatment ends.
-            </p>
-            <p className="mb-6">
-              <strong>Acceptance and Commitment Therapy (ACT):</strong> ACT focuses on accepting anxious thoughts and feelings rather than fighting them, while committing to actions aligned with personal values. This approach can be particularly helpful for individuals who have become trapped in cycles of avoidance.
-            </p>
-            <p className="mb-6">
-              <strong>Medication:</strong> Several types of medications can effectively reduce social anxiety symptoms. Selective serotonin reuptake inhibitors (SSRIs) are typically the first-line pharmacological treatment. Beta-blockers may be prescribed for performance-only social anxiety to manage physical symptoms. Medication is often most effective when combined with psychotherapy.
-            </p>
-            <p className="mb-6">
-              <strong>Integrative approaches:</strong> Complementary strategies including mindfulness meditation, breathing exercises, progressive muscle relaxation, and lifestyle modifications (regular exercise, adequate sleep, nutrition) can support conventional treatments and provide additional symptom relief.
-            </p>
-          </div>
-
-          {/* Section 5 */}
-          <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-            Practical Steps You Can Take
-          </h2>
-          <div className="text-[var(--color-ink)] leading-loose text-base mb-8">
-            <p className="mb-6">
-              While professional treatment is important for social anxiety disorder, there are strategies you can begin implementing today:
-            </p>
-            <div className="space-y-4 my-6">
-              <div className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Challenge catastrophic thinking:</strong> When you notice anxious thoughts, ask yourself for evidence. What's the worst that could realistically happen? What would you tell a friend in this situation?</span>
-              </div>
-              <div className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Start small with exposure:</strong> Gradually face feared situations, beginning with less anxiety-provoking scenarios and building up to more challenging ones. Celebrate small victories.</span>
-              </div>
-              <div className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Practice self-compassion:</strong> Treat yourself with the same kindness you'd offer a good friend. Remember that everyone experiences social awkwardness at times.</span>
-              </div>
-              <div className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Develop a grounding routine:</strong> Use breathing exercises, mindfulness techniques, or physical grounding strategies (like the 5-4-3-2-1 sensory technique) to manage anxiety in the moment.</span>
-              </div>
-              <div className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Limit safety behaviors:</strong> While it's tempting to rely on coping mechanisms like alcohol, over-preparing, or always bringing a companion, these can actually reinforce anxiety over time.</span>
-              </div>
-              <div className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Focus outward:</strong> In social situations, shift your attention from self-monitoring to genuine curiosity about others. Ask questions, listen actively, and remember that most people are focused on themselves, not scrutinizing you.</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 6 */}
-          <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-            When to Seek Professional Help
-          </h2>
-          <div className="text-[var(--color-ink)] leading-loose text-base mb-8">
-            <p className="mb-6">
-              If social anxiety is interfering with your ability to work, attend school, maintain relationships, or engage in activities you value, it's time to seek professional support. You don't need to wait until anxiety becomes severe or completely debilitating—early intervention often leads to better outcomes.
-            </p>
-            <p className="mb-6">
-              A healthcare provider experienced in integrative wellness can help you develop a comprehensive treatment plan tailored to your specific needs, symptoms, and goals. This might include psychotherapy, medication, lifestyle modifications, or a combination of approaches.
-            </p>
-            <p className="mb-6">
-              Remember that seeking help is a sign of strength, not weakness. Social anxiety disorder is a legitimate medical condition—one that responds well to treatment. With the right support and strategies, you can reduce anxiety symptoms, increase confidence in social situations, and reclaim opportunities that anxiety has been holding back.
-            </p>
-            <p className="mb-6">
-              You deserve to move through the world without constant fear of judgment. If you're ready to take the first step toward feeling more comfortable in your own skin and confident in social situations, reach out to a qualified provider who can guide you on that journey.
-            </p>
-          </div>
-        </div>
-
-        {/* Author Box */}
-        <div className="bg-[var(--color-cream)] rounded-2xl p-8 max-w-3xl mx-auto my-12 px-6">
-          <div className="flex gap-6 items-start">
-            <div className="bg-[var(--color-light)] rounded-full w-16 h-16 flex-shrink-0 flex items-center justify-center">
-              <svg className="w-8 h-8 text-[var(--color-primary)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-              </svg>
-            </div>
-            <div>
-              <div className="font-semibold text-[var(--color-ink)] mb-1">Reviewed by JROSE WELLNESS</div>
-              <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-                Our team is committed to providing evidence-based information and compassionate support for mental health and integrative wellness. This content is for educational purposes and does not replace professional medical advice.
+            <div className="my-10 rounded-r-2xl border-l-4 border-accent bg-light/70 px-6 py-5">
+              <p className="font-cormorant text-[1.4rem] leading-snug text-primary">
+                Social anxiety is not a character flaw or a weakness. It is a treatable mental health condition.
               </p>
             </div>
+
+            <h2 className={H2}>How it can affect daily life</h2>
+            <p>
+              <strong className={LEAD}>School and work:</strong> students may avoid speaking in class, group projects, or presentations. At
+              work, meetings, networking, and speaking up can feel out of reach, which can hold you back from
+              opportunities you want.
+            </p>
+            <p>
+              <strong className={LEAD}>Relationships:</strong> fear of rejection can make it hard to make friends, date, or stay close to
+              people. Over time, this can lead to loneliness and low mood. Loved ones may mistake avoidance for a lack
+              of interest.
+            </p>
+            <p>
+              <strong className={LEAD}>Overall health:</strong> social anxiety often shows up alongside depression, other anxiety
+              conditions, or heavier drinking. The ongoing stress can also take a toll on sleep and energy.
+            </p>
+
+            <h2 className={H2}>Treatment options</h2>
+            <p>Social anxiety is treatable, and treatment is tailored to you.</p>
+            <h3 className={H3}>Cognitive behavioral techniques</h3>
+            <p>
+              Cognitive behavioral therapy (CBT) helps you spot and question the thoughts that fuel social fear, see
+              social situations more realistically, and gradually face the situations you have been avoiding.
+            </p>
+            <p>
+              Jessica uses cognitive behavioral techniques, mindfulness, and practical coping strategies within your
+              visits. In her words: &ldquo;{THERAPY_AND_MEDICATION}&rdquo;
+            </p>
+            <h3 className={H3}>Medication</h3>
+            <p>
+              Medication can reduce social anxiety for some people. Antidepressants such as SSRIs are commonly used.
+              For anxiety tied mainly to performing, such as public speaking, a prescriber may discuss a medication
+              taken beforehand to calm physical symptoms like a racing heart or shaking.
+            </p>
+            <p>
+              How Jessica approaches it: &ldquo;{HOW_MEDICATION_IS_CHOSEN}&rdquo; Medication is always optional. Learn
+              more about{' '}
+              <Link href="/services/medication-management" className={LINK}>
+                medication management
+              </Link>
+              .
+            </p>
+            <h3 className={H3}>Coping skills and daily habits</h3>
+            <p>
+              Mindfulness, slow breathing, and relaxing your muscles one group at a time can take the edge off anxiety
+              in the moment. Regular exercise, steady sleep, and keeping caffeine and alcohol in check can support the
+              rest of your treatment.
+            </p>
+
+            <h2 className={H2}>Practical steps you can take</h2>
+            <p>Alongside professional care, you can start practicing these today:</p>
+            <CheckList
+              items={[
+                <>
+                  <strong className={LEAD}>Question the worst-case story:</strong> when an anxious thought shows up, ask what the evidence is
+                  and what you would tell a friend in the same spot.
+                </>,
+                <>
+                  <strong className={LEAD}>Start small:</strong> face easier situations first and build up to harder ones. Notice each small
+                  win.
+                </>,
+                <>
+                  <strong className={LEAD}>Be kind to yourself:</strong> everyone has awkward moments. They matter much less to other people
+                  than they feel like they do to you.
+                </>,
+                <>
+                  <strong className={LEAD}>Have a grounding routine:</strong> slow breathing or the 5-4-3-2-1 senses exercise can help you
+                  settle in the moment.
+                </>,
+                <>
+                  <strong className={LEAD}>Ease off safety behaviors:</strong> drinking to cope, over-preparing, or always bringing someone
+                  along can feel helpful but keep anxiety going over time.
+                </>,
+                <>
+                  <strong className={LEAD}>Turn your attention outward:</strong> get curious about the other person. Ask questions and
+                  listen. Most people are thinking about themselves, not judging you.
+                </>,
+              ]}
+            />
+
+            <h2 className={H2}>When to seek professional help</h2>
+            <p>
+              If social anxiety is getting in the way of work, school, relationships, or things you care about, it is a
+              good time to reach out. You do not have to wait until it becomes severe.
+            </p>
+            <p>
+              For many people with social anxiety, a video visit from home feels easier than walking into an office. At{' '}
+              {SITE_NAME}, all visits are by{' '}
+              <Link href="/services/telepsychiatry" className={LINK}>
+                secure video
+              </Link>
+              . {PROVIDER.byline} sees {AGES.short.toLowerCase()} in {CONTACT.state}, and care starts with a{' '}
+              <Link href="/services/psychiatric-evaluation" className={LINK}>
+                psychiatric evaluation
+              </Link>{' '}
+              that looks at your symptoms, history, and goals. Read more about{' '}
+              <Link href="/conditions/anxiety" className={LINK}>
+                anxiety care
+              </Link>
+              .
+            </p>
+            <p>
+              Asking for help is a sign of strength. You deserve to move through the world without constant fear of
+              judgment.
+            </p>
           </div>
+
+          <aside className="mt-14 rounded-2xl bg-cream p-6 sm:p-8">
+            <p className="font-semibold text-ink">About this article</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              This article is general information from {SITE_NAME}, not medical advice for your situation. Talk with
+              your own clinician before starting, stopping, or changing any treatment.
+            </p>
+            <div className="mt-4">
+              <CrisisNotice variant="compact" />
+            </div>
+          </aside>
         </div>
       </article>
 
-      {/* Related Articles */}
-      <section className="bg-[var(--color-cream)] py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <h3 className="font-cormorant text-3xl text-[var(--color-ink)] mb-8 text-center">Related Resources</h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Card 1 */}
-            <Link href="/blog" className="bg-white rounded-xl p-6 hover:shadow-lg transition-shadow group">
-              <div className="w-12 h-12 bg-[var(--color-light)] rounded-lg flex items-center justify-center mb-4 group-hover:bg-[var(--color-primary)] transition-colors">
-                <svg className="w-6 h-6 text-[var(--color-primary)] group-hover:text-white transition-colors" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                </svg>
-              </div>
-              <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">Mental Health Articles</h4>
-              <p className="text-[var(--color-muted)] text-sm">Explore more evidence-based resources on anxiety, stress management, and emotional wellness.</p>
-            </Link>
-
-            {/* Card 2 */}
-            <Link href="/blog" className="bg-white rounded-xl p-6 hover:shadow-lg transition-shadow group">
-              <div className="w-12 h-12 bg-[var(--color-light)] rounded-lg flex items-center justify-center mb-4 group-hover:bg-[var(--color-primary)] transition-colors">
-                <svg className="w-6 h-6 text-[var(--color-primary)] group-hover:text-white transition-colors" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
-                </svg>
-              </div>
-              <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">Wellness Education</h4>
-              <p className="text-[var(--color-muted)] text-sm">Learn about integrative approaches to mental and physical health optimization.</p>
-            </Link>
-
-            {/* Card 3 */}
-            <Link href="/contact" className="bg-white rounded-xl p-6 hover:shadow-lg transition-shadow group">
-              <div className="w-12 h-12 bg-[var(--color-light)] rounded-lg flex items-center justify-center mb-4 group-hover:bg-[var(--color-primary)] transition-colors">
-                <svg className="w-6 h-6 text-[var(--color-primary)] group-hover:text-white transition-colors" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                </svg>
-              </div>
-              <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">Schedule a Consultation</h4>
-              <p className="text-[var(--color-muted)] text-sm">Connect with our team to discuss personalized treatment options for anxiety and wellness.</p>
-            </Link>
+      <section className="bg-cream py-16 sm:py-20" aria-labelledby="related-heading">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 id="related-heading" className="text-center font-cormorant text-3xl font-semibold text-primary sm:text-4xl">
+            Related resources
+          </h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {RELATED.map((r) => (
+              <Link
+                key={r.href}
+                href={r.href}
+                className="group flex flex-col rounded-2xl border border-border bg-white p-7 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <span className="text-xs font-semibold uppercase tracking-wider text-accent">{r.eyebrow}</span>
+                <h3 className="mt-2 font-cormorant text-2xl font-semibold leading-snug text-ink transition-colors group-hover:text-primary">
+                  {r.title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{r.body}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent">
+                  Read more <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl font-light mb-4">Ready to Take the Next Step?</h2>
-          <p className="text-lg text-white/90 mb-8">Our team is here to help you navigate your wellness journey with compassion and expertise.</p>
-          <Link href="/contact" className="inline-block bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-white px-8 py-4 rounded-full font-medium transition-colors">
-            Schedule a Consultation
-          </Link>
+      <section className="bg-gradient-to-br from-dark to-primary py-20 text-center text-white">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <h2 className="font-cormorant text-4xl font-semibold leading-tight sm:text-5xl">Ready to take the next step?</h2>
+          <p className="mt-4 text-lg leading-relaxed text-white/90">
+            Secure video visits with {PROVIDER.byline} for {AGES.short.toLowerCase()} in {CONTACT.state}. Book with
+            insurance through Alma or Headway, or request a self-pay appointment.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link href={NAV_CTA.href} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.accent}`}>
+              {NAV_CTA.label}
+            </Link>
+            <a href={CONTACT.phoneHref} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.outlineLight}`}>
+              <PhoneIcon />
+              Call {CONTACT.phone}
+            </a>
+          </div>
         </div>
       </section>
     </main>

@@ -350,7 +350,7 @@ export default function PrivacySmsPage() {
               </Section>
 
               <Section id="cookies" title="6. Cookies & analytics">
-                <p className={P}>We use cookies and similar technologies to:</p>
+                <p className={P}>We may use cookies and similar technologies to:</p>
                 <ul className={UL}>
                   <li>Analyze site traffic and how visitors use the site</li>
                   <li>Remember your preferences</li>
@@ -359,8 +359,8 @@ export default function PrivacySmsPage() {
 
                 <h3 className={H3}>Google Analytics</h3>
                 <p className={P}>
-                  This website uses Google Analytics, a web analytics service from Google. It uses cookies to tell us
-                  which pages are visited, how visitors reach the site, and general information about the device,
+                  This website may use Google Analytics, a web analytics service from Google. When it does, it uses
+                  cookies to tell us which pages are visited, how visitors reach the site, and general information about the device,
                   browser, and approximate location (such as city or region). We use these reports only to understand
                   and improve the website. What you type into our contact form is not sent to Google Analytics. Google
                   handles this information under its own privacy policy.

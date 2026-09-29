@@ -211,7 +211,7 @@ export default function InsurancePage() {
             <div className="max-w-2xl">
               <h3 className="font-cormorant text-2xl font-semibold leading-tight text-primary">Don&rsquo;t see your plan?</h3>
               <p className="mt-2 leading-relaxed text-ink/80">
-                You can still see {FIRST_NAME} as a self-pay patient. {PRICING.slidingScale} Questions about your
+                You can still see {FIRST_NAME} as a self-pay patient. Questions about your
                 options? Call{' '}
                 <a href={CONTACT.phoneHref} className={LINK}>
                   {CONTACT.phone}
@@ -260,7 +260,7 @@ export default function InsurancePage() {
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               <p className="flex items-start gap-3 text-ink/85">
                 <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-sage" />
-                {PRICING.slidingScale}
+                Self-pay visits are booked by request. Send one online or call, and we will follow up to schedule.
               </p>
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link href={BOOKING.request.href} className={`${BUTTON.base} ${BUTTON.sm} ${BUTTON.accent}`}>
@@ -305,7 +305,7 @@ export default function InsurancePage() {
                 <ArrowRight />
               </Link>
             </div>
-            <FaqList faqs={FAQS} withSchema />
+            <FaqList faqs={FAQS} />
           </div>
         </Container>
       </section>

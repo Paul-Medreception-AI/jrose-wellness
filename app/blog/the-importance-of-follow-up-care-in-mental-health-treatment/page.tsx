@@ -1,373 +1,342 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
+import PageHero from '@/components/site/PageHero'
+import CrisisNotice from '@/components/site/CrisisNotice'
+import CrisisText from '@/components/site/CrisisText'
+import JsonLd from '@/components/site/JsonLd'
+import { BUTTON } from '@/components/site/SmartLink'
+import { ArrowRight, CheckIcon, PhoneIcon } from '@/components/site/icons'
+import { AGES, CONTACT, NAV_CTA, PRICING, PROVIDER, SITE_NAME, SITE_URL, withBrand } from '@/lib/site'
+import { imageFor } from '@/lib/images'
+import { getPost, postHref, postRobots } from '@/lib/posts'
+
+// Autobuilt post, rewritten against FACTS.md: evidence and relapse-rate claims removed, "life
+// coaching" and alternative-medicine visit types removed, the invented visit schedule (weekly to biweekly
+// to monthly, "every few months") removed, "standardized measures" and "crisis planning" as services
+// removed. Uses the practice's own description of follow-up visits (PRICING.followUp) and the
+// sliding-scale note.
+
+const SLUG = 'the-importance-of-follow-up-care-in-mental-health-treatment'
+const post = getPost(SLUG)
+const PATH = postHref(SLUG)
+const TITLE = withBrand(post.title)
+const DESCRIPTION =
+  'Why follow-up visits matter in mental health care, what happens at a follow-up, and how regular check-ins keep your treatment plan working as things change.'
+const IMAGE = imageFor('/services/medication-management')
 
 export const metadata: Metadata = {
-  title: 'The Importance of Follow-Up Care in Mental Health Treatment',
-  description: 'Discover why consistent follow-up care is essential for lasting mental health recovery. Learn about continuity of care, treatment adherence, and long-term wellness strategies.',
-  alternates: { canonical: '/blog/the-importance-of-follow-up-care-in-mental-health-treatment' },
+  title: TITLE,
+  // Noindex until Jessica reviews this autobuilt post (INDEXED_POST_SLUGS in lib/posts.ts).
+  ...postRobots(SLUG),
+  description: DESCRIPTION,
+  alternates: { canonical: PATH },
   openGraph: {
-    title: 'The Importance of Follow-Up Care in Mental Health Treatment',
-    description: 'Discover why consistent follow-up care is essential for lasting mental health recovery. Learn about continuity of care, treatment adherence, and long-term wellness strategies.',
-    url: 'https://jrosewellness.com/blog/the-importance-of-follow-up-care-in-mental-health-treatment',
-    siteName: 'JROSE WELLNESS',
-    type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    title: TITLE,
+    description: DESCRIPTION,
+    url: PATH,
+    siteName: SITE_NAME,
+    type: 'article',
+    images: [{ url: IMAGE.src, alt: IMAGE.alt }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'The Importance of Follow-Up Care in Mental Health Treatment',
-    description: 'Discover why consistent follow-up care is essential for lasting mental health recovery. Learn about continuity of care, treatment adherence, and long-term wellness strategies.',
-    images: ['/og-image.png'],
-  },
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [IMAGE.src] },
 }
 
-export default function BlogPost() {
+const RELATED = [
+  {
+    href: '/services/medication-management',
+    eyebrow: 'Services',
+    title: 'Medication Management',
+    body: 'Follow-up visits to check your progress and adjust treatment when needed.',
+  },
+  {
+    href: '/blog/the-benefits-of-continuity-of-care-in-mental-health-treatmen',
+    eyebrow: 'Blog',
+    title: 'The Benefits of Continuity of Care in Mental Health Treatment',
+    body: 'Why seeing the same provider over time makes a difference.',
+  },
+  {
+    href: '/insurance',
+    eyebrow: 'Insurance & pricing',
+    title: 'Insurance and Self-Pay',
+    body: 'Use your insurance through Alma or Headway, or pay for your visits yourself.',
+  },
+]
+
+const H2 = 'mt-14 mb-4 font-cormorant text-[1.9rem] font-semibold leading-tight text-primary sm:text-[2.25rem]'
+const H3 = 'mt-8 mb-3 text-xl font-semibold leading-snug text-primary'
+const LEAD = 'font-semibold text-ink'
+const LINK = 'font-semibold text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent'
+
+function CheckList({ items }: { items: ReactNode[] }) {
   return (
-    <>
-      <article className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-sm mb-6 text-white/80">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            {' › '}
-            <Link href="/blog" className="hover:text-white transition-colors">Resources</Link>
-            {' › Article'}
+    <ul className="mb-6 space-y-3">
+      {items.map((item, i) => (
+        <li key={i} className="flex items-start gap-3">
+          <CheckIcon className="mt-1 h-5 w-5 shrink-0 text-accent" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+const articleSchema = {
+  '@type': 'Article',
+  headline: post.title,
+  ...(post.updated ? { dateModified: post.updated } : {}),
+  description: DESCRIPTION,
+  image: [new URL(IMAGE.src, SITE_URL).toString()],
+  inLanguage: 'en-US',
+  author: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  mainEntityOfPage: new URL(PATH, SITE_URL).toString(),
+}
+
+export default function FollowUpCarePost() {
+  return (
+    <main>
+      <JsonLd data={articleSchema} />
+      <PageHero
+        eyebrow={post.category}
+        title={post.title}
+        subtitle={DESCRIPTION}
+        image={IMAGE}
+        priority
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }]}
+      />
+
+      <article className="bg-white py-14 sm:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <p className="border-b border-border pb-6 text-sm text-muted">
+            By <span className="font-semibold text-ink">{SITE_NAME}</span>
+          </p>
+
+          <div className="mt-10 text-[1.0625rem] leading-[1.8] text-ink/85 [&>p]:mb-5">
+            <p className="text-xl leading-relaxed text-ink">
+              Starting mental health treatment takes courage, and it is only the beginning. Lasting progress usually
+              depends on what happens next: steady follow-up care, ongoing support, and adjustments along the way. Yet
+              many people stop treatment early, right when the real work of settling into a plan is underway.
+            </p>
+            <p>
+              Understanding why follow-up care matters can help you stay with your plan and get more out of it,
+              whether you are managing anxiety, depression, trauma, or another concern.
+            </p>
+
+            <h2 className={H2}>What is follow-up care?</h2>
+            <p>
+              Follow-up care is the ongoing visits and check-ins that come after your first evaluation. Depending on
+              your plan, it might include medication management visits, therapy sessions, or both.
+            </p>
+            <p>
+              Mental health treatment often takes time. Medications can take a while to work, new coping skills take
+              practice, and old patterns shift gradually. Follow-up care gives that process structure.
+            </p>
+            <blockquote className="my-8 rounded-r-2xl border-l-4 border-accent bg-light/70 px-6 py-5">
+              <p className="font-cormorant text-[1.35rem] leading-snug text-primary">
+                &ldquo;{PRICING.followUp.description}&rdquo;
+              </p>
+              <cite className="mt-2 block text-sm not-italic text-muted">
+                {SITE_NAME}, on {PRICING.followUp.name.toLowerCase()} visits
+              </cite>
+            </blockquote>
+
+            <h2 className={H2}>Why follow-up care matters</h2>
+            <h3 className={H3}>Seeing whether treatment is working</h3>
+            <p>
+              Mental health treatment is not one-size-fits-all. What helps one person may not help another, and even a
+              good plan may need changes over time. Follow-up visits let you and your provider look at your progress,
+              see what is working, and adjust.
+            </p>
+            <p>
+              If you take medication for depression, for example, follow-ups are when side effects get addressed,
+              improvement gets tracked, and the dose can be adjusted if needed.
+            </p>
+            <h3 className={H3}>Catching setbacks early</h3>
+            <p>
+              Many mental health conditions come and go, or come back after a good stretch. Staying in touch with your
+              provider, even when you feel better, makes it easier to notice early warning signs and respond before a
+              setback grows.
+            </p>
+
+            <div className="my-10 rounded-r-2xl border-l-4 border-accent bg-light/70 px-6 py-5">
+              <p className="font-cormorant text-[1.4rem] leading-snug text-primary">
+                Recovery is an ongoing process, not a single destination. Follow-up care is the support that helps you
+                keep your progress.
+              </p>
+            </div>
+
+            <h3 className={H3}>Building trust</h3>
+            <p>
+              Your relationship with your provider is a big part of treatment, and it grows with steady contact. As
+              trust builds, it gets easier to talk about hard things and to be honest about what is and is not helping.
+              Stopping care suddenly means losing that connection, and maybe starting over with someone new if symptoms
+              return.
+            </p>
+
+            <h2 className={H2}>Common barriers, and ways around them</h2>
+            <CheckList
+              items={[
+                <>
+                  <strong className={LEAD}>Feeling better:</strong> when symptoms ease, it is tempting to think you are done. That is often
+                  when steady follow-up matters most. Talk with your provider before stopping any medication.
+                </>,
+                <>
+                  <strong className={LEAD}>Cost:</strong> at {SITE_NAME}, you can use insurance by booking through Alma or Headway, or pay for
+                  visits yourself. {PRICING.slidingScale} Ask whether it applies to your visits. See{' '}
+                  <Link href="/insurance" className={LINK}>
+                    insurance and pricing
+                  </Link>
+                  .
+                </>,
+                <>
+                  <strong className={LEAD}>Scheduling:</strong> video visits from home cut out the commute and the waiting room, so they are
+                  easier to fit into a busy week.
+                </>,
+                <>
+                  <strong className={LEAD}>Stigma:</strong> ongoing care can feel like a label. Taking care of your mental health is a sign of
+                  strength.
+                </>,
+                <>
+                  <strong className={LEAD}>Slow progress:</strong> change can be gradual. Small steps add up, and your provider can help you
+                  see them.
+                </>,
+              ]}
+            />
+
+            <h2 className={H2}>What a good follow-up looks like</h2>
+            <p>Good follow-up care is personal, collaborative, and focused on where you are now. It usually includes:</p>
+            <CheckList
+              items={[
+                <>
+                  <strong className={LEAD}>Checking in:</strong> how you are feeling, how you are sleeping, and how daily life is going.
+                </>,
+                <>
+                  <strong className={LEAD}>Shared goals:</strong> you and your provider set realistic goals together and update them as you
+                  go.
+                </>,
+                <>
+                  <strong className={LEAD}>Medication review:</strong> if medication is part of your care, making sure it is safe, working,
+                  and still needed.
+                </>,
+                <>
+                  <strong className={LEAD}>Skills and support:</strong> practicing coping strategies and talking through what has come up
+                  since your last visit.
+                </>,
+                <>
+                  <strong className={LEAD}>A plan for hard days:</strong> what to do between visits if symptoms get worse, including{' '}
+                  <CrisisText text="when to call or text 988 or call 911." linkClassName={LINK} />
+                </>,
+              ]}
+            />
+
+            <h2 className={H2}>How to stay engaged</h2>
+            <CheckList
+              items={[
+                <>
+                  <strong className={LEAD}>Book your next visit before you log off:</strong> it keeps the momentum going.
+                </>,
+                <>
+                  <strong className={LEAD}>Set reminders:</strong> use your phone or calendar for appointments and medications.
+                </>,
+                <>
+                  <strong className={LEAD}>Track how you feel:</strong> a few notes on mood, sleep, and good days help you and your provider
+                  see change over time.
+                </>,
+                <>
+                  <strong className={LEAD}>Speak up:</strong> if visits do not feel helpful, or something gets in the way, say so instead of
+                  quietly stopping.
+                </>,
+                <>
+                  <strong className={LEAD}>Lean on your people:</strong> ask a friend or family member to help you stay on track.
+                </>,
+                <>
+                  <strong className={LEAD}>Remember your why:</strong> when motivation dips, think back to why you started.
+                </>,
+              ]}
+            />
+
+            <h2 className={H2}>How often you meet can change</h2>
+            <p>
+              How often you have follow-up visits is not fixed. Visits are often closer together while you are starting
+              or adjusting a treatment and can spread out as things settle. The key is to make those changes together
+              with your provider, based on how you are doing, rather than stopping care abruptly because you feel
+              better.
+            </p>
+
+            <h2 className={H2}>Moving forward with confidence</h2>
+            <p>
+              Recovery is rarely a straight line. There will be setbacks, plateaus, and breakthroughs. Follow-up care
+              gives you steady support and guidance through all of it.
+            </p>
+            <p>
+              If you are in treatment now, keep your next appointment. If you have drifted away from care, reaching
+              back out is a good step. At {SITE_NAME}, every follow-up is with {PROVIDER.byline}, by secure video, for{' '}
+              {AGES.short.toLowerCase()} in {CONTACT.state}. Learn more about{' '}
+              <Link href="/services/medication-management" className={LINK}>
+                follow-up and medication management
+              </Link>
+              .
+            </p>
           </div>
-          
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-4">Mental Health</div>
-          
-          <h1 className="font-cormorant text-5xl font-light leading-tight max-w-3xl mx-auto text-center mb-8">
-            The Importance of Follow-Up Care in Mental Health Treatment
-          </h1>
-          
-          <div className="flex justify-center items-center gap-6 text-sm text-white/80">
-            <span>Published January 2025</span>
-            <span>•</span>
-            <span>7 min read</span>
-            <span>•</span>
-            <span>Reviewed by JROSE WELLNESS</span>
-          </div>
+
+          <aside className="mt-14 rounded-2xl bg-cream p-6 sm:p-8">
+            <p className="font-semibold text-ink">About this article</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              This article is general information from {SITE_NAME}, not medical advice for your situation. Talk with
+              your own clinician before starting, stopping, or changing any treatment.
+            </p>
+            <div className="mt-4">
+              <CrisisNotice variant="compact" />
+            </div>
+          </aside>
         </div>
       </article>
 
-      <section className="bg-white py-20">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-[var(--color-ink)] leading-loose text-base space-y-6">
-            <p className="text-xl leading-relaxed text-[var(--color-muted)] mb-8">
-              Starting mental health treatment is a courageous first step—but it's only the beginning of the journey. The path to lasting wellness requires consistent follow-up care, ongoing support, and a commitment to long-term healing. Yet many people discontinue treatment prematurely, missing the critical phase where real, sustainable change takes root.
-            </p>
-
-            <p>
-              Understanding why follow-up care matters can help you stay engaged with your treatment plan and achieve the mental health outcomes you deserve. Whether you're managing anxiety, depression, trauma, or another mental health concern, consistency in care is one of the most powerful predictors of success.
-            </p>
-
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              What Is Follow-Up Care in Mental Health?
-            </h2>
-
-            <p>
-              Follow-up care refers to the ongoing appointments, check-ins, and therapeutic support that occur after your initial mental health evaluation and treatment begins. This might include regular therapy sessions, medication management appointments, wellness coaching, or integrative care visits.
-            </p>
-
-            <p>
-              Unlike acute medical conditions that resolve quickly, mental health treatment often requires time for interventions to take effect, for new coping skills to develop, and for behavioral patterns to shift. Follow-up care provides the structure and accountability needed to support these gradual, meaningful changes.
-            </p>
-
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              Why Follow-Up Care Is Critical for Recovery
-            </h2>
-
-            <p>
-              Research consistently shows that patients who engage in regular follow-up care experience better outcomes, lower relapse rates, and improved quality of life. Here's why continuity of care makes such a profound difference:
-            </p>
-
-            <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mt-8 mb-3">
-              Monitoring Treatment Effectiveness
-            </h3>
-
-            <p>
-              Mental health treatment is not one-size-fits-all. What works for one person may not work for another, and even effective treatments may need adjustment over time. Regular follow-up appointments allow your provider to monitor your progress, assess how treatments are working, and make timely modifications to your care plan.
-            </p>
-
-            <p>
-              For example, if you're taking medication for depression, follow-up visits help track side effects, evaluate symptom improvement, and adjust dosages as needed. In therapy, ongoing sessions allow your therapist to refine approaches based on what's resonating with you and what isn't.
-            </p>
-
-            <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mt-8 mb-3">
-              Preventing Relapse
-            </h3>
-
-            <p>
-              Many mental health conditions are chronic or recurrent. Even when symptoms improve significantly, the risk of relapse remains without proper maintenance care. Regular follow-up provides early intervention when warning signs appear, helping to prevent full-blown relapses and hospitalizations.
-            </p>
-
-            <p>
-              Studies show that individuals who maintain consistent contact with mental health providers after symptom improvement have substantially lower rates of relapse compared to those who discontinue care once they feel better.
-            </p>
-
-            <div className="bg-[var(--color-light)] border-l-4 border-[var(--color-primary)] p-6 my-8">
-              <p className="text-[var(--color-ink)] italic text-xl font-cormorant">
-                "Recovery is not a destination—it's an ongoing process. Follow-up care provides the roadmap and support system to sustain progress over time."
-              </p>
-            </div>
-
-            <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mt-8 mb-3">
-              Building Trust and Therapeutic Alliance
-            </h3>
-
-            <p>
-              The therapeutic relationship is one of the most powerful factors in mental health treatment success. This relationship deepens over time through regular, consistent contact. As trust builds, you may feel more comfortable discussing difficult topics, exploring underlying issues, and engaging more fully in the healing process.
-            </p>
-
-            <p>
-              Discontinuing care prematurely means losing this valuable connection and potentially having to start over with a new provider if symptoms return.
-            </p>
-
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              Common Barriers to Follow-Up Care
-            </h2>
-
-            <p>
-              Despite its importance, many people struggle to maintain consistent follow-up care. Understanding common barriers can help you address them proactively:
-            </p>
-
-            <ul className="space-y-4 my-6">
-              <li className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Feeling better:</strong> When symptoms improve, it's tempting to assume treatment is complete—but this is often when maintenance care becomes most important.</span>
-              </li>
-              <li className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Cost concerns:</strong> Financial barriers are real, but many providers offer sliding scale fees, payment plans, or can help connect you with affordable care options.</span>
-              </li>
-              <li className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Scheduling challenges:</strong> Busy lives make regular appointments difficult, but telehealth options and flexible scheduling can help.</span>
-              </li>
-              <li className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Stigma:</strong> Ongoing mental health care can feel stigmatizing, but prioritizing your mental health is an act of strength, not weakness.</span>
-              </li>
-              <li className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Lack of immediate results:</strong> Mental health progress can be gradual, but small changes compound over time into significant transformation.</span>
-              </li>
-            </ul>
-
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              What Effective Follow-Up Care Looks Like
-            </h2>
-
-            <p>
-              Quality follow-up care is personalized, collaborative, and focused on your evolving needs. Here are key components of effective ongoing mental health support:
-            </p>
-
-            <p>
-              <strong>Regular assessment:</strong> Your provider should routinely evaluate your symptoms, functioning, and treatment satisfaction using both clinical judgment and standardized measures.
-            </p>
-
-            <p>
-              <strong>Collaborative goal-setting:</strong> You and your provider work together to set realistic, meaningful goals and adjust them as you progress.
-            </p>
-
-            <p>
-              <strong>Medication management:</strong> If medications are part of your treatment, follow-up appointments ensure proper dosing, monitor side effects, and assess ongoing need.
-            </p>
-
-            <p>
-              <strong>Skills reinforcement:</strong> Therapy sessions provide opportunities to practice coping skills, process challenges, and deepen self-understanding.
-            </p>
-
-            <p>
-              <strong>Crisis planning:</strong> Follow-up care includes developing and updating safety plans for managing difficult moments between appointments.
-            </p>
-
-            <p>
-              <strong>Holistic support:</strong> Integrative approaches address lifestyle factors like sleep, nutrition, exercise, and stress management that impact mental health.
-            </p>
-
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              How to Stay Engaged in Your Follow-Up Care
-            </h2>
-
-            <p>
-              Maintaining consistency in mental health treatment requires intentional effort, but these strategies can help:
-            </p>
-
-            <ul className="space-y-4 my-6">
-              <li className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Schedule appointments in advance:</strong> Book your next appointment before leaving each session to maintain momentum.</span>
-              </li>
-              <li className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Set reminders:</strong> Use phone alerts, calendar notifications, or other tools to remember appointments and medication schedules.</span>
-              </li>
-              <li className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Track your progress:</strong> Keep a journal or use an app to note mood changes, symptoms, and wins—this helps you see improvement over time.</span>
-              </li>
-              <li className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Communicate openly:</strong> If appointments feel unhelpful or barriers arise, discuss them with your provider rather than simply stopping care.</span>
-              </li>
-              <li className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Build a support system:</strong> Enlist friends or family to help remind and encourage you to attend appointments.</span>
-              </li>
-              <li className="flex gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Remember your "why":</strong> Reconnect with the reasons you sought treatment in the first place when motivation wanes.</span>
-              </li>
-            </ul>
-
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              When to Transition Care
-            </h2>
-
-            <p>
-              While consistent follow-up is important, the frequency and intensity of care should evolve with your needs. As symptoms stabilize and coping skills strengthen, you might transition from weekly therapy to biweekly or monthly check-ins. Some people maintain long-term "maintenance" appointments every few months as a preventive measure.
-            </p>
-
-            <p>
-              The key is making these transitions collaboratively with your provider, based on your progress and comfort level—not abruptly discontinuing care when you feel better. A thoughtful transition plan includes strategies for self-monitoring, knowing when to seek additional support, and having a clear path back to more intensive care if needed.
-            </p>
-
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              Moving Forward With Confidence
-            </h2>
-
-            <p>
-              Mental health recovery is rarely linear. There will be setbacks, plateaus, and breakthroughs. Follow-up care provides the steady support and professional guidance needed to navigate this journey with resilience and hope.
-            </p>
-
-            <p>
-              By staying engaged with your treatment plan, maintaining open communication with your provider, and viewing follow-up care as an investment in your long-term wellbeing, you give yourself the best chance at lasting recovery and a life aligned with your values and goals.
-            </p>
-
-            <p className="mt-8 text-lg">
-              If you're currently in mental health treatment, commit to attending your next follow-up appointment. If you've drifted away from care, reach out to reconnect. Your mental health deserves the same ongoing attention and care as your physical health—and the most important step is always the next one.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[var(--color-cream)] py-12">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="bg-white rounded-2xl p-8 flex gap-6 items-start shadow-sm">
-            <div className="bg-[var(--color-light)] rounded-full w-16 h-16 flex-shrink-0 flex items-center justify-center">
-              <svg className="w-8 h-8 text-[var(--color-primary)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-              </svg>
-            </div>
-            <div>
-              <div className="font-semibold text-[var(--color-ink)] mb-2">
-                Reviewed by JROSE WELLNESS
-              </div>
-              <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-                This article has been reviewed for accuracy and clarity by the experienced team at JROSE WELLNESS, dedicated to providing evidence-based information to support your integrative wellness journey.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[var(--color-cream)] py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <h3 className="font-cormorant text-3xl text-[var(--color-ink)] mb-8 text-center">Related Resources</h3>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <Link href="/blog" className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all">
-              <div className="bg-gradient-to-br from-[var(--color-light)] to-white p-8 flex items-center justify-center h-48">
-                <svg className="w-16 h-16 text-[var(--color-primary)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-wider text-[var(--color-accent)] mb-2">Resources</div>
-                <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                  Mental Health Articles
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm">
-                  Explore more evidence-based mental health resources and guidance
-                </p>
-              </div>
-            </Link>
-
-            <Link href="/services" className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all">
-              <div className="bg-gradient-to-br from-[var(--color-light)] to-white p-8 flex items-center justify-center h-48">
-                <svg className="w-16 h-16 text-[var(--color-primary)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-wider text-[var(--color-accent)] mb-2">Services</div>
-                <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                  Our Wellness Services
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm">
-                  Discover our integrative approach to mental health and wellness
-                </p>
-              </div>
-            </Link>
-
-            <Link href="/contact" className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all">
-              <div className="bg-gradient-to-br from-[var(--color-light)] to-white p-8 flex items-center justify-center h-48">
-                <svg className="w-16 h-16 text-[var(--color-primary)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-wider text-[var(--color-accent)] mb-2">Get Started</div>
-                <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                  Schedule a Consultation
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm">
-                  Begin your journey to better mental health with personalized care
-                </p>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl font-light mb-4">
-            Ready to Take the Next Step?
+      <section className="bg-cream py-16 sm:py-20" aria-labelledby="related-heading">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 id="related-heading" className="text-center font-cormorant text-3xl font-semibold text-primary sm:text-4xl">
+            Related resources
           </h2>
-          <p className="text-xl mb-8 text-white/90">
-            Our team is here to help you maintain consistent, compassionate care.
-          </p>
-          <Link
-            href="/contact"
-            className="inline-block bg-[var(--color-accent)] text-white px-8 py-4 rounded-full font-medium hover:bg-[var(--color-accent-dark)] transition-all hover:scale-105"
-          >
-            Schedule Your Follow-Up Appointment
-          </Link>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {RELATED.map((r) => (
+              <Link
+                key={r.href}
+                href={r.href}
+                className="group flex flex-col rounded-2xl border border-border bg-white p-7 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <span className="text-xs font-semibold uppercase tracking-wider text-accent">{r.eyebrow}</span>
+                <h3 className="mt-2 font-cormorant text-2xl font-semibold leading-snug text-ink transition-colors group-hover:text-primary">
+                  {r.title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{r.body}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent">
+                  Read more <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
-    </>
+
+      <section className="bg-gradient-to-br from-dark to-primary py-20 text-center text-white">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <h2 className="font-cormorant text-4xl font-semibold leading-tight sm:text-5xl">Ready to take the next step?</h2>
+          <p className="mt-4 text-lg leading-relaxed text-white/90">
+            Secure video visits with {PROVIDER.byline} for {AGES.short.toLowerCase()} in {CONTACT.state}. Book with
+            insurance through Alma or Headway, or request a self-pay appointment.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link href={NAV_CTA.href} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.accent}`}>
+              {NAV_CTA.label}
+            </Link>
+            <a href={CONTACT.phoneHref} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.outlineLight}`}>
+              <PhoneIcon />
+              Call {CONTACT.phone}
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
   )
 }

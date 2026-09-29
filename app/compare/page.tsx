@@ -108,7 +108,7 @@ export default function CompareHubPage() {
 
       <CtaBand
         heading="Talk your options through with Jessica"
-        body="Use your insurance by booking through Alma or Headway, or book a self-pay visit directly. Every visit is by secure video."
+        body="Use your insurance by booking through Alma or Headway, or request a self-pay visit directly. Every visit is by secure video."
       />
     </main>
   )

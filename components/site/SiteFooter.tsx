@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { CONTACT, CRISIS, LEGAL_NAME, NAV, NAV_CTA, NO_MEDICAL_ADVICE, PROVIDER, SITE_NAME, SOCIAL, type NavChild } from '@/lib/site'
 import { BRAND_IMAGES } from '@/lib/images'
+import { COMPARE_HUB } from '@/app/compare/_lib/guides'
 import Container from './Container'
 import CrisisText from './CrisisText'
 import { FacebookIcon, InstagramIcon, LifebuoyIcon, MailIcon, PhoneIcon, VideoIcon } from './icons'
@@ -39,8 +40,13 @@ export default function SiteFooter() {
   const conditions = kids('Conditions')
   const audiences = kids('Who We Help')
   const contact = byLabel('Contact')
-  // Practice: About, Your First Visit, Insurance & Pricing, FAQ, Blog (from the About menu) + Contact.
-  const practice: NavChild[] = [...kids('About'), ...(contact ? [{ label: contact.label, href: contact.href }] : [])]
+  // Practice: About, Your First Visit, Insurance & Pricing, FAQ, Blog (from the About menu), the
+  // comparison guides (not in the header menus, so linked here) + Contact.
+  const practice: NavChild[] = [
+    ...kids('About'),
+    { label: 'Care Guides', href: COMPARE_HUB.href },
+    ...(contact ? [{ label: contact.label, href: contact.href }] : []),
+  ]
 
   return (
     <footer className="bg-dark text-white">

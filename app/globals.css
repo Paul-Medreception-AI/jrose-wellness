@@ -51,6 +51,18 @@ body {
   outline-offset: 2px;
 }
 
+/*
+ * Dark surfaces (footer, utility bar, dark gradient CTAs): the rose-wine ring is under 3:1 on
+ * wine backgrounds, so switch to peach (about 13:1 on dark). !important so it also beats the
+ * focus-visible:outline-accent utility on buttons inside these sections.
+ */
+footer :focus-visible,
+.bg-primary :focus-visible,
+.bg-dark :focus-visible,
+.from-dark :focus-visible {
+  outline-color: var(--color-peach) !important;
+}
+
 /* <details> accordions: hide the default marker; FaqList draws its own chevron. */
 summary::-webkit-details-marker {
   display: none;

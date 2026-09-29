@@ -1,367 +1,347 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
+import PageHero from '@/components/site/PageHero'
+import CrisisNotice from '@/components/site/CrisisNotice'
+import CrisisText from '@/components/site/CrisisText'
+import JsonLd from '@/components/site/JsonLd'
+import { BUTTON } from '@/components/site/SmartLink'
+import { ArrowRight, CheckIcon, PhoneIcon } from '@/components/site/icons'
+import { AGES, CONTACT, NAV_CTA, PROVIDER, SITE_NAME, SITE_URL, withBrand } from '@/lib/site'
+import { imageFor } from '@/lib/images'
+import { getPost, postHref, postRobots } from '@/lib/posts'
+
+// Autobuilt post, rewritten against FACTS.md: prevalence statistic and evidence claims removed, the
+// invented clinician byline replaced with the practice, "care for the whole family" and
+// alternative-medicine claims removed, and crisis wording aligned with the 988 Suicide & Crisis Lifeline
+// and the site's CrisisNotice.
+
+const SLUG = 'supporting-a-loved-one-struggling-with-depression'
+const post = getPost(SLUG)
+const PATH = postHref(SLUG)
+const TITLE = withBrand(post.title)
+const DESCRIPTION =
+  'How to support someone you love through depression: what to say, what to avoid, how to look after yourself, and when to encourage professional or urgent help.'
+const IMAGE = imageFor('/conditions/depression')
 
 export const metadata: Metadata = {
-  title: 'Supporting a Loved One Struggling with Depression | JROSE WELLNESS',
-  description: 'Learn compassionate, evidence-based strategies to help a loved one navigate depression. Discover what to say, what to avoid, and when to seek professional support.',
-  alternates: { canonical: '/blog/supporting-a-loved-one-struggling-with-depression' },
+  title: TITLE,
+  // Noindex until Jessica reviews this autobuilt post (INDEXED_POST_SLUGS in lib/posts.ts).
+  ...postRobots(SLUG),
+  description: DESCRIPTION,
+  alternates: { canonical: PATH },
   openGraph: {
-    title: 'Supporting a Loved One Struggling with Depression | JROSE WELLNESS',
-    description: 'Learn compassionate, evidence-based strategies to help a loved one navigate depression. Discover what to say, what to avoid, and when to seek professional support.',
-    url: 'https://jrosewellness.com/blog/supporting-a-loved-one-struggling-with-depression',
-    siteName: 'JROSE WELLNESS',
-    type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    title: TITLE,
+    description: DESCRIPTION,
+    url: PATH,
+    siteName: SITE_NAME,
+    type: 'article',
+    images: [{ url: IMAGE.src, alt: IMAGE.alt }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Supporting a Loved One Struggling with Depression | JROSE WELLNESS',
-    description: 'Learn compassionate, evidence-based strategies to help a loved one navigate depression. Discover what to say, what to avoid, and when to seek professional support.',
-    images: ['/og-image.png'],
-  },
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [IMAGE.src] },
 }
 
-export default function BlogPost() {
+const RELATED = [
+  {
+    href: '/conditions/depression',
+    eyebrow: 'Conditions',
+    title: 'Depression',
+    body: 'How Jessica evaluates and treats depression by secure video, with or without medication.',
+  },
+  {
+    href: '/services/psychiatric-evaluation',
+    eyebrow: 'Services',
+    title: 'Psychiatric Evaluation',
+    body: 'What happens at a first visit, and how it leads to a plan that fits.',
+  },
+  {
+    href: '/new-patients',
+    eyebrow: 'Getting started',
+    title: 'Your First Visit',
+    body: 'How to book, what to have ready, and what to expect.',
+  },
+]
+
+const H2 = 'mt-14 mb-4 font-cormorant text-[1.9rem] font-semibold leading-tight text-primary sm:text-[2.25rem]'
+const H3 = 'mt-8 mb-3 text-xl font-semibold leading-snug text-primary'
+const LINK = 'font-semibold text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent'
+
+function CheckList({ items }: { items: ReactNode[] }) {
   return (
-    <main className="min-h-screen bg-white">
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-sm mb-6 text-white/80">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <span className="mx-2">›</span>
-            <Link href="/blog" className="hover:text-white transition-colors">Resources</Link>
-            <span className="mx-2">›</span>
-            <span>Article</span>
-          </div>
-          
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-4">Mental Health</div>
-          
-          <h1 className="font-cormorant text-5xl font-light leading-tight max-w-3xl mx-auto text-center mb-8">
-            Supporting a Loved One Struggling with Depression
-          </h1>
-          
-          <div className="flex items-center justify-center gap-6 text-sm text-white/80">
-            <span>Published January 2025</span>
-            <span>•</span>
-            <span>7 min read</span>
-            <span>•</span>
-            <span>Dr. JROSE WELLNESS Team</span>
-          </div>
-        </div>
-      </section>
+    <ul className="mb-6 space-y-3">
+      {items.map((item, i) => (
+        <li key={i} className="flex items-start gap-3">
+          <CheckIcon className="mt-1 h-5 w-5 shrink-0 text-accent" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
 
-      <article className="bg-white py-20">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-[var(--color-ink)] leading-loose text-base">
-            <p className="text-xl leading-relaxed mb-6">
-              Watching someone you care about struggle with depression can feel overwhelming. You want to help, but you may worry about saying the wrong thing or making matters worse. The truth is, your presence and support can make a profound difference—even when you feel unsure of what to do.
-            </p>
-            
-            <p className="mb-6">
-              Depression affects more than 21 million adults in the United States each year, and its impact extends far beyond the individual. Family members, friends, and partners often feel helpless as they witness their loved one withdraw, lose interest in activities, or struggle with daily functioning. Understanding how to offer meaningful support is not just beneficial—it's essential for both the person experiencing depression and those who care about them.
-            </p>
+const articleSchema = {
+  '@type': 'Article',
+  headline: post.title,
+  ...(post.updated ? { dateModified: post.updated } : {}),
+  description: DESCRIPTION,
+  image: [new URL(IMAGE.src, SITE_URL).toString()],
+  inLanguage: 'en-US',
+  author: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  mainEntityOfPage: new URL(PATH, SITE_URL).toString(),
+}
 
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              Understanding Depression Beyond Sadness
-            </h2>
-            
-            <p className="mb-6">
-              Depression is not simply feeling sad or going through a rough patch. It's a serious medical condition that affects how a person thinks, feels, and functions. Major depressive disorder involves persistent symptoms lasting at least two weeks, including depressed mood, loss of interest in previously enjoyed activities, changes in sleep and appetite, fatigue, difficulty concentrating, and sometimes thoughts of death or suicide.
-            </p>
-            
-            <p className="mb-6">
-              Recognizing that depression is an illness—not a weakness or character flaw—is the first step in providing effective support. Your loved one isn't choosing to feel this way, and they can't simply "snap out of it" or "think positive." These well-meaning phrases often minimize their experience and can increase feelings of shame or isolation.
-            </p>
+export default function SupportingALovedOnePost() {
+  return (
+    <main>
+      <JsonLd data={articleSchema} />
+      <PageHero
+        eyebrow={post.category}
+        title={post.title}
+        subtitle={DESCRIPTION}
+        image={IMAGE}
+        priority
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }]}
+      />
 
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              What to Say (And What Not to Say)
-            </h2>
-            
-            <p className="mb-6">
-              Communication matters enormously when supporting someone with depression. Your words can either create space for healing or inadvertently reinforce stigma and shame.
+      <article className="bg-white py-14 sm:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <p className="border-b border-border pb-6 text-sm text-muted">
+            By <span className="font-semibold text-ink">{SITE_NAME}</span>
+          </p>
+
+          <div className="mt-10 text-[1.0625rem] leading-[1.8] text-ink/85 [&>p]:mb-5">
+            <p className="text-xl leading-relaxed text-ink">
+              Watching someone you care about struggle with depression can feel overwhelming. You want to help, but you
+              may worry about saying the wrong thing or making it worse. Your presence and support can matter a great
+              deal, even when you feel unsure of what to do.
+            </p>
+            <p>
+              Depression affects more than the person living with it. Partners, family members, and friends often feel
+              helpless as they watch someone they love pull away, lose interest in things, or struggle to get through
+              the day. Knowing how to offer real support helps both of you.
             </p>
 
-            <div className="bg-[var(--color-cream)] rounded-xl p-8 my-8">
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-4">Helpful Phrases</h3>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>"I'm here for you, and I'm not going anywhere."</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>"You're not alone in this. I care about you."</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>"What can I do to support you today?"</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>"It's okay to not be okay right now."</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span>"Have you considered talking to a professional? I can help you find someone."</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="bg-[var(--color-light)] rounded-xl p-8 my-8">
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-4">Phrases to Avoid</h3>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-[var(--color-muted)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  <span>"Just think positive!" or "Look on the bright side."</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-[var(--color-muted)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  <span>"Others have it worse than you."</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-[var(--color-muted)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  <span>"It's all in your head."</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-[var(--color-muted)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  <span>"You just need to get out more."</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-6 h-6 text-[var(--color-muted)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  <span>"Have you tried exercising/vitamins/meditation?" (unless they ask for suggestions)</span>
-                </li>
-              </ul>
-            </div>
-
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              Practical Ways to Offer Support
-            </h2>
-            
-            <p className="mb-6">
-              Supporting someone with depression often means showing up in small, consistent ways rather than grand gestures. Here are evidence-based approaches that can make a genuine difference:
+            <h2 className={H2}>Depression is more than sadness</h2>
+            <p>
+              Depression is not just feeling down or going through a rough patch. It is a health condition that affects
+              how a person thinks, feels, and functions. Common signs include a low or empty mood, losing interest in
+              things they used to enjoy, changes in sleep and appetite, fatigue, trouble concentrating, and sometimes
+              thoughts of death or suicide. When these last most of the day, nearly every day, for two weeks or more, it
+              is time to take them seriously.
+            </p>
+            <p>
+              Seeing depression as an illness, not a weakness or a character flaw, is the first step in helping. Your
+              loved one is not choosing to feel this way, and they cannot simply &ldquo;snap out of it&rdquo; or
+              &ldquo;think positive.&rdquo; Well-meant phrases like these can make someone feel more ashamed and alone.
             </p>
 
-            <div className="space-y-6 mb-6">
-              <div>
-                <h3 className="font-semibold text-[var(--color-ink)] mb-2">Be Present and Listen</h3>
-                <p>Sometimes the most powerful thing you can do is simply be there. Listen without judgment, without trying to fix everything, and without offering unsolicited advice. Create space for your loved one to share their feelings when they're ready, and respect their silence when they're not.</p>
+            <h2 className={H2}>What to say, and what not to say</h2>
+            <p>
+              Words matter a lot when someone is depressed. They can open the door to connection, or quietly add to the
+              shame.
+            </p>
+            <div className="my-8 grid gap-5 sm:grid-cols-2">
+              <div className="rounded-2xl border border-border bg-light/60 p-6">
+                <h3 className="text-lg font-semibold text-primary">Helpful things to say</h3>
+                <ul className="mt-3 space-y-2 text-base leading-relaxed">
+                  <li>&ldquo;I&apos;m here for you, and I&apos;m not going anywhere.&rdquo;</li>
+                  <li>&ldquo;You&apos;re not alone in this. I care about you.&rdquo;</li>
+                  <li>&ldquo;What would help you most today?&rdquo;</li>
+                  <li>&ldquo;It&apos;s okay not to be okay right now.&rdquo;</li>
+                  <li>&ldquo;Would you think about talking to a professional? I can help you find someone.&rdquo;</li>
+                </ul>
               </div>
-
-              <div>
-                <h3 className="font-semibold text-[var(--color-ink)] mb-2">Offer Specific Help</h3>
-                <p>Instead of saying "Let me know if you need anything," offer concrete support: "I'm going to the grocery store—can I pick up a few things for you?" or "I'd like to drop off dinner on Thursday. Would that be okay?" Specific offers are easier to accept than vague availability.</p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-[var(--color-ink)] mb-2">Maintain Connection</h3>
-                <p>Depression often causes people to isolate themselves. Continue reaching out even if your loved one doesn't respond or declines invitations. Send a text that doesn't require a response: "Thinking of you today" or "No need to reply, just wanted you to know I care." Your consistent presence reminds them they're not forgotten.</p>
-              </div>
-
-              <div>
-                <h3 className="font-semibold text-[var(--color-ink)] mb-2">Help With Daily Tasks</h3>
-                <p>Depression can make even simple tasks feel insurmountable. Offering to help with laundry, dishes, childcare, or errands can provide real relief. These practical supports acknowledge that depression affects functioning without making your loved one feel inadequate.</p>
+              <div className="rounded-2xl border border-border bg-white p-6">
+                <h3 className="text-lg font-semibold text-primary">Things to avoid</h3>
+                <ul className="mt-3 space-y-2 text-base leading-relaxed">
+                  <li>&ldquo;Just think positive!&rdquo; or &ldquo;Look on the bright side.&rdquo;</li>
+                  <li>&ldquo;Other people have it worse.&rdquo;</li>
+                  <li>&ldquo;It&apos;s all in your head.&rdquo;</li>
+                  <li>&ldquo;You just need to get out more.&rdquo;</li>
+                  <li>&ldquo;Have you tried exercise or meditation?&rdquo; (unless they ask for ideas)</li>
+                </ul>
               </div>
             </div>
 
-            <div className="bg-[var(--color-light)] border-l-4 border-[var(--color-primary)] p-6 my-8">
-              <p className="text-[var(--color-ink)] italic text-xl font-cormorant">
-                "Your presence and consistency matter more than saying the perfect thing. Simply showing up sends the powerful message that your loved one is worth supporting, even when they can't see their own worth."
+            <h2 className={H2}>Practical ways to help</h2>
+            <p>
+              Support for someone with depression usually looks like small, steady things rather than grand gestures.
+            </p>
+            <div className="my-8 grid gap-5">
+              <div className="rounded-2xl border border-border bg-cream p-6">
+                <h3 className="text-lg font-semibold leading-snug text-primary">Be present and listen</h3>
+                <p className="mt-2 text-base leading-relaxed">
+                  Sometimes the most helpful thing you can do is simply be there. Listen without judging, without rushing to
+                  fix things, and without unasked-for advice. Let them share when they are ready, and respect their quiet
+                  when they are not.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-cream p-6">
+                <h3 className="text-lg font-semibold leading-snug text-primary">Offer specific help</h3>
+                <p className="mt-2 text-base leading-relaxed">
+                  Instead of &ldquo;Let me know if you need anything,&rdquo; try &ldquo;I&apos;m going to the store. Can I
+                  pick up a few things for you?&rdquo; or &ldquo;Can I drop off dinner on Thursday?&rdquo; Specific offers
+                  are easier to accept.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-cream p-6">
+                <h3 className="text-lg font-semibold leading-snug text-primary">Stay connected</h3>
+                <p className="mt-2 text-base leading-relaxed">
+                  Depression often makes people withdraw. Keep reaching out, even if they do not reply or turn down plans.
+                  Send a message that needs no answer: &ldquo;Thinking of you today.&rdquo; Your steady presence reminds
+                  them they are not forgotten.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-border bg-cream p-6">
+                <h3 className="text-lg font-semibold leading-snug text-primary">Help with everyday tasks</h3>
+                <p className="mt-2 text-base leading-relaxed">
+                  When someone is depressed, even simple tasks can feel huge. Helping with meals, laundry, dishes, or
+                  errands can bring real relief without making them feel like they are failing.
+                </p>
+              </div>
+            </div>
+
+            <div className="my-10 rounded-r-2xl border-l-4 border-accent bg-light/70 px-6 py-5">
+              <p className="font-cormorant text-[1.4rem] leading-snug text-primary">
+                Showing up matters more than saying the perfect thing. It tells your loved one they are worth supporting,
+                even when they cannot see it themselves.
               </p>
             </div>
 
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              Encouraging Professional Help
-            </h2>
-            
-            <p className="mb-6">
-              While your support is valuable, depression often requires professional treatment. Research shows that therapy, medication, or a combination of both can significantly improve outcomes. However, suggesting professional help requires sensitivity.
+            <h2 className={H2}>Encouraging professional help</h2>
+            <p>
+              Your support matters, and depression often needs professional care too. Therapy, medication, or both can
+              help, and a professional can help your loved one figure out what fits. Bringing it up takes some care.
             </p>
-            
-            <p className="mb-6">
-              Rather than saying "You need to see a therapist," try: "I've noticed you've been struggling, and I care about you. Would you consider talking to someone who specializes in helping people through difficult times? I'd be happy to help you find someone or go with you to your first appointment if you'd like."
+            <p>
+              Instead of &ldquo;You need to see someone,&rdquo; try: &ldquo;I&apos;ve noticed you&apos;ve been having a
+              hard time, and I care about you. Would you be open to talking with someone who helps people through
+              this? I&apos;m happy to help you find someone or set up the first appointment.&rdquo;
             </p>
-
-            <p className="mb-6">
-              If your loved one is resistant, don't force the issue, but continue to gently bring it up over time. Share information about treatment options, offer to help with practical barriers like finding providers or transportation, and emphasize that seeking help is a sign of strength, not weakness.
-            </p>
-
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              Recognizing Crisis Situations
-            </h2>
-            
-            <p className="mb-6">
-              It's essential to know when depression has become a crisis requiring immediate intervention. Take it seriously if your loved one:
+            <p>
+              If they are not ready, do not force it. Keep gently bringing it up over time, offer to help with practical
+              hurdles like finding a provider or checking insurance, and remind them that asking for help is a sign of
+              strength.
             </p>
 
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>Talks about suicide, death, or having no reason to live</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>Researches methods of suicide or acquires means (medications, weapons)</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>Gives away possessions or says goodbye to people</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>Shows sudden improvement after a period of severe depression (sometimes indicates they've made a decision)</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>Expresses feelings of being a burden to others</span>
-              </li>
-            </ul>
-
-            <p className="mb-6">
-              If you observe any of these warning signs, don't leave the person alone. Call the National Suicide Prevention Lifeline at 988, take them to the nearest emergency room, or call 911. Direct, immediate action can save a life.
+            <h2 className={H2}>Know the warning signs of a crisis</h2>
+            <p>Take it seriously, and act right away, if your loved one:</p>
+            <CheckList
+              items={[
+                'Talks about suicide, death, or having no reason to live',
+                'Looks up ways to die, or gathers the means, such as stockpiling medication',
+                'Gives away belongings or says goodbye to people',
+                'Seems suddenly calm or better after a period of deep depression',
+                'Says they feel like a burden to others',
+              ]}
+            />
+            <p>
+              If you see any of these signs, do not leave the person alone.{' '}
+              <CrisisText
+                text="You can call or text 988 (Suicide & Crisis Lifeline) for help supporting someone else, and call 911 if they are in immediate danger."
+                linkClassName={LINK}
+              />{' '}
+              Acting quickly can save a life.
             </p>
+            <div className="mb-6">
+              <CrisisNotice />
+            </div>
 
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              Taking Care of Yourself
-            </h2>
-            
-            <p className="mb-6">
-              Supporting someone with depression can be emotionally draining. You may experience frustration, helplessness, guilt, or even resentment. These feelings are normal and don't mean you're a bad person or inadequate support.
+            <h2 className={H2}>Taking care of yourself</h2>
+            <p>
+              Supporting someone through depression can wear you down. You may feel frustrated, helpless, guilty, or even
+              resentful. These feelings are normal. They do not make you a bad person or a bad support.
             </p>
-            
-            <p className="mb-6">
-              Set healthy boundaries to protect your own wellbeing. You can't pour from an empty cup. Make time for your own self-care, maintain your other relationships and activities, and consider seeking support for yourself—whether through therapy, support groups for caregivers, or conversations with trusted friends.
+            <p>
+              Set limits that protect your own well-being. Make time for rest, keep up your other relationships and
+              activities, and consider getting support for yourself, whether that is a therapist, a caregiver support
+              group, or honest talks with people you trust.
+            </p>
+            <p>
+              You are not responsible for fixing your loved one&apos;s depression. You can offer support, encouragement,
+              and love. Their recovery is still their own.
             </p>
 
-            <p className="mb-6">
-              Remember that you are not responsible for fixing your loved one's depression or for their choices. You can offer support, encouragement, and love, but ultimately, their healing journey is their own.
+            <h2 className={H2}>Moving forward together</h2>
+            <p>
+              Depression is treatable. Recovery often takes time and rarely follows a straight line; there may be
+              setbacks alongside progress. Through it all, your steady presence sends a powerful message: they matter,
+              they are not alone, and there is hope.
             </p>
-
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              Moving Forward Together
-            </h2>
-            
-            <p className="mb-6">
-              Depression is treatable, and recovery is possible. With appropriate professional care and strong support systems, most people with depression experience significant improvement. Your role in that support system—showing up, listening, offering practical help, and encouraging professional treatment—can be a crucial part of their healing.
-            </p>
-            
-            <p className="mb-6">
-              The journey may be long and nonlinear. There will be setbacks alongside progress. But your consistent presence sends a powerful message: that your loved one matters, that they're not alone, and that hope exists even in the darkest moments.
-            </p>
-
-            <p className="mb-6">
-              If you're concerned about someone you care about, or if you're feeling overwhelmed by the role of supporting them, professional guidance can help. At JROSE WELLNESS, we understand the impact of depression on individuals and their loved ones, and we're here to provide compassionate, evidence-based care for the whole family.
+            <p>
+              If your loved one is 15 or older and in {CONTACT.state}, they can see {PROVIDER.byline} by secure video.{' '}
+              {SITE_NAME} cares for {AGES.short.toLowerCase()}, and care starts with a{' '}
+              <Link href="/services/psychiatric-evaluation" className={LINK}>
+                psychiatric evaluation
+              </Link>
+              . Learn more about{' '}
+              <Link href="/conditions/depression" className={LINK}>
+                depression care
+              </Link>{' '}
+              or{' '}
+              <Link href="/who-we-help/teens" className={LINK}>
+                care for teens 15 and older
+              </Link>
+              .
             </p>
           </div>
-        </div>
 
-        <div className="bg-[var(--color-cream)] rounded-2xl p-8 max-w-3xl mx-auto my-12 flex gap-6 items-start">
-          <div className="bg-[var(--color-light)] rounded-full w-16 h-16 flex items-center justify-center flex-shrink-0">
-            <svg className="w-8 h-8 text-[var(--color-primary)]" stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-          </div>
-          <div>
-            <div className="font-semibold text-[var(--color-ink)] mb-1">Reviewed by JROSE WELLNESS</div>
-            <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-              Our team is dedicated to providing evidence-based integrative wellness care to support mental and physical health. We combine clinical expertise with compassionate, personalized treatment approaches.
+          <aside className="mt-14 rounded-2xl bg-cream p-6 sm:p-8">
+            <p className="font-semibold text-ink">About this article</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              This article is general information from {SITE_NAME}, not medical advice for your situation. Talk with
+              your own clinician before starting, stopping, or changing any treatment.
             </p>
-          </div>
+            <div className="mt-4">
+              <CrisisNotice variant="compact" />
+            </div>
+          </aside>
         </div>
       </article>
 
-      <section className="bg-[var(--color-cream)] py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <h3 className="font-cormorant text-3xl text-[var(--color-ink)] mb-8 text-center">Related Resources</h3>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <Link href="/blog" className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-              <div className="bg-gradient-to-br from-[var(--color-light)] to-[var(--color-cream)] p-8 flex items-center justify-center h-48">
-                <svg className="w-16 h-16 text-[var(--color-primary)]" stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-wider text-[var(--color-accent)] mb-2">Resource Hub</div>
-                <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                  View All Articles
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm">Explore our complete library of wellness resources and patient education.</p>
-              </div>
-            </Link>
-
-            <Link href="/services" className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-              <div className="bg-gradient-to-br from-[var(--color-light)] to-[var(--color-cream)] p-8 flex items-center justify-center h-48">
-                <svg className="w-16 h-16 text-[var(--color-primary)]" stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-wider text-[var(--color-accent)] mb-2">Our Services</div>
-                <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                  Integrative Wellness Care
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm">Discover our comprehensive approach to mental and physical health.</p>
-              </div>
-            </Link>
-
-            <Link href="/contact" className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-              <div className="bg-gradient-to-br from-[var(--color-light)] to-[var(--color-cream)] p-8 flex items-center justify-center h-48">
-                <svg className="w-16 h-16 text-[var(--color-primary)]" stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-wider text-[var(--color-accent)] mb-2">Get Support</div>
-                <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                  Schedule a Consultation
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm">Connect with our team to discuss how we can support your wellness journey.</p>
-              </div>
-            </Link>
+      <section className="bg-cream py-16 sm:py-20" aria-labelledby="related-heading">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 id="related-heading" className="text-center font-cormorant text-3xl font-semibold text-primary sm:text-4xl">
+            Related resources
+          </h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {RELATED.map((r) => (
+              <Link
+                key={r.href}
+                href={r.href}
+                className="group flex flex-col rounded-2xl border border-border bg-white p-7 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <span className="text-xs font-semibold uppercase tracking-wider text-accent">{r.eyebrow}</span>
+                <h3 className="mt-2 font-cormorant text-2xl font-semibold leading-snug text-ink transition-colors group-hover:text-primary">
+                  {r.title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{r.body}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent">
+                  Read more <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl font-light mb-4">Ready to Take the Next Step?</h2>
-          <p className="text-xl mb-8 text-white/90">Our team is here to help.</p>
-          <Link 
-            href="/contact"
-            className="inline-block bg-white text-[var(--color-primary)] px-8 py-4 rounded-lg font-medium hover:bg-[var(--color-cream)] transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-          >
-            Contact Us Today
-          </Link>
+      <section className="bg-gradient-to-br from-dark to-primary py-20 text-center text-white">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <h2 className="font-cormorant text-4xl font-semibold leading-tight sm:text-5xl">Ready to take the next step?</h2>
+          <p className="mt-4 text-lg leading-relaxed text-white/90">
+            Secure video visits with {PROVIDER.byline} for {AGES.short.toLowerCase()} in {CONTACT.state}. Book with
+            insurance through Alma or Headway, or request a self-pay appointment.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link href={NAV_CTA.href} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.accent}`}>
+              {NAV_CTA.label}
+            </Link>
+            <a href={CONTACT.phoneHref} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.outlineLight}`}>
+              <PhoneIcon />
+              Call {CONTACT.phone}
+            </a>
+          </div>
         </div>
       </section>
     </main>

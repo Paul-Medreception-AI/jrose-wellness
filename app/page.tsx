@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   AGES,
+  BOOKING,
   CONTACT,
   NAV_CTA,
   PRACTICE_FAQS,
@@ -147,14 +148,14 @@ const STEPS: { title: string; body: ReactNode }[] = [
 
 export default function HomePage() {
   return (
-    <>
+    <main>
       {/* 1. HERO: text on the left over a cream scrim, photo subject on the right (lg+).
-          Phones and tablets stack the text above the photo. */}
+          Phones and tablets show the photo first (so it is on the first screen), then the text. */}
       <section
         aria-labelledby="home-hero-heading"
-        className="relative isolate overflow-hidden bg-cream lg:flex lg:min-h-[40rem] lg:items-center xl:min-h-[44rem]"
+        className="relative isolate flex flex-col overflow-hidden bg-cream lg:min-h-[40rem] lg:flex-row lg:items-center xl:min-h-[44rem]"
       >
-        <div className="relative mx-auto w-full max-w-7xl px-4 pb-10 pt-12 sm:px-6 sm:pb-12 sm:pt-16 lg:px-8 lg:py-24">
+        <div className="relative mx-auto w-full max-w-7xl px-4 pb-10 pt-6 sm:px-6 sm:pb-12 sm:pt-10 lg:px-8 lg:py-24">
           <div className="animate-fade-up max-w-xl lg:max-w-[33rem] xl:max-w-xl">
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-accent sm:text-[13px]">
               Online psychiatric care across {CONTACT.state}
@@ -163,12 +164,14 @@ export default function HomePage() {
               id="home-hero-heading"
               className="font-cormorant text-[2.5rem] font-semibold leading-[1.05] text-primary sm:text-[3.25rem] lg:text-[3.5rem] xl:text-[4rem]"
             >
+              {/* Paul's chosen headline (2026-09-29): sells the experience. The SEO terms live in the
+                  eyebrow, the body copy and the <title>, so do not "fix" this back to a keyword H1. */}
               Personalized Psychiatry, From the Comfort of Home
             </h1>
             <p className="mt-5 text-lg leading-relaxed text-ink/80">
               Work one-on-one with <strong className="font-semibold text-ink">{PROVIDER.byline}</strong> for
               psychiatric evaluations, medication management, and supportive therapy through secure video visits. Care
-              is available for teens {AGES.minimum}+ and adults throughout {CONTACT.state}, with insurance through Alma
+              is available for teens {AGES.minimum}+ and adults in {CONTACT.state}, with insurance through Alma
               and Headway or self-pay.
             </p>
 
@@ -195,7 +198,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="relative h-72 sm:h-[26rem] lg:absolute lg:inset-0 lg:-z-10 lg:h-auto">
+        <div className="relative order-first h-56 sm:h-[22rem] lg:absolute lg:inset-0 lg:order-none lg:-z-10 lg:h-auto">
           <Image
             src={HERO_IMAGE.src}
             alt={HERO_IMAGE.alt}
@@ -204,12 +207,12 @@ export default function HomePage() {
             sizes="100vw"
             className="object-cover object-[65%_15%]"
           />
-          {/* Phones/tablets: blend the photo into the cream text block above it. */}
-          <div aria-hidden="true" className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-cream to-cream/0 lg:hidden" />
+          {/* Phones/tablets: blend the photo into the cream text block below it. */}
+          <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-cream to-cream/0 lg:hidden" />
           {/* Desktop: soft cream scrim from the left, clear over the subject on the right. */}
           <div
             aria-hidden="true"
-            className="absolute inset-0 hidden bg-gradient-to-r from-cream from-15% via-cream/85 via-40% to-cream/0 to-70% lg:block"
+            className="absolute inset-0 hidden bg-gradient-to-r from-cream from-20% via-cream/90 via-50% to-cream/0 to-75% lg:block xl:from-15% xl:via-cream/85 xl:via-40% xl:to-70%"
           />
         </div>
       </section>
@@ -440,7 +443,12 @@ export default function HomePage() {
             <ul className="grid gap-3 sm:grid-cols-2">
               <li className="flex items-start gap-3 text-ink/85">
                 <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-sage" />
-                {PRICING.slidingScale}
+                <span>
+                  Paying yourself? Self-pay visits are booked by request.{' '}
+                  <Link href={BOOKING.request.href} className="font-semibold text-accent underline-offset-4 hover:underline">
+                    Send a request
+                  </Link>
+                </span>
               </li>
               <li className="flex items-start gap-3 text-ink/85">
                 <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-sage" />
@@ -483,7 +491,7 @@ export default function HomePage() {
                 <ArrowRight />
               </Link>
             </div>
-            <FaqList faqs={PRACTICE_FAQS} withSchema />
+            <FaqList faqs={PRACTICE_FAQS} />
           </div>
         </Container>
       </section>
@@ -499,7 +507,7 @@ export default function HomePage() {
         heading="Ready to take the first step?"
         body={`Book with your insurance through Alma or Headway, or request a self-pay visit. Every visit is by secure video, for patients in ${CONTACT.state}.`}
       />
-    </>
+    </main>
   )
 }
 

@@ -74,7 +74,7 @@ export default function PatientFormSmsPage() {
                 <iframe
                   src={FORM_SRC}
                   id={`inline-${FORM_ID}`}
-                  title="Form A2P New"
+                  title="Text message opt-in form"
                   className="block h-[788px] w-full rounded-[3px] border-0"
                   data-layout="{'id':'INLINE'}"
                   data-trigger-type="alwaysShow"
@@ -98,7 +98,7 @@ export default function PatientFormSmsPage() {
                   {CONTACT.phone}
                 </a>{' '}
                 or email{' '}
-                <a href={`mailto:${CONTACT.email}`} className={`${A} break-all`}>
+                <a href={`mailto:${CONTACT.email}`} className={`${A} break-words`}>
                   {CONTACT.email}
                 </a>
                 .

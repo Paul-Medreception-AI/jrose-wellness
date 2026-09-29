@@ -228,7 +228,13 @@ export default function ServicesPage() {
               <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-light text-accent">
                 <CheckIcon className="h-4 w-4" />
               </span>
-              <span className="leading-relaxed text-ink/85">{PRICING.slidingScale}</span>
+              <span className="leading-relaxed text-ink/85">
+                Self-pay visits are booked by request.{' '}
+                <Link href={BOOKING.request.href} className="font-semibold text-accent underline-offset-4 hover:underline">
+                  {BOOKING.request.label}
+                </Link>
+                {' '}or call {CONTACT.phone}.
+              </span>
             </li>
             <li className="flex items-start gap-3 rounded-2xl border border-border bg-white p-5">
               <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-light text-accent">

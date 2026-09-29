@@ -76,7 +76,7 @@ const content: GuideContent = {
       },
       {
         label: 'Things to weigh',
-        a: 'Possible side effects. Some anxiety medications are controlled substances, which are prescribed only after careful assessment.',
+        a: 'Possible side effects. Some anxiety medications are controlled substances. See the practice\u2019s answer on controlled substances in the questions below.',
         b: 'Can feel hard to start when anxiety is intense, and it takes steady practice.',
       },
       {

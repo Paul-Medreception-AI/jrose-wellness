@@ -11,7 +11,7 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from 'react'
-import { CONTACT, CRISIS, NAV, NAV_CTA, type NavChild, type NavItem } from '@/lib/site'
+import { CONTACT, CRISIS, NAV, NAV_CTA, SITE_NAME, type NavChild, type NavItem } from '@/lib/site'
 import { BRAND_IMAGES } from '@/lib/images'
 import CrisisText from './CrisisText'
 import { ArrowRight, ChevronDown, CloseIcon, MenuIcon, PhoneIcon, VideoIcon } from './icons'
@@ -19,7 +19,9 @@ import { ArrowRight, ChevronDown, CloseIcon, MenuIcon, PhoneIcon, VideoIcon } fr
 /*
  * Pattern (desktop, lg and up): the top-level LABEL is a link to its hub page and a separate
  * CHEVRON button toggles the dropdown. Hover (mouse only) opens the panel with a 150ms close
- * delay so the pointer can travel into it. Clicking the chevron pins the panel open; clicking
+ * delay so the pointer can travel into it, and while one panel is open another trigger takes
+ * 180ms of hover to take over (hover intent), so a diagonal path into a wide panel that crosses
+ * a neighboring trigger keeps the intended panel open. Clicking the chevron pins the panel open; clicking
  * it again closes it. Enter/Space/ArrowDown on the chevron open it (ArrowDown also focuses the
  * first link), Escape closes and returns focus to the chevron, Tab walks through the links and
  * the panel closes once focus leaves it. Outside click and route change close everything.
@@ -151,7 +153,7 @@ function DesktopItem({
       e.preventDefault()
       e.stopPropagation()
       onClose()
-      buttonRef.current?.focus()
+      buttonRef.current?.focus({ preventScroll: true })
     }
   }
 
@@ -165,7 +167,7 @@ function DesktopItem({
     if (e.key === 'ArrowDown') next = i < 0 ? 0 : (i + 1) % links.length
     if (e.key === 'ArrowUp') {
       if (i <= 0) {
-        buttonRef.current?.focus()
+        buttonRef.current?.focus({ preventScroll: true })
         return
       }
       next = i - 1
@@ -341,12 +343,12 @@ function Wordmark({ compact = false }: { compact?: boolean }) {
         width={144}
         height={144}
         priority
-        className="h-[72px] w-[72px] shrink-0 rounded-full ring-1 ring-primary/10"
+        className="h-[52px] w-[52px] shrink-0 rounded-full ring-1 ring-primary/10 sm:h-[72px] sm:w-[72px]"
       />
       <span className="flex flex-col leading-none">
-        <span className="whitespace-nowrap font-cormorant text-[1.6rem] font-semibold tracking-tight text-primary">JRose Wellness</span>
+        <span className="whitespace-nowrap font-cormorant text-[1.35rem] font-semibold tracking-tight text-primary sm:text-[1.6rem]">{SITE_NAME}</span>
         {!compact && (
-          <span className="mt-1 whitespace-nowrap text-[10.5px] font-semibold uppercase tracking-[0.16em] text-muted xl:tracking-[0.2em]">
+          <span className="mt-1 whitespace-nowrap text-[9.5px] font-semibold uppercase tracking-[0.08em] text-muted sm:text-[10.5px] sm:tracking-[0.16em] xl:tracking-[0.2em]">
             Telehealth psychiatry
           </span>
         )}
@@ -409,14 +411,16 @@ export default function SiteHeader() {
   // Mobile sheet: body scroll lock, initial focus, Escape, and focus return on close.
   useEffect(() => {
     if (!mobileOpen) {
-      if (returnFocus.current) hamburgerRef.current?.focus()
+      // preventScroll: the sticky header is always on screen, but html's scroll-padding-top makes
+      // the browser scroll the page up to "reveal" the button if focus() is allowed to scroll.
+      if (returnFocus.current) hamburgerRef.current?.focus({ preventScroll: true })
       returnFocus.current = false
       return
     }
     const body = document.body
     const prevOverflow = body.style.overflow
     body.style.overflow = 'hidden'
-    closeBtnRef.current?.focus()
+    closeBtnRef.current?.focus({ preventScroll: true })
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         returnFocus.current = true
@@ -466,7 +470,7 @@ export default function SiteHeader() {
       </a>
 
       {/* Utility bar: service area, phone, crisis line. Scrolls away; the header below sticks. */}
-      <div className="bg-primary text-[12.5px] text-white/90">
+      <aside aria-label="Contact and crisis line" className="bg-primary text-[12.5px] text-white/90">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-6 gap-y-1 px-4 py-2 sm:px-6 lg:justify-between lg:px-8">
           <p className="hidden items-center gap-2 lg:flex">
             <VideoIcon className="h-4 w-4 text-peach" />
@@ -485,11 +489,11 @@ export default function SiteHeader() {
             </p>
           </div>
         </div>
-      </div>
+      </aside>
 
       <header className="sticky top-0 z-50 border-b border-border bg-cream/90 backdrop-blur-md">
-        <div className="mx-auto flex h-[5.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-24 lg:px-8 xl:gap-6">
-          <Link href="/" aria-label={`JRose Wellness, home`} className="flex shrink-0 items-center gap-3">
+        <div className="mx-auto flex h-[5.5rem] max-w-7xl items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6 lg:h-24 lg:px-8 xl:gap-6">
+          <Link href="/" aria-label={`${SITE_NAME}, home`} className="flex shrink-0 items-center gap-2 sm:gap-3">
             <Wordmark />
           </Link>
 
@@ -506,12 +510,21 @@ export default function SiteHeader() {
                   open={openState?.key === key}
                   onHoverOpen={() => {
                     clearTimer()
+                    // Hover intent: when another menu is open, wait before switching, so a pointer
+                    // cutting across this trigger on its way into the open panel does not swap menus.
+                    // Entering the open panel re-fires its own onHoverOpen, which clears this timer.
+                    if (openState && openState.key !== key && !openState.pinned) {
+                      closeTimer.current = setTimeout(() => setOpenState({ key, pinned: false }), 180)
+                      return
+                    }
                     setOpenState((s) => (s?.key === key ? s : { key, pinned: false }))
                   }}
                   onHoverClose={() => {
+                    // Leaving any trigger or panel closes whichever unpinned menu is open, unless the
+                    // pointer reaches a trigger or panel within 150ms.
                     clearTimer()
                     closeTimer.current = setTimeout(() => {
-                      setOpenState((s) => (s?.key === key && !s.pinned ? null : s))
+                      setOpenState((s) => (s && !s.pinned ? null : s))
                     }, 150)
                   }}
                   onToggle={() => {
@@ -591,7 +604,7 @@ export default function SiteHeader() {
           className="fixed inset-0 z-[70] flex flex-col bg-cream lg:hidden"
         >
           <div className="flex h-[5.5rem] shrink-0 items-center justify-between gap-4 border-b border-border px-4 sm:px-6">
-            <Link href="/" onClick={closeMobile} aria-label="JRose Wellness, home" className="flex items-center gap-3">
+            <Link href="/" onClick={closeMobile} aria-label={`${SITE_NAME}, home`} className="flex items-center gap-3">
               <Wordmark compact />
             </Link>
             <button

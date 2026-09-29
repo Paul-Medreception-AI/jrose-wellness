@@ -96,10 +96,6 @@ export default function BookAppointmentPage() {
               <ul className="mt-6 space-y-3 text-[15px] leading-relaxed text-ink/85">
                 <li className="flex gap-3">
                   <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-sage" />
-                  <span>{PRICING.slidingScale} Ask about it when we follow up.</span>
-                </li>
-                <li className="flex gap-3">
-                  <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-sage" />
                   <span>{PRICING.goodFaithEstimate}</span>
                 </li>
                 <li className="flex gap-3">
@@ -141,7 +137,7 @@ export default function BookAppointmentPage() {
                   Share your contact details and any days or times that tend to work for you. Please leave medical details
                   out of the form. You can go over those with Jessica at your visit.
                 </p>
-                <ContactForm source="book-appointment" defaultReason="New patient: self-pay appointment request" />
+                <ContactForm source="book-appointment" defaultReason="self-pay" />
               </div>
             </div>
           </div>

@@ -1,356 +1,351 @@
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
+import PageHero from '@/components/site/PageHero'
+import CrisisNotice from '@/components/site/CrisisNotice'
+import JsonLd from '@/components/site/JsonLd'
+import { BUTTON } from '@/components/site/SmartLink'
+import { ArrowRight, CheckIcon, PhoneIcon } from '@/components/site/icons'
+import { AGES, CONTACT, NAV_CTA, PRACTICE_FAQS, PROVIDER, SITE_NAME, SITE_URL, withBrand } from '@/lib/site'
+import { imageFor } from '@/lib/images'
+import { getPost, postHref, postRobots } from '@/lib/posts'
+
+// Autobuilt post, rewritten against FACTS.md: statistics and evidence claims removed, the
+// sedative-medication mention removed (no controlled-substance promises), and treatment tied to what
+// the practice offers (evaluation, medication management, supportive therapy within visits).
+
+const SLUG = 'panic-attacks-symptoms-triggers-and-treatment-options'
+const post = getPost(SLUG)
+const PATH = postHref(SLUG)
+const TITLE = withBrand(post.title)
+const DESCRIPTION =
+  'What a panic attack feels like, common triggers, and how panic is treated, from coping skills you can use in the moment to psychiatric medication management.'
+const IMAGE = imageFor('/conditions/anxiety')
+
+// PRACTICE_FAQS: [2] therapy and medication, [4] how medication is chosen.
+const THERAPY_AND_MEDICATION = PRACTICE_FAQS[2].a
+const HOW_MEDICATION_IS_CHOSEN = PRACTICE_FAQS[4].a
 
 export const metadata: Metadata = {
-  title: 'Panic Attacks: Symptoms, Triggers, and Treatment Options',
-  description: 'Learn about panic attack symptoms, common triggers, and evidence-based treatment options. Expert guidance on managing panic disorder and anxiety.',
-  alternates: { canonical: '/blog/panic-attacks-symptoms-triggers-and-treatment-options' },
+  title: TITLE,
+  // Noindex until Jessica reviews this autobuilt post (INDEXED_POST_SLUGS in lib/posts.ts).
+  ...postRobots(SLUG),
+  description: DESCRIPTION,
+  alternates: { canonical: PATH },
   openGraph: {
-    title: 'Panic Attacks: Symptoms, Triggers, and Treatment Options',
-    description: 'Learn about panic attack symptoms, common triggers, and evidence-based treatment options. Expert guidance on managing panic disorder and anxiety.',
-    url: 'https://jrosewellness.com/blog/panic-attacks-symptoms-triggers-and-treatment-options',
-    siteName: 'JROSE WELLNESS',
-    type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }]
+    title: TITLE,
+    description: DESCRIPTION,
+    url: PATH,
+    siteName: SITE_NAME,
+    type: 'article',
+    images: [{ url: IMAGE.src, alt: IMAGE.alt }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Panic Attacks: Symptoms, Triggers, and Treatment Options',
-    description: 'Learn about panic attack symptoms, common triggers, and evidence-based treatment options. Expert guidance on managing panic disorder and anxiety.',
-    images: ['/og-image.png']
-  }
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [IMAGE.src] },
 }
 
-export default function PanicAttacksArticle() {
+const RELATED = [
+  {
+    href: '/conditions/anxiety',
+    eyebrow: 'Conditions',
+    title: 'Anxiety & Panic',
+    body: 'How Jessica evaluates and treats anxiety, panic attacks, and social anxiety by secure video.',
+  },
+  {
+    href: '/services/psychiatric-evaluation',
+    eyebrow: 'Services',
+    title: 'Psychiatric Evaluation',
+    body: 'Your first visit: your history, symptoms, and goals, and a plan that fits you.',
+  },
+  {
+    href: '/blog/recognizing-the-physical-symptoms-of-anxiety',
+    eyebrow: 'Blog',
+    title: 'Recognizing the Physical Symptoms of Anxiety',
+    body: 'How anxiety can show up in your body, and when those symptoms are worth a closer look.',
+  },
+]
+
+const H2 = 'mt-14 mb-4 font-cormorant text-[1.9rem] font-semibold leading-tight text-primary sm:text-[2.25rem]'
+const H3 = 'mt-8 mb-3 text-xl font-semibold leading-snug text-primary'
+const LINK = 'font-semibold text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent'
+
+function CheckList({ items }: { items: ReactNode[] }) {
+  return (
+    <ul className="mb-6 space-y-3">
+      {items.map((item, i) => (
+        <li key={i} className="flex items-start gap-3">
+          <CheckIcon className="mt-1 h-5 w-5 shrink-0 text-accent" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+const articleSchema = {
+  '@type': 'Article',
+  headline: post.title,
+  ...(post.updated ? { dateModified: post.updated } : {}),
+  description: DESCRIPTION,
+  image: [new URL(IMAGE.src, SITE_URL).toString()],
+  inLanguage: 'en-US',
+  author: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  mainEntityOfPage: new URL(PATH, SITE_URL).toString(),
+}
+
+export default function PanicAttacksPost() {
   return (
     <main>
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="text-sm mb-6 text-white/80 text-center">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <span className="mx-2">›</span>
-            <Link href="/blog" className="hover:text-white transition-colors">Resources</Link>
-            <span className="mx-2">›</span>
-            <span>Article</span>
-          </div>
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 text-center">Mental Health</div>
-          <h1 className="font-cormorant text-5xl font-light leading-tight max-w-3xl mx-auto text-center">
-            Panic Attacks: Symptoms, Triggers, and Treatment Options
-          </h1>
-          <div className="flex items-center justify-center gap-6 mt-8 text-sm text-white/80">
-            <span>Published January 2025</span>
-            <span>•</span>
-            <span>7 min read</span>
-            <span>•</span>
-            <span>Reviewed by JROSE WELLNESS</span>
-          </div>
-        </div>
-      </section>
+      <JsonLd data={articleSchema} />
+      <PageHero
+        eyebrow={post.category}
+        title={post.title}
+        subtitle={DESCRIPTION}
+        image={IMAGE}
+        priority
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }]}
+      />
 
-      <article className="bg-white py-20">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-[var(--color-ink)] leading-loose text-base">
-            <p className="text-xl leading-relaxed mb-8">
-              Your heart pounds uncontrollably. You can't catch your breath. A wave of terror washes over you, convincing you something catastrophic is happening. Then, just as suddenly as it began, it fades. If you've experienced this, you're not alone—panic attacks affect millions of people, and understanding them is the first step toward reclaiming control.
+      <article className="bg-white py-14 sm:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <p className="border-b border-border pb-6 text-sm text-muted">
+            By <span className="font-semibold text-ink">{SITE_NAME}</span>
+          </p>
+
+          <div className="mt-10 text-[1.0625rem] leading-[1.8] text-ink/85 [&>p]:mb-5">
+            <p className="text-xl leading-relaxed text-ink">
+              Your heart pounds. You can&apos;t catch your breath. A wave of fear tells you something terrible is
+              happening. Then, minutes later, it fades and leaves you shaken. If this has happened to you, you are not
+              alone, and it does not mean you are weak or &ldquo;losing it.&rdquo; Panic attacks are common, and they
+              are treatable.
             </p>
 
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">What Is a Panic Attack?</h2>
-            <p className="mb-6">
-              A panic attack is an abrupt surge of intense fear or discomfort that reaches its peak within minutes. Unlike general anxiety, which builds gradually, panic attacks strike suddenly and can feel overwhelming. The experience is both physical and psychological, often leaving people frightened of when the next episode might occur.
+            <h2 className={H2}>What is a panic attack?</h2>
+            <p>
+              A panic attack is a sudden surge of intense fear or discomfort that builds fast, usually peaking within
+              minutes. Everyday anxiety tends to build slowly. Panic hits all at once, and it can feel as physical as
+              it is emotional.
             </p>
-            <p className="mb-6">
-              According to the National Institute of Mental Health, approximately 11% of adults in the United States experience a panic attack in a given year. While a single panic attack doesn't necessarily indicate panic disorder, recurrent attacks—especially when accompanied by persistent worry about future episodes—may warrant clinical attention.
-            </p>
-
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">Recognizing the Symptoms</h2>
-            <p className="mb-6">
-              Panic attacks manifest through a constellation of physical and emotional symptoms. During an episode, you may experience four or more of the following:
-            </p>
-            <ul className="space-y-3 mb-6">
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Racing or pounding heartbeat (palpitations)</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Sweating, trembling, or shaking</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Shortness of breath or feeling of being smothered</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Chest pain or discomfort</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Nausea or abdominal distress</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Dizziness, lightheadedness, or feeling faint</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Chills or heat sensations</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Numbness or tingling sensations</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Feelings of unreality (derealization) or being detached from oneself (depersonalization)</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Fear of losing control or "going crazy"</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Fear of dying</span>
-              </li>
-            </ul>
-            <p className="mb-6">
-              Many people experiencing their first panic attack believe they're having a heart attack or another life-threatening medical emergency. The physical symptoms are real and intense, which is why it's important to rule out other medical conditions with your healthcare provider.
+            <p>
+              One panic attack does not mean you have panic disorder. When attacks keep coming back, and you start to
+              worry about the next one or change your routine to avoid them, it is worth getting evaluated.
             </p>
 
-            <div className="bg-[var(--color-light)] border-l-4 border-[var(--color-primary)] p-6 my-8">
-              <p className="text-[var(--color-ink)] italic text-xl font-cormorant">
-                "Understanding that panic attacks, while terrifying, are not dangerous can be the first step in reducing their power over your life."
+            <h2 className={H2}>Recognizing the symptoms</h2>
+            <p>During a panic attack, you may notice several of these at once:</p>
+            <CheckList
+              items={[
+                'A racing or pounding heartbeat (palpitations)',
+                'Sweating, trembling, or shaking',
+                'Shortness of breath or a feeling of being smothered',
+                'Chest pain or discomfort',
+                'Nausea or an upset stomach',
+                'Dizziness, lightheadedness, or feeling faint',
+                'Chills or hot flashes',
+                'Numbness or tingling',
+                'Feeling unreal (derealization) or detached from yourself (depersonalization)',
+                'Fear of losing control',
+                'Fear of dying',
+              ]}
+            />
+            <p>
+              Many people having their first panic attack think it is a heart attack. The symptoms are real, and they
+              deserve to be taken seriously. If you have chest pain or trouble breathing that is new or different, call
+              911 or go to the nearest emergency room. Your primary care clinician can also help rule out other
+              medical causes, such as thyroid or heart rhythm problems.
+            </p>
+
+            <div className="my-10 rounded-r-2xl border-l-4 border-accent bg-light/70 px-6 py-5">
+              <p className="font-cormorant text-[1.4rem] leading-snug text-primary">
+                Panic attacks are frightening, but they pass. Understanding what is happening in your body is often
+                the first step toward taking back some control.
               </p>
             </div>
 
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">Common Triggers and Risk Factors</h2>
-            <p className="mb-6">
-              Panic attacks can occur unexpectedly or be triggered by specific situations. Understanding your personal triggers is essential for developing effective coping strategies.
+            <h2 className={H2}>Common triggers and risk factors</h2>
+            <p>
+              Some panic attacks seem to come out of nowhere. Others are tied to certain places or situations. Noticing
+              your own patterns gives you and your clinician something concrete to work with.
             </p>
-            <p className="mb-4 font-semibold text-[var(--color-ink)]">Situational Triggers:</p>
-            <ul className="space-y-2 mb-6 ml-6">
-              <li className="list-disc">Crowded spaces or public transportation</li>
-              <li className="list-disc">Being in enclosed spaces (elevators, tunnels)</li>
-              <li className="list-disc">Social situations or public speaking</li>
-              <li className="list-disc">Driving, especially on highways or bridges</li>
-              <li className="list-disc">Stressful life events or major transitions</li>
-            </ul>
-            <p className="mb-4 font-semibold text-[var(--color-ink)]">Contributing Factors:</p>
-            <ul className="space-y-2 mb-6 ml-6">
-              <li className="list-disc">Family history of panic disorder or anxiety</li>
-              <li className="list-disc">Chronic stress or traumatic experiences</li>
-              <li className="list-disc">Major life changes (moving, job loss, divorce)</li>
-              <li className="list-disc">Certain medical conditions (thyroid problems, heart arrhythmias)</li>
-              <li className="list-disc">Substance use, including caffeine and stimulants</li>
-              <li className="list-disc">Withdrawal from certain medications</li>
-            </ul>
-            <p className="mb-6">
-              Research published in the Journal of Psychiatric Research indicates that genetic factors account for approximately 40% of panic disorder risk, highlighting the importance of family history in vulnerability.
+            <h3 className={H3}>Situations that can set off panic</h3>
+            <CheckList
+              items={[
+                'Crowded places or public transportation',
+                'Enclosed spaces, such as elevators or tunnels',
+                'Social situations or public speaking',
+                'Driving, especially on highways or bridges',
+                'Stressful events or big life transitions',
+              ]}
+            />
+            <h3 className={H3}>Things that can make panic more likely</h3>
+            <CheckList
+              items={[
+                'A family history of panic or anxiety',
+                'Ongoing stress or past trauma',
+                'Major life changes, such as a move, a job loss, or a breakup',
+                'Certain medical conditions, such as thyroid or heart rhythm problems',
+                'Caffeine, alcohol, nicotine, or other substances',
+                'Stopping certain medications suddenly',
+              ]}
+            />
+
+            <h2 className={H2}>How panic can affect daily life</h2>
+            <p>
+              Beyond the attacks themselves, many people start to dread the next one. That fear can lead to avoidance:
+              skipping the grocery store, the highway, or the meeting where an attack happened before. Little by little,
+              your world can start to feel smaller.
+            </p>
+            <p>
+              For some people, avoidance grows into agoraphobia, a fear of places where escape might feel hard. Panic
+              can also show up alongside low mood or heavier drinking. These are all good reasons to reach out sooner
+              rather than later.
             </p>
 
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">The Impact on Daily Life</h2>
-            <p className="mb-6">
-              Beyond the episodes themselves, panic attacks can significantly affect quality of life. Many people develop anticipatory anxiety—fear of having another attack—which can lead to avoidance behaviors. You might start avoiding places or situations where you've previously had an attack, gradually limiting your activities and independence.
+            <h2 className={H2}>Treatment options</h2>
+            <p>
+              Panic attacks and panic disorder are treatable. Treatment is personal, and it often combines more than
+              one approach.
             </p>
-            <p className="mb-6">
-              This avoidance can escalate into agoraphobia, where the fear of panic attacks becomes so overwhelming that you avoid leaving home or entering situations where escape might be difficult. Studies show that untreated panic disorder increases the risk of developing depression, substance abuse problems, and other anxiety disorders.
+            <h3 className={H3}>Cognitive behavioral techniques</h3>
+            <p>
+              Cognitive behavioral therapy (CBT) helps you notice the thoughts that turn a racing heart into
+              &ldquo;something is terribly wrong,&rdquo; and practice new ways of responding. A key part is gradually
+              and safely facing the sensations and situations you have been avoiding, so you learn that panic is
+              uncomfortable but passes.
+            </p>
+            <p>
+              At {SITE_NAME}, Jessica uses cognitive behavioral techniques, mindfulness, and practical coping
+              strategies within your visits. In her words: &ldquo;{THERAPY_AND_MEDICATION}&rdquo;
+            </p>
+            <h3 className={H3}>Medication</h3>
+            <p>
+              Medication can make panic attacks less frequent and less intense for some people. Antidepressants such as
+              SSRIs and SNRIs are commonly used for panic disorder. Any medication decision should be made with a
+              qualified prescriber who knows your full history.
+            </p>
+            <p>
+              How Jessica approaches it: &ldquo;{HOW_MEDICATION_IS_CHOSEN}&rdquo; Medication is always optional. Learn
+              more about{' '}
+              <Link href="/services/medication-management" className={LINK}>
+                medication management
+              </Link>
+              .
+            </p>
+            <h3 className={H3}>Daily habits that support treatment</h3>
+            <p>
+              Regular movement, steady sleep, and cutting back on caffeine and alcohol can make your body less reactive.
+              Mindfulness and slow breathing can help you ride out symptoms. These habits support treatment. They do
+              not replace it.
             </p>
 
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">Evidence-Based Treatment Options</h2>
-            <p className="mb-6">
-              The good news is that panic attacks and panic disorder are highly treatable. Most people experience significant improvement with appropriate intervention.
-            </p>
-            <p className="mb-4 font-semibold text-[var(--color-ink)]">Cognitive-Behavioral Therapy (CBT):</p>
-            <p className="mb-6">
-              CBT is considered the gold standard psychological treatment for panic disorder. This approach helps you identify and change thought patterns that contribute to panic attacks. You'll learn to recognize catastrophic thinking, challenge irrational fears, and develop healthier responses to physical sensations. Research shows that 70-90% of people who complete CBT experience significant symptom reduction.
-            </p>
-            <p className="mb-4 font-semibold text-[var(--color-ink)]">Exposure Therapy:</p>
-            <p className="mb-6">
-              A component of CBT, exposure therapy involves gradually and safely confronting feared situations or physical sensations. By repeatedly facing these triggers in a controlled way, you learn that panic symptoms are uncomfortable but not dangerous, reducing the fear response over time.
-            </p>
-            <p className="mb-4 font-semibold text-[var(--color-ink)]">Medication:</p>
-            <p className="mb-6">
-              Several medications can effectively reduce panic symptoms. Selective serotonin reuptake inhibitors (SSRIs) and serotonin-norepinephrine reuptake inhibitors (SNRIs) are commonly prescribed as first-line treatments. Benzodiazepines may be used short-term for immediate symptom relief, though they carry risks of dependence with long-term use. Medication decisions should always be made in consultation with a qualified healthcare provider.
-            </p>
-            <p className="mb-4 font-semibold text-[var(--color-ink)]">Lifestyle Modifications:</p>
-            <p className="mb-6">
-              Complementary strategies can enhance treatment effectiveness. Regular exercise has been shown to reduce anxiety and improve mood. Mindfulness meditation and breathing techniques can help you manage symptoms during an episode. Reducing caffeine and alcohol intake, maintaining consistent sleep patterns, and building a strong support network all contribute to better outcomes.
-            </p>
+            <h2 className={H2}>What to do during a panic attack</h2>
+            <p>Professional care helps over the long run. In the moment, these steps can help:</p>
+            <CheckList
+              items={[
+                <>
+                  <strong className="font-semibold text-ink">Slow your breathing:</strong> breathe in through your nose
+                  for a count of four, hold for four, then breathe out through your mouth for a count of six.
+                </>,
+                <>
+                  <strong className="font-semibold text-ink">Ground yourself:</strong> name five things you can see,
+                  four you can touch, three you can hear, two you can smell, and one you can taste.
+                </>,
+                <>
+                  <strong className="font-semibold text-ink">Talk to yourself kindly:</strong> &ldquo;This is
+                  uncomfortable, and it will pass.&rdquo;
+                </>,
+                <>
+                  <strong className="font-semibold text-ink">Stay in the present:</strong> notice what is happening now
+                  instead of what might happen next.
+                </>,
+                <>
+                  <strong className="font-semibold text-ink">Stay put if it is safe:</strong> leaving brings quick
+                  relief but teaches your brain the situation is dangerous. Letting the wave pass shows you it ends on its
+                  own.
+                </>,
+              ]}
+            />
 
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">Immediate Coping Strategies</h2>
-            <p className="mb-6">
-              While professional treatment is essential for long-term management, these techniques can help during an acute panic attack:
+            <h2 className={H2}>When to seek professional help</h2>
+            <p>
+              If you have had more than one panic attack, you live in fear of the next one, or you have started avoiding
+              places because of panic, it is a good time to talk with a professional. You don&apos;t have to wait until
+              it gets worse.
             </p>
-            <ul className="space-y-3 mb-6">
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Practice controlled breathing:</strong> Breathe in slowly through your nose for 4 counts, hold for 4, then exhale through your mouth for 6 counts</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Ground yourself:</strong> Use the 5-4-3-2-1 technique—identify 5 things you see, 4 you can touch, 3 you hear, 2 you smell, and 1 you taste</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Remind yourself:</strong> "This is uncomfortable, but not dangerous. It will pass."</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Stay present:</strong> Avoid catastrophic thinking about what might happen</span>
-              </li>
-              <li className="flex gap-3 items-start">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                  <path d="M5 13l4 4L19 7" />
-                </svg>
-                <span><strong>Resist the urge to flee:</strong> If safe, stay in the situation to learn that the panic will subside on its own</span>
-              </li>
-            </ul>
-
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">When to Seek Professional Help</h2>
-            <p className="mb-6">
-              If you've experienced multiple panic attacks, live in fear of having another, or have begun avoiding situations because of panic, it's time to reach out to a healthcare provider. Early intervention can prevent the development of more severe anxiety disorders and help you regain control of your life.
+            <p>
+              A{' '}
+              <Link href="/services/psychiatric-evaluation" className={LINK}>
+                psychiatric evaluation
+              </Link>{' '}
+              looks at your symptoms, history, and goals, and ends with a plan that fits you. At {SITE_NAME},{' '}
+              {PROVIDER.byline}, a board-certified psychiatric nurse practitioner, sees {AGES.short.toLowerCase()} in{' '}
+              {CONTACT.state} by secure video. Read more about{' '}
+              <Link href="/conditions/anxiety" className={LINK}>
+                how anxiety and panic are treated
+              </Link>
+              .
             </p>
-            <p className="mb-6">
-              A comprehensive evaluation will rule out medical conditions that can mimic panic symptoms, such as thyroid disorders or cardiac issues, and determine the most appropriate treatment approach for your situation.
-            </p>
-            <p className="mb-6">
-              Living with panic attacks can feel isolating and overwhelming, but effective help is available. With proper treatment and support, most people learn to manage their symptoms successfully and return to full, active lives. You don't have to face this alone—reaching out is a sign of strength, not weakness, and the first step toward feeling better.
+            <p>
+              Living with panic can feel isolating. Reaching out is a sign of strength, and it is the first step toward
+              feeling steadier.
             </p>
           </div>
-        </div>
 
-        <div className="bg-[var(--color-cream)] rounded-2xl p-8 max-w-3xl mx-auto my-12 px-6">
-          <div className="flex gap-6 items-start">
-            <div className="bg-[var(--color-light)] rounded-full w-16 h-16 flex items-center justify-center flex-shrink-0">
-              <svg className="w-8 h-8 text-[var(--color-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+          <aside className="mt-14 rounded-2xl bg-cream p-6 sm:p-8">
+            <p className="font-semibold text-ink">About this article</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              This article is general information from {SITE_NAME}, not medical advice for your situation. Talk with
+              your own clinician before starting, stopping, or changing any treatment.
+            </p>
+            <div className="mt-4">
+              <CrisisNotice variant="compact" />
             </div>
-            <div>
-              <div className="font-semibold text-[var(--color-ink)] mb-2">Reviewed by JROSE WELLNESS</div>
-              <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-                This article has been reviewed for accuracy and clarity by our care team. We are committed to providing evidence-based information that helps you make informed decisions about your health and well-being.
-              </p>
-            </div>
-          </div>
+          </aside>
         </div>
       </article>
 
-      <section className="bg-[var(--color-cream)] py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <h3 className="font-cormorant text-3xl text-[var(--color-ink)] mb-8 text-center">Related Resources</h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            <Link href="/blog" className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 animate-fade-up">
-              <div className="bg-gradient-to-br from-[var(--color-light)] to-white p-12 flex items-center justify-center">
-                <svg className="w-16 h-16 text-[var(--color-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                  <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-wider text-[var(--color-accent)] mb-2">Resource Center</div>
-                <h4 className="font-cormorant text-2xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                  Browse All Articles
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm leading-relaxed mb-4">
-                  Explore our complete library of health and wellness resources.
-                </p>
-                <div className="text-[var(--color-accent)] text-sm font-semibold group-hover:gap-3 flex items-center gap-2 transition-all">
-                  View Resources
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/services" className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 animate-fade-up">
-              <div className="bg-gradient-to-br from-[var(--color-light)] to-white p-12 flex items-center justify-center">
-                <svg className="w-16 h-16 text-[var(--color-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-wider text-[var(--color-accent)] mb-2">Our Services</div>
-                <h4 className="font-cormorant text-2xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                  Explore Our Services
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm leading-relaxed mb-4">
-                  Discover comprehensive integrative wellness care options.
-                </p>
-                <div className="text-[var(--color-accent)] text-sm font-semibold group-hover:gap-3 flex items-center gap-2 transition-all">
-                  Learn More
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
-
-            <Link href="/contact" className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 animate-fade-up">
-              <div className="bg-gradient-to-br from-[var(--color-light)] to-white p-12 flex items-center justify-center">
-                <svg className="w-16 h-16 text-[var(--color-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                  <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-wider text-[var(--color-accent)] mb-2">Get Started</div>
-                <h4 className="font-cormorant text-2xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                  Schedule a Consultation
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm leading-relaxed mb-4">
-                  Take the first step toward better mental health and wellness.
-                </p>
-                <div className="text-[var(--color-accent)] text-sm font-semibold group-hover:gap-3 flex items-center gap-2 transition-all">
-                  Contact Us
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </div>
-            </Link>
+      <section className="bg-cream py-16 sm:py-20" aria-labelledby="related-heading">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 id="related-heading" className="text-center font-cormorant text-3xl font-semibold text-primary sm:text-4xl">
+            Related resources
+          </h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {RELATED.map((r) => (
+              <Link
+                key={r.href}
+                href={r.href}
+                className="group flex flex-col rounded-2xl border border-border bg-white p-7 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <span className="text-xs font-semibold uppercase tracking-wider text-accent">{r.eyebrow}</span>
+                <h3 className="mt-2 font-cormorant text-2xl font-semibold leading-snug text-ink transition-colors group-hover:text-primary">
+                  {r.title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{r.body}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent">
+                  Read more <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl font-light mb-4">Ready to Take the Next Step?</h2>
-          <p className="text-xl mb-8 text-white/90">Our team is here to help.</p>
-          <Link
-            href="/contact"
-            className="inline-block bg-white text-[var(--color-primary)] px-8 py-4 rounded-full font-semibold hover:bg-[var(--color-cream)] transition-all duration-300 hover:scale-105"
-          >
-            Schedule Your Consultation
-          </Link>
+      <section className="bg-gradient-to-br from-dark to-primary py-20 text-center text-white">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <h2 className="font-cormorant text-4xl font-semibold leading-tight sm:text-5xl">Ready to take the next step?</h2>
+          <p className="mt-4 text-lg leading-relaxed text-white/90">
+            Secure video visits with {PROVIDER.byline} for {AGES.short.toLowerCase()} in {CONTACT.state}. Book with
+            insurance through Alma or Headway, or request a self-pay appointment.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link href={NAV_CTA.href} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.accent}`}>
+              {NAV_CTA.label}
+            </Link>
+            <a href={CONTACT.phoneHref} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.outlineLight}`}>
+              <PhoneIcon />
+              Call {CONTACT.phone}
+            </a>
+          </div>
         </div>
       </section>
     </main>

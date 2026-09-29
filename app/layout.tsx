@@ -76,7 +76,9 @@ const siteSchema = {
       publisher: { '@id': PRACTICE_ID },
     },
     {
-      '@type': ['MedicalBusiness', 'ProfessionalService'],
+      // MedicalOrganization is what allows medicalSpecialty. Not Physician or MedicalClinic: Jessica is
+      // not a physician and there is no clinic or office.
+      '@type': ['MedicalBusiness', 'MedicalOrganization'],
       '@id': PRACTICE_ID,
       name: SITE_NAME,
       legalName: LEGAL_NAME,
@@ -87,13 +89,19 @@ const siteSchema = {
       telephone: CONTACT.phoneHref.replace(/^tel:/, ''),
       email: CONTACT.email,
       areaServed: { '@type': 'State', name: CONTACT.state },
-      medicalSpecialty: 'Psychiatric',
-      availableService: [
-        { '@type': 'DiagnosticProcedure', name: 'Psychiatric evaluation' },
-        { '@type': 'MedicalTherapy', name: 'Psychiatric medication management' },
-        { '@type': 'PsychologicalTreatment', name: 'Supportive therapy' },
-        { '@type': 'MedicalTherapy', name: 'Telepsychiatry (secure video visits)' },
-      ],
+      medicalSpecialty: 'https://schema.org/Psychiatric',
+      // availableService is only valid on Hospital, MedicalClinic and Physician, so the services
+      // are listed as an offer catalog instead.
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Psychiatric services',
+        itemListElement: [
+          'Psychiatric evaluation',
+          'Psychiatric medication management',
+          'Supportive therapy',
+          'Telepsychiatry (secure video visits)',
+        ].map((name) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name } })),
+      },
       founder: { '@id': PERSON_ID },
       employee: { '@id': PERSON_ID },
       sameAs: [BOOKING.alma.href, BOOKING.headway.href],
@@ -107,7 +115,7 @@ const siteSchema = {
       url: abs('/about'),
       image: abs(JESSICA_PHOTOS.portrait.src),
       identifier: { '@type': 'PropertyValue', propertyID: 'NPI', value: PROVIDER.npi },
-      alumniOf: { '@type': 'CollegeOrUniversity', name: PROVIDER.education.split(', ').pop() },
+      alumniOf: { '@type': 'CollegeOrUniversity', name: PROVIDER.school },
       hasCredential: [
         {
           '@type': 'EducationalOccupationalCredential',

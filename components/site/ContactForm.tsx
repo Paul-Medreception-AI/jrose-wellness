@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import { AGES, CONTACT, CRISIS, NO_MEDICAL_ADVICE } from '@/lib/site'
+import CrisisText from './CrisisText'
 
 // Posts to /api/contact, which forwards to MedReception Studio server-side. The Studio token never
 // reaches the browser. See app/api/contact/route.ts and lib/deliver.ts.
@@ -15,8 +16,10 @@ import { AGES, CONTACT, CRISIS, NO_MEDICAL_ADVICE } from '@/lib/site'
 // the crisis line sit directly under it.
 
 const REASONS = [
-  { key: 'self-pay', label: 'New patient: self-pay appointment request' },
-  { key: 'insurance', label: 'New patient: question about using insurance (Alma or Headway)' },
+  // Short enough to show in full in a phone-width select. Keep the "New patient" / "Current patient"
+  // prefixes: app/api/contact/route.ts patientTypeFor() reads them.
+  { key: 'self-pay', label: 'New patient: self-pay visit' },
+  { key: 'insurance', label: 'New patient: using insurance' },
   { key: 'current-patient', label: 'Current patient: scheduling' },
   { key: 'billing', label: 'Billing or insurance question' },
   { key: 'other', label: 'Something else' },
@@ -223,7 +226,9 @@ export default function ContactForm({
           </a>
           .
         </p>
-        <p className="mt-3 text-sm font-semibold text-[var(--color-primary)]">{CRISIS.short}</p>
+        <p className="mt-3 text-sm font-semibold text-[var(--color-primary)]">
+          <CrisisText text={CRISIS.short} linkClassName="underline underline-offset-2" />
+        </p>
         <button
           type="button"
           onClick={() => setStatus({ kind: 'idle' })}
@@ -417,7 +422,9 @@ export default function ContactForm({
           />
           <div id={id('message-help')} className="mt-2 space-y-1 text-sm leading-relaxed">
             <p className="text-[var(--color-muted)]">{NO_MEDICAL_ADVICE}</p>
-            <p className="font-semibold text-[var(--color-primary)]">{CRISIS.short}</p>
+            <p className="font-semibold text-[var(--color-primary)]">
+              <CrisisText text={CRISIS.short} linkClassName="underline underline-offset-2" />
+            </p>
           </div>
         </div>
 

@@ -45,7 +45,7 @@ const conditionTiles: Tile[] = CONDITIONS.map((c) => ({
   href: `/conditions/${c.slug}`,
   label: c.title,
   eyebrow: 'Condition',
-  summary: c.summary,
+  summary: c.summary ?? c.description,
   image: c.heroImage ?? imageFor(`/conditions/${c.slug}`),
 }))
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { deliver, toE164, NotConfiguredError } from '@/lib/deliver'
-import { CONTACT } from '@/lib/site'
+import { CONTACT, SITE_URL } from '@/lib/site'
 
 // Server-side handler for the public contact and appointment-request form
 // (components/site/ContactForm.tsx). Ported from guardian-primary-care/app/api/contact/route.ts.
@@ -19,7 +19,7 @@ export const runtime = 'nodejs'
 
 const MIN_SUBMIT_MS = 1500
 const OFFICE_PHONE = CONTACT.phone
-const SITE = 'www.jrosewellness.com'
+const SITE = new URL(SITE_URL).host
 
 const FAILED = `We could not send your message. Please call us at ${OFFICE_PHONE}.`
 

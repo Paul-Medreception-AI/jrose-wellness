@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 const CARD_COPY: Record<string, { eyebrow: string; blurb: string; concerns: string[] }> = {
   teens: {
     eyebrow: `Adolescents ${AGES.minimum}+`,
-    blurb: 'Care for teens, with a parent or guardian involved in booking and consent.',
+    blurb: `Care for adolescents ${AGES.minimum} and older by secure video, with help for parents and guardians before booking.`,
     concerns: ['Anxiety', 'Depression', 'ADHD', 'School stress'],
   },
   adults: {
@@ -69,7 +69,7 @@ const CARE_INCLUDES = [
     href: '/services/supportive-therapy',
     title: 'Supportive Therapy',
     body: 'Coping strategies and support built into your visits, with a referral to a therapist if you need more.',
-    price: 'Part of your visits',
+    price: 'Within your visits',
   },
 ]
 
@@ -181,7 +181,7 @@ export default function WhoWeHelpPage() {
               <SectionHeading
                 id="provider-heading"
                 eyebrow="Meet Jessica"
-                title="Care that connects physical and mental health"
+                title="One provider at every visit"
               />
               <blockquote className="mt-6 border-l-4 border-l-accent pl-5 font-cormorant text-2xl italic leading-snug text-primary sm:text-[1.75rem]">
                 &ldquo;In addition to my psychiatric background, I also have experience as a Family Nurse Practitioner

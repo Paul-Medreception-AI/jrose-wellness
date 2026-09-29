@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { AGES, CONTACT, SITE_NAME, SITE_URL, withBrand } from '@/lib/site'
 import { BRAND_IMAGES } from '@/lib/images'
-import { POSTS, postHref } from '@/lib/posts'
+import { POSTS, postHref, postRobots } from '@/lib/posts'
 import PageHero from '@/components/site/PageHero'
 import Container from '@/components/site/Container'
 import CrisisNotice from '@/components/site/CrisisNotice'
@@ -100,8 +100,14 @@ export function buildArticleMetadata({
 }): Metadata {
   const fullTitle = withBrand(title)
   const path = postHref(slug)
+  // Dates default to the post's lib/posts.ts entry, so every post carries its real edit date.
+  const post = POSTS.find((p) => p.slug === slug)
+  date = date ?? post?.date
+  updated = updated ?? post?.updated
   return {
     title: fullTitle,
+    // Autobuilt posts stay noindex until Jessica reviews them (INDEXED_POST_SLUGS in lib/posts.ts).
+    ...postRobots(slug),
     description,
     alternates: { canonical: path },
     openGraph: {
@@ -167,6 +173,10 @@ export default function ArticleLayout({
 }: ArticleLayoutProps) {
   const postSlug = slug ?? POSTS.find((p) => p.title.toLowerCase() === title.toLowerCase())?.slug
   const url = postSlug ? abs(postHref(postSlug)) : undefined
+  // Dates not passed as props come from the post's lib/posts.ts entry.
+  const post = postSlug ? POSTS.find((p) => p.slug === postSlug) : undefined
+  date = date ?? post?.date
+  updated = updated ?? post?.updated
   const modified = updated ?? date
 
   const articleSchema = {
@@ -194,7 +204,7 @@ export default function ArticleLayout({
   }
 
   return (
-    <>
+    <main>
       <JsonLd data={articleSchema} />
       <PageHero
         size="md"
@@ -272,6 +282,6 @@ export default function ArticleLayout({
       {after}
 
       <CtaBand heading={ctaHeading} body={ctaBody} />
-    </>
+    </main>
   )
 }

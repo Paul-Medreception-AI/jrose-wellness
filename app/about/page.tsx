@@ -122,7 +122,9 @@ export default function AboutPage() {
       <section className="overflow-hidden bg-white py-16 sm:py-24" aria-labelledby="about-intro-heading">
         <Container>
           <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
-            <div className="relative mx-auto w-full max-w-sm lg:max-w-md">
+            {/* Phones and tablets already see Jessica in the hero directly above, so the second
+                photo only appears in the two-column desktop layout. */}
+            <div className="relative mx-auto hidden w-full max-w-sm lg:block lg:max-w-md">
               <div
                 aria-hidden="true"
                 className="absolute -bottom-4 -right-4 left-6 top-6 rounded-[2rem] bg-gradient-to-br from-peach to-light sm:-bottom-5 sm:-right-5"

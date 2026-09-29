@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { AGES, CONTACT, PRACTICE_FAQS, PROVIDER } from '@/lib/site'
 import { GuideTemplate, TextLink, type GuideContent } from '../_components/GuideTemplate'
 import { buildGuideMetadata, getGuide } from '../_lib/guides'
+import { NP_ROLE } from '@/lib/faqs'
 
 const GUIDE = getGuide('psychiatric-nurse-practitioner-vs-psychiatrist')
 
@@ -178,16 +179,15 @@ const content: GuideContent = {
     ],
   },
   faqs: [
-    {
-      q: 'Is a psychiatric nurse practitioner a psychiatrist?',
-      a: `No. ${PROVIDER.name} is a board-certified psychiatric-mental health nurse practitioner (an APRN), not a physician, and is licensed in ${CONTACT.state} to evaluate, diagnose, treat, and prescribe.`,
-    },
+    // The same answer as /faq (FACTS.md section 10, pending Jessica's approval), so it is worded and
+    // marked up in one place.
+    NP_ROLE,
     { q: whatPsychNpDoes.q, a: whatPsychNpDoes.a },
     { q: therapyOrMeds.q, a: therapyOrMeds.a },
     { q: controlled.q, a: controlled.a },
     {
       q: 'Can I use insurance to see a psychiatric nurse practitioner?',
-      a: 'Often, yes, depending on your plan. At JRose Wellness, you can use insurance by booking through Alma or through Headway, and plans are listed on the Insurance page. You can also book a self-pay visit directly with the practice.',
+      a: 'Often, yes, depending on your plan. At JRose Wellness, you can use insurance by booking through Alma or through Headway, and plans are listed on the Insurance page. You can also request a self-pay visit directly with the practice.',
     },
     {
       q: 'When might a psychiatrist be a better fit?',

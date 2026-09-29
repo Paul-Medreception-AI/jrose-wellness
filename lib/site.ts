@@ -25,6 +25,7 @@ export const PROVIDER = {
   ownWords:
     "I'm a Board Certified Psychiatric Nurse Practitioner, Family Nurse Practitioner and the founder of JRose Wellness PLLC, where whole-person mental health care is the priority.",
   education: 'Master of Science in Nursing (MSN), Pace University',
+  school: 'Pace University',
   certificate: 'Certificate in Nutritional Psychiatry, Integrative Psychiatry Institute (2025)',
   // Verifiable from CT eLicense grant dates. Use this instead of a years-of-experience number.
   licensure:
@@ -91,7 +92,11 @@ export const PRICING = {
     description:
       "Care doesn't stop after the first visit. During follow-up appointments, we check in on your progress, talk about how you're feeling, and monitor how your treatment plan is working. If medication is part of your care, we carefully manage and adjust it when needed to ensure it's safe, effective, and supporting your overall well-being. These sessions help keep your care on track and give you ongoing professional support.",
   },
+  // CONFIRM: sourced from the Alma profile only. Until Jessica confirms it also covers self-pay
+  // booked directly with the practice, show it only in neutral FAQ answers, never beside the
+  // direct self-pay rates.
   slidingScale: 'A sliding scale is available based on financial need.',
+  // CONFIRM: regulatory notice; Jessica approves the wording (FACTS.md section 6).
   goodFaithEstimate:
     'Under the No Surprises Act, if you are not using insurance you have the right to receive a Good Faith Estimate of the expected cost of your care. Ask us for one before your visit.',
 } as const
@@ -129,13 +134,14 @@ export const INSURANCE_HEADWAY = [
   'Independence Blue Cross Pennsylvania - Virtual National Network',
   'Providence Health Plan',
 ] as const
-/** On both profiles. Safe for short copy and meta descriptions. */
-export const INSURANCE_HEADLINE = ['Aetna', 'Cigna', 'Anthem Blue Cross Blue Shield', 'Carelon Behavioral Health'] as const
+/** On both profiles (spelled as both profiles spell it). Safe for short copy and meta descriptions. */
+export const INSURANCE_HEADLINE = ['Aetna', 'Cigna', 'Anthem Blue Cross and Blue Shield', 'Carelon Behavioral Health'] as const
 
 export const AGES = {
   // Jessica's own Alma bio: "accepting new patients ages 15+". Never "children", "kids", "pediatric".
   short: 'Adolescents 15 and older, adults, and older adults',
   minimum: 15,
+  // CONFIRM: how guardian consent and booking work for 15-17 year olds (FACTS.md section 5).
   smsNote: 'Our text-message program is for people 18 and older, so a parent or guardian opts in for patients under 18.',
 } as const
 
@@ -257,7 +263,8 @@ export const NAV_CTA = { label: 'Book an Appointment', href: BOOKING.page } as c
  */
 export function withBrand(title: string): string {
   if (/jrose wellness/i.test(title)) return title
-  return title.length <= 44 ? `${title} | ${SITE_NAME}` : title
+  // 43 + " | JRose Wellness" (17) = 60 characters, the most a result title shows untruncated.
+  return title.length <= 43 ? `${title} | ${SITE_NAME}` : title
 }
 
 /** Items the practice must confirm before the domain leaves Wix. Keep in sync with CONFIRM tags above. */
@@ -271,4 +278,12 @@ export const CONFIRM_BEFORE_LAUNCH = [
   'Refund, cancellation, and no-show policy (none exists; no page published).',
   'Whether a discovery call exists (never label anything "free").',
   'Self-pay visit lengths (only the Alma 45-minute intake is stated).',
+  'Sliding scale (Alma: "based on financial need"): does it also apply to self-pay visits booked directly with the practice?',
+  'Approve the new FAQ answers from FACTS.md section 10 (ages, cost, insurance, sliding scale, first-visit length, emergency, "Is a psychiatric NP a psychiatrist?"), shown on /faq and reused on /compare/psychiatric-nurse-practitioner-vs-psychiatrist (lib/faqs.ts).',
+  'Approve the Good Faith Estimate notice wording.',
+  'Scope statements: no detox or withdrawal management (/conditions/substance-use), no autism diagnostic evaluations or psychological testing (/conditions/autism-spectrum).',
+  'Supportive therapy is included in evaluation and follow-up visits (no separate therapy visit type or fee).',
+  'Substance use: which referral resources to name (the page points to detox or treatment programs in general and makes no referral promise).',
+  'Clinical review of the 37 autobuilt blog posts. They stay noindex and out of the sitemap until approved (INDEXED_POST_SLUGS in lib/posts.ts); the IA plan launches with only the 3 practice posts.',
+  'Set NEXT_PUBLIC_GA_ID in the production build environment (the privacy page says the site may use Google Analytics).',
 ] as const

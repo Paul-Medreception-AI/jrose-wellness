@@ -148,7 +148,7 @@ export default function BlogPage() {
   }
 
   return (
-    <>
+    <main>
       <JsonLd data={blogSchema} />
       <PageHero
         size="md"
@@ -237,6 +237,6 @@ export default function BlogPage() {
         heading="Ready to talk with someone?"
         body={`Secure video visits with ${PROVIDER.name}, a ${PROVIDER.title.toLowerCase()}. Book with insurance through Alma or Headway, or request a self-pay appointment.`}
       />
-    </>
+    </main>
   )
 }

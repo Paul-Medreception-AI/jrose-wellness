@@ -1,10 +1,17 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import { BOOKING, CONTACT, INSURANCE_AS_OF, INSURANCE_HEADLINE, INSURANCE_HEADWAY, PRICING } from '@/lib/site'
+import { BOOKING, CONTACT, INSURANCE_ALMA, INSURANCE_AS_OF, INSURANCE_HEADLINE, INSURANCE_HEADWAY, PRICING } from '@/lib/site'
 import Container from './Container'
 import SectionHeading from './SectionHeading'
 import SmartLink, { BUTTON } from './SmartLink'
 import { ArrowRight, CheckIcon, ExternalIcon, PhoneIcon } from './icons'
+
+// The Alma card lists Alma's own spelling of the plans on both profiles (Alma names "Anthem Blue
+// Cross and Blue Shield Connecticut", not every Anthem plan), picked from INSURANCE_ALMA by the
+// shared names in INSURANCE_HEADLINE so no plan name is retyped here.
+const ALMA_CHIPS = INSURANCE_ALMA.filter((p) =>
+  INSURANCE_HEADLINE.some((h) => p === h || p.startsWith(`${h} `) || p.startsWith(`${h},`)),
+)
 
 /**
  * The three ways to book: insurance through Alma, insurance through Headway, or self-pay.
@@ -13,7 +20,7 @@ import { ArrowRight, CheckIcon, ExternalIcon, PhoneIcon } from './icons'
  */
 export default function BookingOptions({
   heading = 'Three ways to book',
-  intro = 'Use your insurance by booking through Alma or Headway, or book a self-pay visit directly with the practice. Every visit is by secure video.',
+  intro = 'Use your insurance by booking through Alma or Headway, or request a self-pay visit directly with the practice. Every visit is by secure video.',
   showRequest = true,
 }: {
   heading?: string
@@ -31,7 +38,7 @@ export default function BookingOptions({
             title="Through Alma"
             body={
               <>
-                <PlanChips plans={INSURANCE_HEADLINE} />
+                <PlanChips plans={ALMA_CHIPS} />
                 <p className="mt-4 text-sm leading-relaxed text-muted">{BOOKING.alma.note}</p>
               </>
             }
@@ -75,7 +82,7 @@ export default function BookingOptions({
                 </dl>
                 <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-muted">
                   <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
-                  {PRICING.slidingScale}
+                  Self-pay visits are booked by request. Send one online or call, and we will follow up to schedule.
                 </p>
               </>
             }

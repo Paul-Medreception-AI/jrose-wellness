@@ -1,448 +1,339 @@
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 import Link from 'next/link'
+import PageHero from '@/components/site/PageHero'
+import CrisisNotice from '@/components/site/CrisisNotice'
+import JsonLd from '@/components/site/JsonLd'
+import { BUTTON } from '@/components/site/SmartLink'
+import { ArrowRight, CheckIcon, PhoneIcon } from '@/components/site/icons'
+import { AGES, BOOKING, CONTACT, NAV_CTA, PRACTICE_FAQS, PRICING, PROVIDER, SITE_NAME, SITE_URL, withBrand } from '@/lib/site'
+import { imageFor } from '@/lib/images'
+import { getPost, postHref, postRobots } from '@/lib/posts'
+
+// Autobuilt post, rewritten against FACTS.md: invented visit lengths (60-90 minute evaluation,
+// 15-30 minute follow-ups) replaced with the only sourced length (Alma 45-minute intake); "full
+// practice authority in most states", controlled-substance prescribing, the outcomes-comparison claim
+// and the workforce-shortage claim removed; alternative-medicine framing, dietary changes and complementary
+// therapies removed; DBT/trauma-informed care not advertised; city location and invented byline
+// removed. The word for the medical-school specialist appears only to explain that a PMHNP is a
+// different role.
+
+const SLUG = 'the-role-of-a-psychiatric-nurse-practitioner-in-your-care'
+const post = getPost(SLUG)
+const PATH = postHref(SLUG)
+const TITLE = withBrand(post.title)
+const DESCRIPTION =
+  'What a psychiatric nurse practitioner does, from evaluation and diagnosis to medication management and supportive therapy, and what to expect at your visits.'
+const IMAGE = imageFor('/about')
+
+// PRACTICE_FAQS: [1] what a Psych NP does, [2] therapy and medication, [5] no medication.
+const WHAT_A_PSYCH_NP_DOES = PRACTICE_FAQS[1].a
+const THERAPY_AND_MEDICATION = PRACTICE_FAQS[2].a
+const MEDICATION_OPTIONAL = PRACTICE_FAQS[5].a
+
+// "supportive therapy, cognitive behavioral techniques, ..., and motivational interviewing"
+const TECHNIQUES = `${PROVIDER.techniques.slice(0, -1).join(', ')}, and ${PROVIDER.techniques[PROVIDER.techniques.length - 1]}`
 
 export const metadata: Metadata = {
-  title: 'The Role of a Psychiatric Nurse Practitioner in Your Care',
-  description: 'Learn how psychiatric nurse practitioners provide comprehensive mental health care, including diagnosis, therapy, and medication management in integrative wellness settings.',
-  alternates: { canonical: '/blog/the-role-of-a-psychiatric-nurse-practitioner-in-your-care' },
+  title: TITLE,
+  // Noindex until Jessica reviews this autobuilt post (INDEXED_POST_SLUGS in lib/posts.ts).
+  ...postRobots(SLUG),
+  description: DESCRIPTION,
+  alternates: { canonical: PATH },
   openGraph: {
-    title: 'The Role of a Psychiatric Nurse Practitioner in Your Care',
-    description: 'Learn how psychiatric nurse practitioners provide comprehensive mental health care, including diagnosis, therapy, and medication management in integrative wellness settings.',
-    url: 'https://jrosewellness.com/blog/the-role-of-a-psychiatric-nurse-practitioner-in-your-care',
-    siteName: 'JROSE WELLNESS',
-    type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }]
+    title: TITLE,
+    description: DESCRIPTION,
+    url: PATH,
+    siteName: SITE_NAME,
+    type: 'article',
+    images: [{ url: IMAGE.src, alt: IMAGE.alt }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'The Role of a Psychiatric Nurse Practitioner in Your Care',
-    description: 'Learn how psychiatric nurse practitioners provide comprehensive mental health care, including diagnosis, therapy, and medication management in integrative wellness settings.',
-    images: ['/og-image.png']
-  }
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [IMAGE.src] },
 }
 
-export default function BlogPost() {
+const RELATED = [
+  {
+    href: '/about',
+    eyebrow: 'About',
+    title: `About ${PROVIDER.name}`,
+    body: 'Her training, her approach, and what it is like to work with her.',
+  },
+  {
+    href: '/services/psychiatric-evaluation',
+    eyebrow: 'Services',
+    title: 'Psychiatric Evaluation',
+    body: 'Your first visit: your history, symptoms, and goals, and a plan that fits you.',
+  },
+  {
+    href: '/faq',
+    eyebrow: 'FAQ',
+    title: 'Frequently Asked Questions',
+    body: 'Medication, telehealth, therapy, and more, answered in the practice’s own words.',
+  },
+]
+
+const H2 = 'mt-14 mb-4 font-cormorant text-[1.9rem] font-semibold leading-tight text-primary sm:text-[2.25rem]'
+const H3 = 'mt-8 mb-3 text-xl font-semibold leading-snug text-primary'
+const LINK = 'font-semibold text-accent underline decoration-accent/40 underline-offset-[3px] hover:decoration-accent'
+
+function CheckList({ items }: { items: ReactNode[] }) {
+  return (
+    <ul className="mb-6 space-y-3">
+      {items.map((item, i) => (
+        <li key={i} className="flex items-start gap-3">
+          <CheckIcon className="mt-1 h-5 w-5 shrink-0 text-accent" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+const articleSchema = {
+  '@type': 'Article',
+  headline: post.title,
+  ...(post.updated ? { dateModified: post.updated } : {}),
+  description: DESCRIPTION,
+  image: [new URL(IMAGE.src, SITE_URL).toString()],
+  inLanguage: 'en-US',
+  author: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  mainEntityOfPage: new URL(PATH, SITE_URL).toString(),
+}
+
+export default function PsychiatricNursePractitionerRolePost() {
   return (
     <main>
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white">
-        <div className="max-w-4xl mx-auto px-6">
-          {/* Breadcrumb */}
-          <div className="text-sm mb-6 text-white/80 text-center">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <span className="mx-2">›</span>
-            <Link href="/blog" className="hover:text-white transition-colors">Resources</Link>
-            <span className="mx-2">›</span>
-            <span>Article</span>
+      <JsonLd data={articleSchema} />
+      <PageHero
+        eyebrow={post.category}
+        title={post.title}
+        subtitle={DESCRIPTION}
+        image={IMAGE}
+        priority
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog' }, { label: post.title }]}
+      />
+
+      <article className="bg-white py-14 sm:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <p className="border-b border-border pb-6 text-sm text-muted">
+            By <span className="font-semibold text-ink">{SITE_NAME}</span>
+          </p>
+
+          <div className="mt-10 text-[1.0625rem] leading-[1.8] text-ink/85 [&>p]:mb-5">
+            <p className="text-xl leading-relaxed text-ink">
+              When you start looking for mental health care, you will see a lot of titles: therapists, counselors,
+              psychologists, and psychiatric nurse practitioners. Knowing what a psychiatric nurse practitioner does
+              can help you decide what kind of care fits you, and what to expect when you get started.
+            </p>
+
+            <h2 className={H2}>What is a psychiatric nurse practitioner?</h2>
+            <p>
+              A psychiatric-mental health nurse practitioner (PMHNP) is an advanced practice registered nurse (APRN)
+              who specializes in mental health. In the practice&apos;s own words: &ldquo;{WHAT_A_PSYCH_NP_DOES}&rdquo;
+            </p>
+            <p>
+              PMHNPs start as registered nurses, then complete a graduate nursing degree, such as a Master of Science in
+              Nursing (MSN), with specialized training in psychiatric and mental health care. That education typically
+              covers:
+            </p>
+            <CheckList
+              items={[
+                'How psychiatric medications work, and how to manage them safely',
+                'Psychiatric assessment and diagnosis',
+                'Therapy techniques used in mental health care',
+                'The biology of mental health conditions',
+                'Assessing safety and risk',
+              ]}
+            />
+            <p>
+              Board certification means passing a national certification exam in the specialty, and every NP must also
+              hold a state license. {PROVIDER.byline} is a {PROVIDER.title.toLowerCase()}. Her degree:{' '}
+              {PROVIDER.education}. {PROVIDER.licensure}
+            </p>
+
+            <h2 className={H2}>What a PMHNP can do</h2>
+            <h3 className={H3}>Assessment and diagnosis</h3>
+            <p>
+              A psychiatric evaluation looks at your current symptoms, your mental and physical health history, your
+              family history, and what is going on in your life. From there, a PMHNP can diagnose conditions such as
+              depression, anxiety, ADHD, bipolar disorder, PTSD, and others.
+            </p>
+            <h3 className={H3}>Medication management</h3>
+            <p>
+              PMHNPs can prescribe psychiatric medications and manage them over time: choosing a medication with you,
+              watching for side effects, and adjusting the dose or trying something different when needed. Medication
+              is always a choice. In the practice&apos;s words: &ldquo;{MEDICATION_OPTIONAL}&rdquo;
+            </p>
+            <h3 className={H3}>Therapy within visits</h3>
+            <p>
+              Many PMHNPs also use therapy skills in their visits. At {SITE_NAME}, Jessica draws on {TECHNIQUES}. In
+              her words: &ldquo;{THERAPY_AND_MEDICATION}&rdquo;
+            </p>
+            <h3 className={H3}>Care coordination</h3>
+            <p>
+              A PMHNP often works alongside your other clinicians, such as your primary care clinician or a therapist,
+              so your care fits together.
+            </p>
+
+            <blockquote className="my-10 rounded-r-2xl border-l-4 border-accent bg-light/70 px-6 py-5">
+              <p className="font-cormorant text-[1.35rem] leading-snug text-primary">&ldquo;{PROVIDER.ownWords}&rdquo;</p>
+              <cite className="mt-2 block text-sm not-italic text-muted">{PROVIDER.byline}</cite>
+            </blockquote>
+
+            <h2 className={H2}>The nursing model: whole-person care</h2>
+            <p>
+              Nurse practitioners are trained in the nursing model of care, which looks at the whole person, not just a
+              list of symptoms. That means paying attention to:
+            </p>
+            <CheckList
+              items={[
+                'How your physical health affects how you feel',
+                'Your relationships, work, and living situation',
+                'Sleep, daily routines, and habits',
+                'Your culture, background, and values',
+                'Your goals, preferences, and lived experience',
+              ]}
+            />
+            <p>
+              In practice, that can mean talking through sleep, stress, and coping skills alongside any medication
+              decisions, and building a plan that fits your actual life.
+            </p>
+
+            <h2 className={H2}>How a PMHNP differs from a psychiatrist</h2>
+            <p>
+              People often ask how a psychiatric nurse practitioner compares with a psychiatrist. The main difference is
+              training. A psychiatrist goes to medical school and then completes a residency in psychiatry. A PMHNP is
+              an advanced practice nurse with graduate nursing education and clinical training in psychiatric-mental
+              health care.
+            </p>
+            <p>
+              Both evaluate and diagnose mental health conditions, and both prescribe and manage psychiatric
+              medication. {PROVIDER.name} is a psychiatric nurse practitioner, not a psychiatrist. The right fit often
+              comes down to how comfortable you feel with the person, their approach, and whether they have time to see
+              you.
+            </p>
+
+            <h2 className={H2}>What to expect when you work with a PMHNP</h2>
+            <p>At {SITE_NAME}, care starts with an initial evaluation. In the practice&apos;s own words:</p>
+            <blockquote className="my-6 rounded-r-2xl border-l-4 border-accent bg-light/70 px-6 py-5">
+              <p className="text-base leading-relaxed text-ink/85">&ldquo;{PRICING.initialEvaluation.description}&rdquo;</p>
+            </blockquote>
+            <p>During a first evaluation, you can expect to talk about:</p>
+            <CheckList
+              items={[
+                'Your mental and physical health history',
+                'Your current symptoms and how they affect daily life',
+                'Treatments you have tried before, and how they went',
+                'Your goals, and what you hope will change',
+                'A plan you build together',
+              ]}
+            />
+            <p>
+              {BOOKING.alma.note} After that, follow-up visits keep your plan on track: &ldquo;
+              {PRICING.followUp.description}&rdquo;
+            </p>
+            <p>
+              The relationship is a partnership. You should feel heard, respected, and involved in decisions about your
+              care. Ask questions, raise concerns, and share your preferences. That open conversation is part of what
+              makes treatment work.
+            </p>
+
+            <h2 className={H2}>When to consider seeing a PMHNP</h2>
+            <p>You might benefit from seeing a psychiatric nurse practitioner if you are dealing with:</p>
+            <CheckList
+              items={[
+                'Ongoing sadness, anxiety, or hopelessness',
+                'Changes in sleep, appetite, or energy',
+                'Trouble focusing or making decisions',
+                'Mood swings or feeling emotionally unsteady',
+                'Trauma symptoms or intrusive thoughts',
+                'Concerns about alcohol or substance use',
+                'Stress at work or in relationships that is tied to how you feel',
+              ]}
+            />
+            <p>
+              See the full list of{' '}
+              <Link href="/conditions" className={LINK}>
+                conditions treated at {SITE_NAME}
+              </Link>
+              .
+            </p>
+
+            <h2 className={H2}>Getting started</h2>
+            <p>
+              Psychiatric nurse practitioners offer thorough, personal mental health care. Whether you are looking for
+              help for the first time or looking for a new provider, a PMHNP can be a good choice.
+            </p>
+            <p>
+              At {SITE_NAME}, {PROVIDER.byline} sees {AGES.short.toLowerCase()} in {CONTACT.state} by secure video.
+              Learn more{' '}
+              <Link href="/about" className={LINK}>
+                about Jessica
+              </Link>{' '}
+              or about the{' '}
+              <Link href="/services/psychiatric-evaluation" className={LINK}>
+                psychiatric evaluation
+              </Link>
+              . Reaching out is a sign of strength, and it is the first step.
+            </p>
           </div>
 
-          {/* Category */}
-          <div className="text-xs uppercase tracking-widest text-white/70 mb-4 text-center">
-            Mental Health
-          </div>
-
-          {/* Title */}
-          <h1 className="font-cormorant text-5xl font-light leading-tight max-w-3xl mx-auto text-center mb-6">
-            The Role of a Psychiatric Nurse Practitioner in Your Care
-          </h1>
-
-          {/* Meta */}
-          <div className="flex items-center justify-center gap-6 text-sm text-white/70">
-            <span>Published 2025</span>
-            <span>•</span>
-            <span>7 min read</span>
-            <span>•</span>
-            <span>Dr. WELLNESS Team</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Article Body */}
-      <article className="bg-white py-20">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-[var(--color-ink)] leading-loose text-base space-y-6">
-            {/* Opening Hook */}
-            <p>
-              When seeking mental health care, you may encounter various types of providers—psychiatrists, psychologists, therapists, and psychiatric nurse practitioners. Understanding the unique role of a psychiatric nurse practitioner (PMHNP) can help you make informed decisions about your care and ensure you receive the comprehensive, holistic support you deserve. These highly trained professionals are transforming mental health care by combining advanced medical training with a patient-centered, integrative approach to wellness.
+          <aside className="mt-14 rounded-2xl bg-cream p-6 sm:p-8">
+            <p className="font-semibold text-ink">About this article</p>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              This article is general information from {SITE_NAME}, not medical advice for your situation. Talk with
+              your own clinician before starting, stopping, or changing any treatment.
             </p>
-
-            <p>
-              In an era where mental health awareness is growing but access to care remains challenging, psychiatric nurse practitioners have emerged as essential providers who can diagnose conditions, prescribe medications, provide therapy, and offer the compassionate, personalized care that forms the foundation of healing.
-            </p>
-
-            {/* Section 1 */}
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              What Is a Psychiatric Nurse Practitioner?
-            </h2>
-
-            <p>
-              A psychiatric nurse practitioner is an advanced practice registered nurse (APRN) who specializes in mental health care. PMHNPs complete rigorous graduate-level education—typically a Master of Science in Nursing (MSN) or Doctor of Nursing Practice (DNP)—with specialized training in psychiatric and mental health nursing.
-            </p>
-
-            <p>
-              This education includes advanced coursework in:
-            </p>
-
-            <ul className="space-y-3 my-6">
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Psychopharmacology and medication management</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Diagnostic assessment and differential diagnosis</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Evidence-based psychotherapy techniques</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Neurobiology and pathophysiology of mental health disorders</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Crisis intervention and risk assessment</span>
-              </li>
-            </ul>
-
-            <p>
-              After completing their degree, PMHNPs must pass a national certification examination and obtain state licensure. Many continue their education throughout their careers, staying current with the latest research and treatment modalities in mental health care.
-            </p>
-
-            {/* Section 2 */}
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              The Scope of Practice: What PMHNPs Can Do
-            </h2>
-
-            <p>
-              In most states, including Connecticut, psychiatric nurse practitioners have full practice authority, meaning they can provide comprehensive mental health care independently. Their scope of practice includes:
-            </p>
-
-            <p>
-              <strong>Comprehensive Assessment and Diagnosis:</strong> PMHNPs conduct thorough psychiatric evaluations, taking into account medical history, family history, current symptoms, and psychosocial factors. They can diagnose mental health conditions ranging from depression and anxiety to bipolar disorder, PTSD, ADHD, and more complex conditions.
-            </p>
-
-            <p>
-              <strong>Medication Management:</strong> One of the key distinguishing features of PMHNPs is their ability to prescribe medications, including controlled substances. They understand the intricate science of psychopharmacology and can tailor medication regimens to each individual's unique biochemistry and needs.
-            </p>
-
-            <p>
-              <strong>Psychotherapy:</strong> Many PMHNPs are trained in various therapeutic modalities, including cognitive-behavioral therapy (CBT), dialectical behavior therapy (DBT), motivational interviewing, and trauma-informed care. This allows them to provide both medication management and talk therapy—often called "med management with therapy."
-            </p>
-
-            <p>
-              <strong>Care Coordination:</strong> PMHNPs often serve as the central point of contact in a patient's mental health care, coordinating with other providers, primary care physicians, therapists, and specialists to ensure comprehensive, integrated treatment.
-            </p>
-
-            {/* Pull Quote */}
-            <div className="bg-[var(--color-light)] border-l-4 border-[var(--color-primary)] p-6 my-8 animate-fade-up">
-              <p className="text-[var(--color-ink)] italic text-xl font-cormorant">
-                "Psychiatric nurse practitioners bring a unique blend of medical expertise and holistic, patient-centered care that addresses not just symptoms, but the whole person."
-              </p>
+            <div className="mt-4">
+              <CrisisNotice variant="compact" />
             </div>
-
-            {/* Section 3 */}
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              The Nursing Model: A Holistic Approach
-            </h2>
-
-            <p>
-              What sets psychiatric nurse practitioners apart is their foundation in the nursing model of care, which emphasizes treating the whole person—mind, body, and spirit—rather than just managing symptoms. This approach considers:
-            </p>
-
-            <ul className="space-y-3 my-6">
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Physical health factors that impact mental wellness</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Social and environmental influences on mental health</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Lifestyle factors including nutrition, sleep, and exercise</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Cultural background and individual values</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>The patient's goals, preferences, and lived experience</span>
-              </li>
-            </ul>
-
-            <p>
-              This integrative perspective means that a PMHNP might explore not only medication options but also recommend dietary changes, stress management techniques, sleep hygiene practices, or complementary therapies as part of a comprehensive treatment plan.
-            </p>
-
-            {/* Section 4 */}
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              PMHNP vs. Psychiatrist: Understanding the Difference
-            </h2>
-
-            <p>
-              Many patients wonder about the difference between a psychiatric nurse practitioner and a psychiatrist. Both are qualified mental health providers who can diagnose conditions and prescribe medications, but their training paths differ:
-            </p>
-
-            <p>
-              Psychiatrists are medical doctors (MDs or DOs) who complete medical school followed by a residency in psychiatry. Their training emphasizes the medical model and biological aspects of mental illness.
-            </p>
-
-            <p>
-              PMHNPs are advanced practice nurses who complete graduate nursing education with a focus on psychiatric care. Their training emphasizes the holistic nursing model alongside medical treatment.
-            </p>
-
-            <p>
-              In practice, both can provide excellent care. Research consistently shows that patient outcomes with nurse practitioners are comparable to those with physicians across various specialties, including mental health. The choice often comes down to availability, personal preference, and the specific approach that resonates with you as a patient.
-            </p>
-
-            <p>
-              One advantage of PMHNPs is accessibility—there is a significant shortage of psychiatrists in many areas, particularly in rural and underserved communities. PMHNPs help fill this gap, often offering shorter wait times and more appointment availability.
-            </p>
-
-            {/* Section 5 */}
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              What to Expect When Working with a PMHNP
-            </h2>
-
-            <p>
-              Your first appointment with a psychiatric nurse practitioner typically lasts 60-90 minutes. During this initial evaluation, your PMHNP will:
-            </p>
-
-            <ul className="space-y-3 my-6">
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Gather a comprehensive history of your mental and physical health</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Discuss your current symptoms and how they impact your daily life</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Review any previous treatments and their effectiveness</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Conduct a mental status examination</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Discuss your goals for treatment and what you hope to achieve</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Collaboratively develop a personalized treatment plan</span>
-              </li>
-            </ul>
-
-            <p>
-              Follow-up appointments are typically shorter, ranging from 15-30 minutes for medication management to 45-60 minutes when therapy is included. Your PMHNP will monitor your progress, adjust treatments as needed, and provide ongoing support as you work toward your mental health goals.
-            </p>
-
-            <p>
-              The relationship with your PMHNP is a partnership. You should feel heard, respected, and involved in decisions about your care. Don't hesitate to ask questions, voice concerns, or discuss preferences—this open communication is essential to effective treatment.
-            </p>
-
-            {/* Section 6 */}
-            <h2 className="font-cormorant text-3xl text-[var(--color-ink)] mt-12 mb-4">
-              When to Consider Seeing a Psychiatric Nurse Practitioner
-            </h2>
-
-            <p>
-              You might benefit from working with a PMHNP if you're experiencing:
-            </p>
-
-            <ul className="space-y-3 my-6">
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Persistent feelings of sadness, anxiety, or hopelessness</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Changes in sleep, appetite, or energy levels</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Difficulty concentrating or making decisions</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Mood swings or emotional instability</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Trauma symptoms or intrusive thoughts</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Substance use concerns</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Relationship or work difficulties related to mental health</span>
-              </li>
-            </ul>
-
-            <p>
-              PMHNPs are equipped to handle a wide range of mental health concerns, from common conditions like depression and anxiety to more complex diagnoses. They can also provide preventive care and wellness strategies to maintain good mental health.
-            </p>
-
-            {/* Closing */}
-            <p className="mt-8">
-              Psychiatric nurse practitioners represent a vital component of modern mental health care, offering accessible, comprehensive, and compassionate treatment. Their unique combination of advanced medical training and holistic nursing philosophy allows them to address not only the symptoms of mental illness but also the underlying factors that contribute to wellness.
-            </p>
-
-            <p>
-              Whether you're seeking care for the first time or looking for a new provider, a PMHNP can be an excellent choice. In places like Fairfield, CT, where integrative wellness care is increasingly valued, psychiatric nurse practitioners are helping to bridge the gap between traditional mental health treatment and whole-person wellness.
-            </p>
-
-            <p>
-              If you're struggling with your mental health, remember that seeking help is a sign of strength, not weakness. A qualified psychiatric nurse practitioner can work with you to develop a personalized treatment plan that honors your unique needs, preferences, and goals—supporting you on your journey toward healing and wellness.
-            </p>
-          </div>
-        </div>
-
-        {/* Author Box */}
-        <div className="max-w-3xl mx-auto px-6 mt-16">
-          <div className="bg-[var(--color-cream)] rounded-2xl p-8 flex gap-6 items-start animate-fade-up">
-            <div className="bg-[var(--color-light)] rounded-full w-16 h-16 flex-shrink-0 flex items-center justify-center">
-              <svg className="w-8 h-8 text-[var(--color-primary)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-              </svg>
-            </div>
-            <div>
-              <p className="font-semibold text-[var(--color-ink)] mb-1">Reviewed by JROSE WELLNESS</p>
-              <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-                Providing comprehensive integrative wellness care in Fairfield, CT. Our approach combines evidence-based treatment with personalized, patient-centered care to support your journey toward optimal mental and physical health.
-              </p>
-            </div>
-          </div>
+          </aside>
         </div>
       </article>
 
-      {/* Related Articles */}
-      <section className="bg-[var(--color-cream)] py-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <h3 className="font-cormorant text-3xl text-[var(--color-ink)] mb-8 text-center">Related Resources</h3>
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Card 1 */}
-            <Link href="/blog" className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 animate-fade-up">
-              <div className="aspect-[16/9] bg-gradient-to-br from-[var(--color-light)] to-[var(--color-cream)] flex items-center justify-center">
-                <svg className="w-12 h-12 text-[var(--color-primary)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-wider text-[var(--color-accent)] mb-2">Mental Health</div>
-                <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                  Explore More Mental Health Articles
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm">
-                  Discover evidence-based insights on mental wellness, treatment approaches, and integrative care strategies.
-                </p>
-              </div>
-            </Link>
-
-            {/* Card 2 */}
-            <Link href="/blog" className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 animate-fade-up">
-              <div className="aspect-[16/9] bg-gradient-to-br from-[var(--color-light)] to-[var(--color-cream)] flex items-center justify-center">
-                <svg className="w-12 h-12 text-[var(--color-primary)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-wider text-[var(--color-accent)] mb-2">Patient Education</div>
-                <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                  View All Patient Resources
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm">
-                  Access comprehensive guides to understanding your care, treatment options, and wellness strategies.
-                </p>
-              </div>
-            </Link>
-
-            {/* Card 3 */}
-            <Link href="/contact" className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 animate-fade-up">
-              <div className="aspect-[16/9] bg-gradient-to-br from-[var(--color-light)] to-[var(--color-cream)] flex items-center justify-center">
-                <svg className="w-12 h-12 text-[var(--color-primary)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                </svg>
-              </div>
-              <div className="p-6">
-                <div className="text-xs uppercase tracking-wider text-[var(--color-accent)] mb-2">Get Started</div>
-                <h4 className="font-cormorant text-xl text-[var(--color-ink)] mb-2 group-hover:text-[var(--color-primary)] transition-colors">
-                  Schedule a Consultation
-                </h4>
-                <p className="text-[var(--color-muted)] text-sm">
-                  Take the first step toward wellness. Connect with our team to learn how we can support your health journey.
-                </p>
-              </div>
-            </Link>
+      <section className="bg-cream py-16 sm:py-20" aria-labelledby="related-heading">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 id="related-heading" className="text-center font-cormorant text-3xl font-semibold text-primary sm:text-4xl">
+            Related resources
+          </h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {RELATED.map((r) => (
+              <Link
+                key={r.href}
+                href={r.href}
+                className="group flex flex-col rounded-2xl border border-border bg-white p-7 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <span className="text-xs font-semibold uppercase tracking-wider text-accent">{r.eyebrow}</span>
+                <h3 className="mt-2 font-cormorant text-2xl font-semibold leading-snug text-ink transition-colors group-hover:text-primary">
+                  {r.title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted">{r.body}</p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent">
+                  Read more <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white text-center">
-        <div className="max-w-3xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl font-light mb-4">Ready to Take the Next Step?</h2>
-          <p className="text-xl mb-8 text-white/90">Our team is here to help.</p>
-          <Link
-            href="/contact"
-            className="inline-block bg-white text-[var(--color-primary)] px-8 py-4 rounded-lg font-semibold hover:bg-[var(--color-cream)] transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-          >
-            Contact Us Today
-          </Link>
+      <section className="bg-gradient-to-br from-dark to-primary py-20 text-center text-white">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <h2 className="font-cormorant text-4xl font-semibold leading-tight sm:text-5xl">Ready to take the next step?</h2>
+          <p className="mt-4 text-lg leading-relaxed text-white/90">
+            Secure video visits with {PROVIDER.byline} for {AGES.short.toLowerCase()} in {CONTACT.state}. Book with
+            insurance through Alma or Headway, or request a self-pay appointment.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Link href={NAV_CTA.href} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.accent}`}>
+              {NAV_CTA.label}
+            </Link>
+            <a href={CONTACT.phoneHref} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.outlineLight}`}>
+              <PhoneIcon />
+              Call {CONTACT.phone}
+            </a>
+          </div>
         </div>
       </section>
     </main>

@@ -33,6 +33,7 @@ const OG_IMAGE = { url: '/og-image.png', width: 1200, height: 630, alt: `${SITE_
 // No title template: every page passes its own title through withBrand() (lib/site.ts).
 // Icons come from the app/icon.png and app/apple-icon.png file conventions.
 export const metadata: Metadata = {
+  verification: { google: 'feibKn5AwabJBvn-TNkq4nh6CfCDvatl3IwvjyCH90k' },
   metadataBase: new URL(SITE_URL),
   title: TITLE,
   description: DESCRIPTION,

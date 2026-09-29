@@ -157,19 +157,19 @@ export default function HomePage() {
         <div className="relative mx-auto w-full max-w-7xl px-4 pb-10 pt-12 sm:px-6 sm:pb-12 sm:pt-16 lg:px-8 lg:py-24">
           <div className="animate-fade-up max-w-xl lg:max-w-[33rem] xl:max-w-xl">
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-accent sm:text-[13px]">
-              Telehealth psychiatric care for patients in {CONTACT.state}
+              Online psychiatric care across {CONTACT.state}
             </p>
             <h1
               id="home-hero-heading"
               className="font-cormorant text-[2.5rem] font-semibold leading-[1.05] text-primary sm:text-[3.25rem] lg:text-[3.5rem] xl:text-[4rem]"
             >
-              Telehealth Psychiatry and Medication Management in Connecticut
+              Personalized Psychiatry, From the Comfort of Home
             </h1>
             <p className="mt-5 text-lg leading-relaxed text-ink/80">
-              Psychiatric evaluations, medication management, and supportive therapy with{' '}
-              <strong className="font-semibold text-ink">{PROVIDER.byline}</strong>, a board-certified psychiatric
-              nurse practitioner. Secure video visits for adolescents {AGES.minimum}+ and adults, with insurance
-              through Alma or Headway, or self-pay.
+              Work one-on-one with <strong className="font-semibold text-ink">{PROVIDER.byline}</strong> for
+              psychiatric evaluations, medication management, and supportive therapy through secure video visits. Care
+              is available for teens {AGES.minimum}+ and adults throughout {CONTACT.state}, with insurance through Alma
+              and Headway or self-pay.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -214,8 +214,59 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. SERVICES */}
-      <section className="bg-white py-16 sm:py-24" aria-labelledby="home-services-heading">
+      {/* 2. MEET JESSICA: straight after the hero, the provider and the trust signals */}
+      <section className="overflow-hidden bg-white py-16 sm:py-24" aria-labelledby="home-jessica-heading">
+        <Container>
+          <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
+            <div className="relative mx-auto h-72 w-72 sm:h-96 sm:w-96 lg:h-[26rem] lg:w-[26rem]">
+              <div aria-hidden="true" className="absolute -inset-3 rounded-full border border-accent/20 sm:-inset-4" />
+              <div className="absolute inset-0 overflow-hidden rounded-full bg-gradient-to-b from-peach to-light">
+                <Image
+                  src={JESSICA_PHOTOS.camelBlazer.src}
+                  alt={JESSICA_PHOTOS.camelBlazer.alt}
+                  fill
+                  sizes="(min-width: 1024px) 416px, (min-width: 640px) 384px, 288px"
+                  className="object-cover object-top"
+                />
+              </div>
+              <p className="absolute -bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-border bg-white px-4 py-2 text-[13px] font-medium text-ink shadow-md">
+                <VideoIcon className="h-4 w-4 text-accent" />
+                {CONTACT.serviceArea}
+              </p>
+            </div>
+
+            <div>
+              <SectionHeading id="home-jessica-heading" eyebrow="Meet your provider" title={`Meet ${PROVIDER.name}`} />
+              <p className="mt-3 text-sm font-semibold uppercase tracking-[0.12em] text-sage">
+                {PROVIDER.credentials} <span aria-hidden="true">·</span> {PROVIDER.title}
+              </p>
+
+              <blockquote className="mt-7 border-l-2 border-accent/40 pl-5 font-cormorant text-[1.45rem] italic leading-snug text-ink sm:text-[1.7rem]">
+                <p>&ldquo;{PROVIDER.ownWords}&rdquo;</p>
+              </blockquote>
+
+              <p className="mt-6 text-lg leading-relaxed text-ink/80">{APPROACH_LINE}</p>
+
+              <ul className="mt-6 space-y-3">
+                {[PROVIDER.licensure, PROVIDER.education].map((line) => (
+                  <li key={line} className="flex items-start gap-3 leading-relaxed text-ink/85">
+                    <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-sage" />
+                    {line}
+                  </li>
+                ))}
+              </ul>
+
+              <Link href="/about" className={`${BUTTON.base} ${BUTTON.md} ${BUTTON.outlineDark} mt-8`}>
+                More about Jessica
+                <ArrowRight />
+              </Link>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* 3. SERVICES */}
+      <section className="bg-cream py-16 sm:py-24" aria-labelledby="home-services-heading">
         <Container>
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <SectionHeading
@@ -242,14 +293,14 @@ export default function HomePage() {
                     href={s.href}
                     className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-white shadow-[0_1px_2px_rgba(46,15,19,0.04),0_12px_32px_-16px_rgba(46,15,19,0.18)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_2px_4px_rgba(46,15,19,0.05),0_20px_40px_-18px_rgba(46,15,19,0.28)]"
                   >
-                    <div className="relative h-44 w-full overflow-hidden bg-light">
+                    <div className={`relative h-56 w-full overflow-hidden bg-light ${i < 2 ? 'lg:h-64' : ''}`}>
                       {img && (
                         <Image
                           src={img.src}
                           alt=""
                           fill
                           sizes="(min-width: 1024px) 40vw, (min-width: 640px) 50vw, 100vw"
-                          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                          className="object-cover object-[center_15%] transition-transform duration-500 group-hover:scale-[1.03]"
                         />
                       )}
                     </div>
@@ -269,7 +320,7 @@ export default function HomePage() {
         </Container>
       </section>
 
-      {/* 3. CONDITIONS */}
+      {/* 4. CONDITIONS */}
       <section className="bg-light py-16 sm:py-24" aria-labelledby="home-conditions-heading">
         <Container>
           <SectionHeading
@@ -316,57 +367,6 @@ export default function HomePage() {
                   {a.label}
                 </Link>
               ))}
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* 4. MEET JESSICA */}
-      <section className="overflow-hidden bg-cream py-16 sm:py-24" aria-labelledby="home-jessica-heading">
-        <Container>
-          <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16">
-            <div className="relative mx-auto h-72 w-72 sm:h-96 sm:w-96 lg:h-[26rem] lg:w-[26rem]">
-              <div aria-hidden="true" className="absolute -inset-3 rounded-full border border-accent/20 sm:-inset-4" />
-              <div className="absolute inset-0 overflow-hidden rounded-full bg-gradient-to-b from-peach to-light">
-                <Image
-                  src={JESSICA_PHOTOS.camelBlazer.src}
-                  alt={JESSICA_PHOTOS.camelBlazer.alt}
-                  fill
-                  sizes="(min-width: 1024px) 416px, (min-width: 640px) 384px, 288px"
-                  className="object-cover object-top"
-                />
-              </div>
-              <p className="absolute -bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full border border-border bg-white px-4 py-2 text-[13px] font-medium text-ink shadow-md">
-                <VideoIcon className="h-4 w-4 text-accent" />
-                {CONTACT.serviceArea}
-              </p>
-            </div>
-
-            <div>
-              <SectionHeading id="home-jessica-heading" eyebrow="Meet your provider" title={`Meet ${PROVIDER.name}`} />
-              <p className="mt-3 text-sm font-semibold uppercase tracking-[0.12em] text-sage">
-                {PROVIDER.credentials} <span aria-hidden="true">·</span> {PROVIDER.title}
-              </p>
-
-              <blockquote className="mt-7 border-l-2 border-accent/40 pl-5 font-cormorant text-[1.45rem] italic leading-snug text-ink sm:text-[1.7rem]">
-                <p>&ldquo;{PROVIDER.ownWords}&rdquo;</p>
-              </blockquote>
-
-              <p className="mt-6 text-lg leading-relaxed text-ink/80">{APPROACH_LINE}</p>
-
-              <ul className="mt-6 space-y-3">
-                {[PROVIDER.licensure, PROVIDER.education].map((line) => (
-                  <li key={line} className="flex items-start gap-3 leading-relaxed text-ink/85">
-                    <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-sage" />
-                    {line}
-                  </li>
-                ))}
-              </ul>
-
-              <Link href="/about" className={`${BUTTON.base} ${BUTTON.md} ${BUTTON.outlineDark} mt-8`}>
-                More about Jessica
-                <ArrowRight />
-              </Link>
             </div>
           </div>
         </Container>

@@ -338,10 +338,10 @@ function Wordmark({ compact = false }: { compact?: boolean }) {
       <Image
         src={BRAND_IMAGES.logo.src}
         alt=""
-        width={96}
-        height={96}
+        width={144}
+        height={144}
         priority
-        className="h-12 w-12 shrink-0 rounded-full ring-1 ring-primary/10"
+        className="h-[72px] w-[72px] shrink-0 rounded-full ring-1 ring-primary/10"
       />
       <span className="flex flex-col leading-none">
         <span className="whitespace-nowrap font-cormorant text-[1.6rem] font-semibold tracking-tight text-primary">JRose Wellness</span>
@@ -488,7 +488,7 @@ export default function SiteHeader() {
       </div>
 
       <header className="sticky top-0 z-50 border-b border-border bg-cream/90 backdrop-blur-md">
-        <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-20 lg:px-8 xl:gap-6">
+        <div className="mx-auto flex h-[5.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-24 lg:px-8 xl:gap-6">
           <Link href="/" aria-label={`JRose Wellness, home`} className="flex shrink-0 items-center gap-3">
             <Wordmark />
           </Link>
@@ -590,7 +590,7 @@ export default function SiteHeader() {
           onKeyDown={trapFocus}
           className="fixed inset-0 z-[70] flex flex-col bg-cream lg:hidden"
         >
-          <div className="flex h-[4.5rem] shrink-0 items-center justify-between gap-4 border-b border-border px-4 sm:px-6">
+          <div className="flex h-[5.5rem] shrink-0 items-center justify-between gap-4 border-b border-border px-4 sm:px-6">
             <Link href="/" onClick={closeMobile} aria-label="JRose Wellness, home" className="flex items-center gap-3">
               <Wordmark compact />
             </Link>

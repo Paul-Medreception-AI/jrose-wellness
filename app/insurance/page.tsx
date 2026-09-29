@@ -1,337 +1,319 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+import {
+  BOOKING,
+  CONTACT,
+  INSURANCE_ALMA,
+  INSURANCE_AS_OF,
+  INSURANCE_HEADLINE,
+  INSURANCE_HEADWAY,
+  NAV_CTA,
+  PRICING,
+  PROVIDER,
+  SITE_NAME,
+  withBrand,
+} from '@/lib/site'
+import { PAGE_IMAGES } from '@/lib/images'
+import PageHero from '@/components/site/PageHero'
+import Container from '@/components/site/Container'
+import SectionHeading from '@/components/site/SectionHeading'
+import BookingOptions from '@/components/site/BookingOptions'
+import FaqList from '@/components/site/FaqList'
+import CtaBand from '@/components/site/CtaBand'
+import SmartLink, { BUTTON } from '@/components/site/SmartLink'
+import { ArrowRight, CheckIcon, ExternalIcon, PhoneIcon } from '@/components/site/icons'
+
+const PATH = '/insurance'
+const HERO = PAGE_IMAGES[PATH]
+const TITLE = withBrand('Insurance & Self-Pay Pricing, CT')
+const DESCRIPTION = `Use ${INSURANCE_HEADLINE.slice(0, 3).join(', ')} and more through Alma or Headway, or self-pay: ${PRICING.initialEvaluation.price} initial evaluation and ${PRICING.followUp.price} follow-up visits.`
 
 export const metadata: Metadata = {
-  title: 'Insurance & Billing | JROSE WELLNESS',
-  description: 'Transparent insurance and billing information for mental health services. We verify coverage before your visit and offer self-pay options with upfront estimates.',
-  alternates: { canonical: '/insurance' },
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: PATH },
   openGraph: {
-    title: 'Insurance & Billing | JROSE WELLNESS',
-    description: 'Transparent insurance and billing information for mental health services. We verify coverage before your visit and offer self-pay options with upfront estimates.',
-    url: 'https://jrosewellness.com/insurance',
-    siteName: 'JROSE WELLNESS',
     type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }]
+    url: PATH,
+    siteName: SITE_NAME,
+    locale: 'en_US',
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [{ url: HERO.src, alt: HERO.alt }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Insurance & Billing | JROSE WELLNESS',
-    description: 'Transparent insurance and billing information for mental health services. We verify coverage before your visit and offer self-pay options with upfront estimates.',
-    images: ['/og-image.png']
-  }
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [HERO.src] },
 }
+
+/* ------------------------------------------------------------------ */
+/* Page data                                                           */
+/* ------------------------------------------------------------------ */
+
+const FIRST_NAME = PROVIDER.name.split(' ')[0]
+const LINK = 'font-semibold text-accent underline-offset-4 hover:underline'
+const AS_OF_NOTE = `Plans listed as of ${INSURANCE_AS_OF}. Check your coverage on Alma or Headway before booking.`
+
+type Platform = {
+  name: string
+  plans: readonly string[]
+  note: string
+  cta: { label: string; href: string }
+  listClass: string
+}
+
+const PLATFORMS: Platform[] = [
+  {
+    name: 'Alma',
+    plans: INSURANCE_ALMA,
+    note: BOOKING.alma.note,
+    cta: BOOKING.alma,
+    listClass: 'sm:columns-2 sm:gap-x-6',
+  },
+  {
+    name: 'Headway',
+    plans: INSURANCE_HEADWAY,
+    note: BOOKING.headway.note,
+    cta: BOOKING.headway,
+    listClass: '',
+  },
+]
+
+const HOW_IT_WORKS = [
+  {
+    title: 'Find your plan',
+    body: `Look for your plan in the lists above. If it appears on Alma, Headway, or both, you can use your insurance with ${FIRST_NAME} by booking through a platform that lists it.`,
+  },
+  {
+    title: 'Check your coverage',
+    body: `Open ${FIRST_NAME}’s profile on that platform and add your insurance. The platform checks your coverage and shows an estimate of what you will pay per visit.`,
+  },
+  {
+    title: 'Book and pay there',
+    body: 'Book your visit on the platform. It bills your insurance plan, and you pay any copay or coinsurance there.',
+  },
+]
+
+// Built from FACTS.md section 10 (approved new answers), using lib/site.ts values.
+const FAQS = [
+  {
+    q: 'Do you take insurance?',
+    a: `Yes, by booking through Alma or Headway. The plans listed on each profile are shown on this page, as of ${INSURANCE_AS_OF}.`,
+  },
+  {
+    q: 'How much does it cost?',
+    a: `Self-pay visits are ${PRICING.initialEvaluation.price} for the initial evaluation and ${PRICING.followUp.price} for follow-up and medication management. With insurance through Alma or Headway, your cost depends on your plan.`,
+  },
+  { q: 'Is there a sliding scale?', a: `Yes. ${PRICING.slidingScale}` },
+]
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
 
 export default function InsurancePage() {
   return (
     <main>
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-24 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h1 className="font-cormorant text-5xl font-light mb-6 animate-fade-up">
-            Insurance & Billing
-          </h1>
-          <p className="text-xl text-white/90 animate-fade-up">
-            Transparent pricing and billing information
+      <PageHero
+        priority
+        eyebrow="Insurance & Pricing"
+        title="Insurance and Self-Pay Pricing for Telehealth Psychiatry"
+        subtitle={`Use your insurance by booking through Alma or Headway, or pay directly. Here are the plans listed on ${FIRST_NAME}’s profiles, plus the self-pay rates.`}
+        image={HERO}
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Insurance & Pricing' }]}
+        primaryCta={NAV_CTA}
+        secondaryCta={{ label: 'See self-pay rates', href: '#self-pay' }}
+      />
+
+      {/* 1. PLANS: Alma and Headway, verbatim */}
+      <section className="bg-white py-16 sm:py-24" aria-labelledby="ins-plans-heading">
+        <Container>
+          <SectionHeading
+            id="ins-plans-heading"
+            eyebrow="Using insurance"
+            title="Use your insurance through Alma or Headway"
+            intro={`${SITE_NAME} works with two booking platforms for insurance. Find your plan below, then book through the platform that lists it.`}
+          />
+
+          <p className="mt-6 flex flex-wrap items-center gap-2 text-sm text-muted">
+            <span className="mr-1 font-medium text-ink">On both profiles:</span>
+            {INSURANCE_HEADLINE.map((p) => (
+              <span key={p} className="rounded-full border border-border bg-cream px-3 py-1 text-[13px] text-ink">
+                {p}
+              </span>
+            ))}
           </p>
-        </div>
-      </section>
 
-      <section className="bg-[var(--color-cream)] py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl text-[var(--color-primary)] text-center mb-16 animate-fade-up">
-            Accepted Insurance Plans
-          </h2>
-          
-          {/* ⚠️ DO NOT NAME SPECIFIC INSURANCE CARRIERS WITHOUT VERIFICATION FROM THE PRACTICE.
-              The practice has not provided a list of contracted carriers. Naming carriers we
-              have not verified constitutes an advertising claim the practice cannot support. */}
-          
-          <div className="max-w-3xl mx-auto bg-white rounded-2xl p-12 shadow-sm animate-fade-up">
-            <div className="text-center mb-8">
-              <svg className="w-16 h-16 mx-auto mb-6 text-[var(--color-accent)]" stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
-              </svg>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-4">
-                We Verify Your Coverage Before Your Visit
-              </h3>
-              <p className="text-[var(--color-muted)] text-lg leading-relaxed mb-6">
-                Coverage for psychiatric and mental health services varies significantly between insurance plans. Before scheduling your first appointment, we verify your specific benefits, including copays, deductibles, and any prior authorization requirements.
-              </p>
-              <p className="text-[var(--color-ink)] font-medium mb-6">
-                Please call us to verify your insurance coverage:
-              </p>
-              <a href="tel:+12037771234" className="inline-block bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-white px-8 py-3 rounded-lg transition-colors font-medium">
-                (203) 777-1234
-              </a>
-            </div>
-            
-            <div className="border-t border-[var(--color-border)] pt-8 mt-8">
-              <p className="text-[var(--color-muted)] text-center">
-                <strong className="text-[var(--color-ink)]">Self-pay patients are always welcome.</strong> We provide upfront estimates for all services before your appointment.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl text-[var(--color-primary)] text-center mb-16 animate-fade-up">
-            How Billing Works
-          </h2>
-          
-          <div className="grid md:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            <div className="text-center animate-fade-up">
-              <div className="bg-[var(--color-light)] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-10 h-10 text-[var(--color-accent)]" stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
-                </svg>
-              </div>
-              <h3 className="font-cormorant text-xl text-[var(--color-ink)] mb-3">
-                Verify Coverage
-              </h3>
-              <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-                We contact your insurance company to verify your benefits, copay amounts, and deductible status before your first visit.
-              </p>
-            </div>
-
-            <div className="text-center animate-fade-up">
-              <div className="bg-[var(--color-light)] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-10 h-10 text-[var(--color-accent)]" stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                </svg>
-              </div>
-              <h3 className="font-cormorant text-xl text-[var(--color-ink)] mb-3">
-                Service Provided
-              </h3>
-              <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-                You receive your psychiatric evaluation or treatment session. Any required copay is collected at the time of service.
-              </p>
-            </div>
-
-            <div className="text-center animate-fade-up">
-              <div className="bg-[var(--color-light)] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-10 h-10 text-[var(--color-accent)]" stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                </svg>
-              </div>
-              <h3 className="font-cormorant text-xl text-[var(--color-ink)] mb-3">
-                Claim Submitted
-              </h3>
-              <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-                We submit the claim to your insurance company with all necessary documentation and follow up to ensure timely processing.
-              </p>
-            </div>
-
-            <div className="text-center animate-fade-up">
-              <div className="bg-[var(--color-light)] w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-10 h-10 text-[var(--color-accent)]" stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
-                </svg>
-              </div>
-              <h3 className="font-cormorant text-xl text-[var(--color-ink)] mb-3">
-                You Pay Remainder
-              </h3>
-              <p className="text-[var(--color-muted)] text-sm leading-relaxed">
-                After insurance processes your claim, you receive an Explanation of Benefits (EOB) and are responsible for any remaining balance.
-              </p>
-            </div>
-          </div>
-
-          <div className="max-w-3xl mx-auto mt-16 bg-[var(--color-cream)] rounded-2xl p-12 animate-fade-up">
-            <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-6">
-              Understanding Your Insurance Terms
-            </h3>
-            
-            <div className="space-y-6">
-              <div>
-                <h4 className="font-semibold text-[var(--color-ink)] mb-2">Copay</h4>
-                <p className="text-[var(--color-muted)] leading-relaxed">
-                  A fixed amount you pay at each visit (for example, $30 per session). This amount is typically collected at the time of your appointment.
-                </p>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold text-[var(--color-ink)] mb-2">Deductible</h4>
-                <p className="text-[var(--color-muted)] leading-relaxed">
-                  The amount you must pay out-of-pocket before your insurance begins covering services. Once you meet your annual deductible, your insurance benefits activate.
-                </p>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold text-[var(--color-ink)] mb-2">Coinsurance</h4>
-                <p className="text-[var(--color-muted)] leading-relaxed">
-                  After meeting your deductible, coinsurance is the percentage of costs you share with your insurance company (for example, you pay 20% and insurance pays 80%).
-                </p>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold text-[var(--color-ink)] mb-2">Explanation of Benefits (EOB)</h4>
-                <p className="text-[var(--color-muted)] leading-relaxed">
-                  A statement from your insurance company explaining what they paid, what you owe, and how they calculated those amounts. This is not a bill, but shows you what to expect.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[var(--color-cream)] py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="bg-[var(--color-light)] rounded-2xl p-12 max-w-3xl mx-auto animate-fade-up">
-            <div className="flex items-start gap-6 mb-8">
-              <div className="flex-shrink-0">
-                <svg className="w-12 h-12 text-[var(--color-accent)]" stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z" />
-                </svg>
-              </div>
-              <div>
-                <h3 className="font-cormorant text-3xl text-[var(--color-ink)] mb-4">
-                  Self-Pay Options
+          <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+            {PLATFORMS.map((p) => (
+              <article
+                key={p.name}
+                aria-labelledby={`ins-${p.name.toLowerCase()}-heading`}
+                className="flex h-full flex-col rounded-3xl border border-border bg-white p-6 shadow-[0_1px_2px_rgba(46,15,19,0.04),0_12px_32px_-16px_rgba(46,15,19,0.18)] sm:p-8"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Insurance</p>
+                <h3
+                  id={`ins-${p.name.toLowerCase()}-heading`}
+                  className="mt-2 font-cormorant text-[1.75rem] font-semibold leading-tight text-primary"
+                >
+                  Through {p.name}
                 </h3>
-                <p className="text-[var(--color-muted)] text-lg leading-relaxed mb-6">
-                  We welcome self-pay patients and believe quality mental health care should be accessible to everyone, regardless of insurance status.
-                </p>
-              </div>
-            </div>
+                <p className="mt-1 text-sm text-muted">Plans listed on {FIRST_NAME}&rsquo;s {p.name} profile</p>
 
-            <div className="space-y-6">
-              <div className="bg-white rounded-xl p-6">
-                <h4 className="font-semibold text-[var(--color-ink)] mb-3">Upfront Cost Estimates</h4>
-                <p className="text-[var(--color-muted)] leading-relaxed">
-                  Before your first appointment, we provide a clear, written estimate of what you'll pay. No surprises, no hidden fees.
-                </p>
-              </div>
+                <ul className={`mt-6 flex-1 ${p.listClass}`}>
+                  {p.plans.map((plan) => (
+                    <li key={plan} className="flex break-inside-avoid items-start gap-2.5 py-1.5 text-[15px] leading-snug text-ink">
+                      <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
+                      {plan}
+                    </li>
+                  ))}
+                </ul>
 
-              <div className="bg-white rounded-xl p-6">
-                <h4 className="font-semibold text-[var(--color-ink)] mb-3">Flexible Payment Plans</h4>
-                <p className="text-[var(--color-muted)] leading-relaxed">
-                  For patients who need it, we offer payment plans that make care more manageable. We'll work with you to find an arrangement that fits your budget.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-xl p-6">
-                <h4 className="font-semibold text-[var(--color-ink)] mb-3">Sliding Scale Consideration</h4>
-                <p className="text-[var(--color-muted)] leading-relaxed">
-                  We offer sliding scale fees on a limited basis for patients experiencing financial hardship. Please discuss your situation with us when scheduling.
-                </p>
-              </div>
-
-              <div className="bg-white rounded-xl p-6 border-2 border-[var(--color-accent)]">
-                <h4 className="font-semibold text-[var(--color-ink)] mb-3">Your Rights Under the No Surprises Act</h4>
-                <p className="text-[var(--color-muted)] leading-relaxed mb-4">
-                  You have the right to receive a "Good Faith Estimate" of expected charges before you receive services. This applies to all uninsured or self-pay patients.
-                </p>
-                <p className="text-[var(--color-muted)] leading-relaxed">
-                  Under federal law, health care providers must give you an estimate of the bill for medical items and services before you get care. If the actual bill is significantly different from your Good Faith Estimate, you have the right to dispute the bill.
-                </p>
-              </div>
-            </div>
+                <div className="mt-6 border-t border-border pt-6">
+                  <p className="text-sm leading-relaxed text-muted">{p.note}</p>
+                  <SmartLink href={p.cta.href} className={`${BUTTON.base} ${BUTTON.md} ${BUTTON.accent} mt-4 w-full sm:w-auto`}>
+                    {p.cta.label}
+                    <ExternalIcon />
+                  </SmartLink>
+                </div>
+              </article>
+            ))}
           </div>
-        </div>
-      </section>
 
-      <section className="bg-white py-24">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl text-[var(--color-primary)] text-center mb-16 animate-fade-up">
-            Billing Questions & Answers
-          </h2>
-
-          <div className="space-y-4 animate-fade-up">
-            <details className="group bg-[var(--color-cream)] rounded-xl overflow-hidden">
-              <summary className="cursor-pointer list-none p-6 font-semibold text-[var(--color-ink)] text-lg flex items-center justify-between hover:bg-[var(--color-light)] transition-colors">
-                <span>When is payment due?</span>
-                <svg className="w-5 h-5 text-[var(--color-accent)] transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
-                </svg>
-              </summary>
-              <div className="px-6 pb-6 text-[var(--color-muted)] leading-relaxed">
-                <p>
-                  Copays are collected at the time of service. For patients with deductibles or coinsurance, we submit claims to your insurance first, then bill you for any remaining balance after insurance processes the claim. Self-pay patients pay at the time of service or according to an agreed payment plan.
-                </p>
-              </div>
-            </details>
-
-            <details className="group bg-[var(--color-cream)] rounded-xl overflow-hidden">
-              <summary className="cursor-pointer list-none p-6 font-semibold text-[var(--color-ink)] text-lg flex items-center justify-between hover:bg-[var(--color-light)] transition-colors">
-                <span>What payment methods do you accept?</span>
-                <svg className="w-5 h-5 text-[var(--color-accent)] transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
-                </svg>
-              </summary>
-              <div className="px-6 pb-6 text-[var(--color-muted)] leading-relaxed">
-                <p>
-                  We accept all major credit cards, debit cards, HSA/FSA cards, electronic checks, and cash. For your convenience, we can securely store your payment method on file for recurring appointments.
-                </p>
-              </div>
-            </details>
-
-            <details className="group bg-[var(--color-cream)] rounded-xl overflow-hidden">
-              <summary className="cursor-pointer list-none p-6 font-semibold text-[var(--color-ink)] text-lg flex items-center justify-between hover:bg-[var(--color-light)] transition-colors">
-                <span>What if my insurance denies my claim?</span>
-                <svg className="w-5 h-5 text-[var(--color-accent)] transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
-                </svg>
-              </summary>
-              <div className="px-6 pb-6 text-[var(--color-muted)] leading-relaxed">
-                <p className="mb-4">
-                  If your insurance company denies coverage for a service we've provided, we'll work with you to understand why and explore options. Common reasons for denials include services not covered under your plan, lack of prior authorization, or billing errors.
-                </p>
-                <p>
-                  We'll help you file an appeal if appropriate, or work out a self-pay arrangement if the denial stands. You're never left alone to navigate insurance complications.
-                </p>
-              </div>
-            </details>
-
-            <details className="group bg-[var(--color-cream)] rounded-xl overflow-hidden">
-              <summary className="cursor-pointer list-none p-6 font-semibold text-[var(--color-ink)] text-lg flex items-center justify-between hover:bg-[var(--color-light)] transition-colors">
-                <span>Can I use my HSA or FSA to pay?</span>
-                <svg className="w-5 h-5 text-[var(--color-accent)] transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
-                </svg>
-              </summary>
-              <div className="px-6 pb-6 text-[var(--color-muted)] leading-relaxed">
-                <p>
-                  Yes! Psychiatric and mental health services are qualified medical expenses under HSA (Health Savings Account) and FSA (Flexible Spending Account) plans. You can use these funds for copays, deductibles, coinsurance, or self-pay fees.
-                </p>
-              </div>
-            </details>
-
-            <details className="group bg-[var(--color-cream)] rounded-xl overflow-hidden">
-              <summary className="cursor-pointer list-none p-6 font-semibold text-[var(--color-ink)] text-lg flex items-center justify-between hover:bg-[var(--color-light)] transition-colors">
-                <span>Do you offer superbills for out-of-network reimbursement?</span>
-                <svg className="w-5 h-5 text-[var(--color-accent)] transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
-                </svg>
-              </summary>
-              <div className="px-6 pb-6 text-[var(--color-muted)] leading-relaxed">
-                <p className="mb-4">
-                  Yes. If we're not in-network with your insurance plan but your plan offers out-of-network benefits, we can provide a detailed superbill after each session.
-                </p>
-                <p>
-                  A superbill contains all the information your insurance company needs to process a reimbursement claim. You submit it directly to your insurer, and they reimburse you according to your out-of-network benefits. We're happy to explain how this process works.
-                </p>
-              </div>
-            </details>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-24">
-        <div className="max-w-4xl mx-auto px-6 text-center text-white animate-fade-up">
-          <h2 className="font-cormorant text-4xl font-light mb-6">
-            Questions About Billing or Insurance?
-          </h2>
-          <p className="text-xl text-white/90 mb-10 leading-relaxed">
-            We're here to help you understand your coverage and payment options before your first visit.
+          <p role="note" className="mt-8 rounded-2xl border border-border bg-cream px-5 py-4 text-sm leading-relaxed text-ink/85 sm:px-6">
+            {AS_OF_NOTE}
           </p>
-          <Link
-            href="/contact"
-            className="inline-block bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-white px-10 py-4 rounded-lg transition-colors text-lg font-medium"
-          >
-            Contact Us
-          </Link>
-        </div>
+        </Container>
       </section>
+
+      {/* 2. HOW USING INSURANCE WORKS */}
+      <section className="bg-cream py-16 sm:py-24" aria-labelledby="ins-how-heading">
+        <Container>
+          <SectionHeading
+            id="ins-how-heading"
+            eyebrow="How it works"
+            title="How using insurance works"
+            intro="Alma and Headway handle the insurance side, so booking with your plan takes three steps."
+            align="center"
+          />
+
+          <ol className="mt-12 grid gap-6 md:grid-cols-3">
+            {HOW_IT_WORKS.map((s, i) => (
+              <li key={s.title} className="flex flex-col rounded-3xl border border-border bg-white p-7 sm:p-8">
+                <span className="grid h-12 w-12 place-items-center rounded-full bg-peach font-cormorant text-2xl font-semibold text-primary">
+                  {i + 1}
+                </span>
+                <h3 className="mt-5 font-cormorant text-2xl font-semibold leading-tight text-primary">{s.title}</h3>
+                <p className="mt-3 leading-relaxed text-ink/80">{s.body}</p>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mx-auto mt-8 flex max-w-5xl flex-col gap-4 rounded-3xl border border-border bg-white p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+            <div className="max-w-2xl">
+              <h3 className="font-cormorant text-2xl font-semibold leading-tight text-primary">Don&rsquo;t see your plan?</h3>
+              <p className="mt-2 leading-relaxed text-ink/80">
+                You can still see {FIRST_NAME} as a self-pay patient. {PRICING.slidingScale} Questions about your
+                options? Call{' '}
+                <a href={CONTACT.phoneHref} className={LINK}>
+                  {CONTACT.phone}
+                </a>
+                .
+              </p>
+            </div>
+            <a href="#self-pay" className={`${BUTTON.base} ${BUTTON.md} ${BUTTON.outlineDark} shrink-0`}>
+              Self-pay rates
+              <ArrowRight />
+            </a>
+          </div>
+        </Container>
+      </section>
+
+      {/* 3. SELF-PAY */}
+      <section id="self-pay" className="scroll-mt-24 bg-white py-16 sm:py-24" aria-labelledby="ins-selfpay-heading">
+        <Container>
+          <SectionHeading
+            id="ins-selfpay-heading"
+            eyebrow="Self-pay"
+            title="Self-pay rates"
+            intro="Paying directly? These are the self-pay rates for each visit."
+            align="center"
+          />
+
+          <div className="mx-auto mt-12 grid max-w-5xl gap-6 md:grid-cols-2">
+            {[PRICING.initialEvaluation, PRICING.followUp].map((p) => (
+              <article
+                key={p.name}
+                className="flex h-full flex-col rounded-3xl border border-border bg-white p-7 shadow-[0_1px_2px_rgba(46,15,19,0.04),0_12px_32px_-16px_rgba(46,15,19,0.18)] sm:p-8"
+              >
+                <div className="flex items-start justify-between gap-4 border-b border-border pb-5">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Self-pay</p>
+                    <h3 className="mt-2 font-cormorant text-[1.75rem] font-semibold leading-tight text-primary">{p.name}</h3>
+                  </div>
+                  <p className="font-cormorant text-5xl font-semibold leading-none text-primary">{p.price}</p>
+                </div>
+                <p className="mt-5 leading-relaxed text-ink/80">{p.description}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="mx-auto mt-8 max-w-5xl rounded-2xl border border-border bg-cream p-5 sm:p-6">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <p className="flex items-start gap-3 text-ink/85">
+                <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-sage" />
+                {PRICING.slidingScale}
+              </p>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link href={BOOKING.request.href} className={`${BUTTON.base} ${BUTTON.sm} ${BUTTON.accent}`}>
+                  {BOOKING.request.label}
+                </Link>
+                <a href={CONTACT.phoneHref} className={`${BUTTON.base} ${BUTTON.sm} ${BUTTON.outlineDark}`}>
+                  <PhoneIcon />
+                  Call {CONTACT.phone}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div
+            role="note"
+            aria-labelledby="ins-gfe-heading"
+            className="mx-auto mt-6 max-w-5xl rounded-2xl border border-accent/25 border-l-4 border-l-accent bg-white p-5 sm:p-6"
+          >
+            <p id="ins-gfe-heading" className="font-semibold text-primary">
+              Good Faith Estimate
+            </p>
+            <p className="mt-1 leading-relaxed text-ink/85">{PRICING.goodFaithEstimate}</p>
+          </div>
+        </Container>
+      </section>
+
+      <BookingOptions heading="Ready to book?" />
+
+      {/* 4. FAQ */}
+      <section className="bg-white py-16 sm:py-24" aria-labelledby="ins-faq-heading">
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16">
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <SectionHeading
+                id="ins-faq-heading"
+                eyebrow="FAQ"
+                title="Insurance and cost questions"
+                intro="Short answers about insurance, self-pay rates, and the sliding scale."
+              />
+              <Link href="/faq" className={`mt-6 inline-flex items-center gap-1.5 ${LINK}`}>
+                See all questions
+                <ArrowRight />
+              </Link>
+            </div>
+            <FaqList faqs={FAQS} withSchema />
+          </div>
+        </Container>
+      </section>
+
+      <CtaBand
+        heading="Ready to take the first step?"
+        body={`Book with your insurance through Alma or Headway, or request a self-pay visit. Every visit is by secure video, for patients in ${CONTACT.state}.`}
+      />
     </main>
   )
 }

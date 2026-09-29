@@ -251,7 +251,7 @@ export default function ServicesPage() {
             id="conditions-heading"
             eyebrow="Conditions"
             title="Conditions we treat"
-            intro="Each of these services can be part of care for the conditions below."
+            intro="Learn how evaluation, medication management, and supportive therapy fit each condition."
             align="center"
           />
           <ul className="mx-auto mt-10 flex max-w-4xl flex-wrap justify-center gap-3">

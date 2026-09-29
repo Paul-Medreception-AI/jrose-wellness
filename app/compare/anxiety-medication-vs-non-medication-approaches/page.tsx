@@ -1,318 +1,185 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import { AGES, CONTACT, PRACTICE_FAQS, PROVIDER } from '@/lib/site'
+import { GuideTemplate, TextLink, type GuideContent } from '../_components/GuideTemplate'
+import { buildGuideMetadata, getGuide } from '../_lib/guides'
 
-export const metadata: Metadata = {
-  title: 'Anxiety Medication vs. Non-Medication Approaches: Finding Your Path',
-  description: 'Compare anxiety medication with non-medication approaches including therapy, lifestyle changes, and integrative care. Evidence-based comparison to help you choose the right treatment path.',
-  alternates: { canonical: '/compare/anxiety-medication-vs-non-medication-approaches' },
-  openGraph: {
-    title: 'Anxiety Medication vs. Non-Medication Approaches: Finding Your Path',
-    description: 'Compare anxiety medication with non-medication approaches including therapy, lifestyle changes, and integrative care. Evidence-based comparison to help you choose the right treatment path.',
-    url: 'https://jrosewellness.com/compare/anxiety-medication-vs-non-medication-approaches',
-    siteName: 'JROSE WELLNESS',
-    type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }]
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Anxiety Medication vs. Non-Medication Approaches: Finding Your Path',
-    description: 'Compare anxiety medication with non-medication approaches including therapy, lifestyle changes, and integrative care. Evidence-based comparison to help you choose the right treatment path.',
-    images: ['/og-image.png']
-  }
+const GUIDE = getGuide('anxiety-medication-vs-non-medication-approaches')
+
+export const metadata: Metadata = buildGuideMetadata(GUIDE)
+
+const [, , therapyOrMeds, controlled, choosingMedication, noMedication] = PRACTICE_FAQS
+
+type Technique = (typeof PROVIDER.techniques)[number]
+
+// Plain-language notes on the techniques Jessica names in her own words (lib/site.ts). No
+// stand-alone protocols (ERP, DBT, exposure programs) are claimed.
+const TECHNIQUE_NOTES: Record<Technique, string> = {
+  'supportive therapy': 'Time to talk through what is going on with someone who listens and helps you problem-solve.',
+  'cognitive behavioral techniques': 'Noticing anxious thoughts, questioning them, and changing the patterns that keep anxiety going.',
+  mindfulness: 'Practice bringing your attention back to the present moment instead of the what-ifs.',
+  psychoeducation: 'Understanding how anxiety works in the body and mind, so symptoms feel less mysterious and less scary.',
+  'practical coping strategies': 'Concrete tools for worry, panic, and stressful situations, such as breathing and grounding exercises.',
+  'motivational interviewing': 'Conversations that help you find your own reasons for change and your own pace.',
 }
 
-export default function AnxietyComparisonPage() {
-  return (
-    <main className="min-h-screen">
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-24 text-white text-center px-6">
-        <div className="max-w-4xl mx-auto">
-          <nav className="flex items-center justify-center gap-2 text-sm mb-8 text-[var(--color-light)]">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <span>›</span>
-            <Link href="/resources" className="hover:text-white transition-colors">Resources</Link>
-            <span>›</span>
-            <span className="text-white">Comparison</span>
-          </nav>
-          <h1 className="font-cormorant text-5xl md:text-6xl font-light leading-tight mb-6">
-            Anxiety Medication vs. Non-Medication Approaches: Finding Your Path
-          </h1>
-          <p className="text-xl text-[var(--color-light)] max-w-2xl mx-auto">
-            An evidence-based comparison to help you make an informed decision about your anxiety treatment
-          </p>
-        </div>
-      </section>
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
 
-      <section className="bg-[var(--color-cream)] py-24 px-6">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="font-cormorant text-4xl font-light text-[var(--color-ink)] text-center mb-12 animate-fade-up">
-            Side-by-Side Comparison
-          </h2>
-          
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden animate-fade-up">
-            <div className="grid grid-cols-3 bg-[var(--color-primary)] text-white font-semibold text-center">
-              <div className="p-4 border-r border-[var(--color-light)]">Category</div>
-              <div className="p-4 border-r border-[var(--color-light)]">Medication</div>
-              <div className="p-4">Non-Medication Approaches</div>
-            </div>
-            
-            <div className="grid grid-cols-3 border-b border-[var(--color-border)]">
-              <div className="p-4 bg-[var(--color-light)] font-semibold text-[var(--color-ink)]">Effectiveness</div>
-              <div className="p-4 text-sm text-[var(--color-ink)]">60-70% symptom reduction in 4-6 weeks; rapid relief for acute symptoms</div>
-              <div className="p-4 bg-[var(--color-cream)] text-sm text-[var(--color-ink)]">50-75% improvement over 8-12 weeks; builds long-term coping skills</div>
-            </div>
+// General education, balanced between medication and non-medication care. No medication classes
+// promised, no controlled-substance promises (the practice's FAQ answer is quoted verbatim),
+// no statistics. Crisis notice is required on this page.
+const content: GuideContent = {
+  meta: GUIDE,
+  hero: {
+    subtitle:
+      'Anxiety can be treated with medication, with skills and therapy, or with both. Here is how the options compare, and how to decide what to try first.',
+    secondaryCta: { label: 'Anxiety care', href: '/conditions/anxiety' },
+  },
+  intro: {
+    heading: 'You have more than one option for anxiety',
+    body: [
+      'Anxiety can look like excessive worry, racing thoughts, panic attacks, social anxiety, or ongoing stress that gets in the way of sleep, relationships, work, or daily life.',
+      'Treatment usually falls into two groups: prescription medication, and non-medication approaches such as therapy, coping skills, and lifestyle changes. They are not either-or. Many people use both, and the mix can change over time.',
+      'This guide is general education, not medical advice. The right plan for you comes out of an evaluation and a conversation about what you want.',
+    ],
+  },
+  takeaways: [
+    'Medication can ease anxiety symptoms and is chosen after a careful evaluation.',
+    'Non-medication approaches build skills you keep, like coping strategies and mindfulness.',
+    'You do not have to pick one forever. Plans change as you go.',
+    'At JRose Wellness, medication is optional.',
+  ],
+  crisis: true,
+  table: {
+    heading: 'Medication and non-medication care, side by side',
+    intro: 'Both aim to help you feel steadier. They get there in different ways.',
+    columns: ['Medication', 'Non-medication approaches'],
+    rows: [
+      {
+        label: 'What it involves',
+        a: 'A prescription chosen after an evaluation, with follow-up visits to check how it is working.',
+        b: 'Therapy and skills such as cognitive behavioral techniques, mindfulness, psychoeducation, and practical coping strategies, plus lifestyle changes.',
+      },
+      {
+        label: 'How it helps',
+        a: 'Can ease the physical and emotional symptoms of anxiety, which can make daily life and skill-building feel more manageable.',
+        b: 'Helps you notice anxious patterns, understand them, and respond to them in new ways.',
+      },
+      {
+        label: 'How change happens',
+        a: 'Some medications take time to reach their full effect, and the right fit may take adjustments.',
+        b: 'Skills build with practice, so progress grows over time.',
+      },
+      {
+        label: 'What it asks of you',
+        a: 'Taking it as prescribed, sharing any side effects, and keeping follow-up visits.',
+        b: 'Time and practice between visits, including when it feels uncomfortable.',
+      },
+      {
+        label: 'Things to weigh',
+        a: 'Possible side effects. Some anxiety medications are controlled substances, which are prescribed only after careful assessment.',
+        b: 'Can feel hard to start when anxiety is intense, and it takes steady practice.',
+      },
+      {
+        label: 'Later on',
+        a: 'Any change or stop is planned with your prescriber.',
+        b: 'The skills stay with you.',
+      },
+    ],
+  },
+  sides: [
+    {
+      eyebrow: 'Medication',
+      title: 'What to know about anxiety medication',
+      body: [
+        'Several kinds of prescription medication are used for anxiety. They differ in how they work, how quickly they help, how long you take them, and what side effects they can cause.',
+        <>Choosing one is a shared decision. In Jessica’s words: &ldquo;{choosingMedication.a}&rdquo;</>,
+        <>
+          Some medications used for anxiety are controlled substances. Asked whether she prescribes them, Jessica’s answer is: &ldquo;
+          {controlled.a}&rdquo;
+        </>,
+      ],
+    },
+    {
+      eyebrow: 'Non-medication approaches',
+      title: 'What non-medication care looks like',
+      body: [
+        'Non-medication care focuses on skills. Jessica provides supportive therapy during visits and draws on cognitive behavioral techniques, mindfulness, psychoeducation, and practical coping strategies.',
+        'Everyday habits matter too. Sleep, daily routine, physical activity, and alcohol use can all affect how anxious you feel, and small changes can add up.',
+        <>
+          If you want more dedicated therapy time, Jessica may refer you to a therapist. Learn more about{' '}
+          <TextLink href="/services/supportive-therapy">supportive therapy</TextLink>.
+        </>,
+      ],
+    },
+  ],
+  middle: {
+    eyebrow: 'Skills, not just symptoms',
+    heading: 'Techniques Jessica may draw on',
+    intro: 'Jessica brings these into visits, tailored to your needs and goals.',
+    cards: PROVIDER.techniques.map((t) => ({ title: capitalize(t), body: TECHNIQUE_NOTES[t] })),
+  },
+  decide: {
+    heading: 'Where to start',
+    intro: 'These are general pointers, not rules. Your evaluation is where the decision gets made, together.',
+    a: {
+      title: 'Medication may be worth discussing if:',
+      items: [
+        'anxiety or panic makes it hard to work, study, sleep, or get through the day',
+        'you have tried coping skills or therapy and are still struggling',
+        'medication has helped you before',
+        'you are also dealing with low mood or trouble sleeping',
+      ],
+    },
+    b: {
+      title: 'Non-medication approaches may be a good place to start if:',
+      items: [
+        'you would rather avoid medication, or want to try skills first',
+        'your anxiety is tied to a specific stressor or situation',
+        'you want tools you can keep using on your own',
+        'you have had trouble with medication side effects before',
+      ],
+    },
+    note: 'Many people use both: medication to take the edge off, and skills that keep working over time. Your plan can shift as you go.',
+  },
+  practice: {
+    eyebrow: 'At JRose Wellness',
+    heading: 'Anxiety care, by secure video',
+    body: [
+      <>
+        {PROVIDER.byline}, sees {AGES.short.toLowerCase()} for anxiety, including panic and social anxiety, by secure video for patients in{' '}
+        {CONTACT.state}. Care starts with a <TextLink href="/services/psychiatric-evaluation">psychiatric evaluation</TextLink>, and
+        follow-ups adjust the plan as you go.
+      </>,
+      <>In her words: &ldquo;{therapyOrMeds.a}&rdquo;</>,
+    ],
+    quote: { text: noMedication.a, cite: PROVIDER.byline },
+    links: [
+      { href: '/conditions/anxiety', label: 'Anxiety and panic care' },
+      { href: '/services/supportive-therapy', label: 'Supportive therapy' },
+      { href: '/services/medication-management', label: 'Medication management' },
+    ],
+  },
+  faqs: [
+    { q: noMedication.q, a: noMedication.a },
+    { q: controlled.q, a: controlled.a },
+    { q: choosingMedication.q, a: choosingMedication.a },
+    {
+      q: 'Can I start without medication and add it later?',
+      a: 'Yes. Medication is optional, and your plan can change. Follow-up visits are where you and Jessica check how things are going and decide whether to adjust.',
+    },
+    {
+      q: 'Can anxiety care happen over video?',
+      a: 'Yes. Every visit at JRose Wellness is by secure video, so there is no commute or waiting room, and you can talk from a place where you feel comfortable.',
+    },
+  ],
+  related: [
+    { href: '/conditions/anxiety', label: 'Anxiety and panic', body: 'Signs of anxiety and how care works here.' },
+    { href: '/services/supportive-therapy', label: 'Supportive therapy', body: 'Coping skills and support built into your visits.' },
+    { href: '/services/medication-management', label: 'Medication management', body: 'Follow-up visits to check progress and adjust your plan.' },
+    { href: '/conditions/ocd', label: 'OCD', body: 'Care for intrusive thoughts and compulsions.' },
+  ],
+}
 
-            <div className="grid grid-cols-3 border-b border-[var(--color-border)]">
-              <div className="p-4 bg-[var(--color-light)] font-semibold text-[var(--color-ink)]">Side Effects</div>
-              <div className="p-4 text-sm text-[var(--color-ink)]">Common: nausea, sleep changes, weight gain, sexual dysfunction; withdrawal possible</div>
-              <div className="p-4 bg-[var(--color-cream)] text-sm text-[var(--color-ink)]">Minimal to none; may require lifestyle adjustments; temporary discomfort during exposure work</div>
-            </div>
-
-            <div className="grid grid-cols-3 border-b border-[var(--color-border)]">
-              <div className="p-4 bg-[var(--color-light)] font-semibold text-[var(--color-ink)]">Cost</div>
-              <div className="p-4 text-sm text-[var(--color-ink)]">$10-200/month depending on insurance; ongoing monthly expense</div>
-              <div className="p-4 bg-[var(--color-cream)] text-sm text-[var(--color-ink)]">$100-300/session (therapy); often covered by insurance; may decrease over time</div>
-            </div>
-
-            <div className="grid grid-cols-3 border-b border-[var(--color-border)]">
-              <div className="p-4 bg-[var(--color-light)] font-semibold text-[var(--color-ink)]">Time Commitment</div>
-              <div className="p-4 text-sm text-[var(--color-ink)]">5-10 minutes daily; monthly psychiatrist visits; requires consistent adherence</div>
-              <div className="p-4 bg-[var(--color-cream)] text-sm text-[var(--color-ink)]">1-2 hours weekly (therapy, practice); daily lifestyle modifications; active participation required</div>
-            </div>
-
-            <div className="grid grid-cols-3">
-              <div className="p-4 bg-[var(--color-light)] font-semibold text-[var(--color-ink)]">Best For</div>
-              <div className="p-4 text-sm text-[var(--color-ink)]">Severe anxiety interfering with daily function; rapid stabilization needed; biological/genetic factors</div>
-              <div className="p-4 bg-[var(--color-cream)] text-sm text-[var(--color-ink)]">Mild to moderate anxiety; preference for drug-free options; building long-term resilience; root cause work</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-16 animate-fade-up">
-            <h2 className="font-cormorant text-4xl font-light text-[var(--color-ink)] mb-6">
-              Anxiety Medication: What to Know
-            </h2>
-            <p className="text-lg text-[var(--color-muted)] mb-4 leading-relaxed">
-              Anti-anxiety medications, including SSRIs, SNRIs, and benzodiazepines, work by altering brain chemistry to reduce anxiety symptoms. SSRIs and SNRIs increase serotonin and norepinephrine availability, typically taking 4-6 weeks to reach full effect. They're particularly effective for generalized anxiety disorder, panic disorder, and social anxiety.
-            </p>
-            <p className="text-lg text-[var(--color-muted)] mb-4 leading-relaxed">
-              Benzodiazepines provide rapid relief within 30-60 minutes but carry risks of dependence and are generally prescribed for short-term use or acute episodes. Research shows that 60-70% of patients experience significant symptom reduction with appropriate medication, making them a valuable tool for moderate to severe anxiety.
-            </p>
-            <p className="text-lg text-[var(--color-muted)] leading-relaxed">
-              The typical patient profile includes someone with severe symptoms that interfere with work, relationships, or daily activities, those with a family history of anxiety or depression, or individuals who need rapid stabilization. Side effects vary but may include nausea, sleep disturbances, weight changes, and sexual dysfunction. A trial period of 8-12 weeks is typically needed to assess effectiveness.
-            </p>
-          </div>
-
-          <div className="animate-fade-up">
-            <h2 className="font-cormorant text-4xl font-light text-[var(--color-ink)] mb-6">
-              Non-Medication Approaches: What to Expect
-            </h2>
-            <p className="text-lg text-[var(--color-muted)] mb-4 leading-relaxed">
-              Non-medication approaches encompass cognitive-behavioral therapy (CBT), exposure therapy, mindfulness practices, lifestyle modifications, and integrative wellness interventions. CBT, the gold standard psychotherapy for anxiety, teaches skills to identify and reframe anxious thoughts while gradually facing feared situations. Meta-analyses show 50-75% of patients achieve significant improvement, with effects lasting well beyond treatment completion.
-            </p>
-            <p className="text-lg text-[var(--color-muted)] mb-4 leading-relaxed">
-              Integrative approaches add nutritional support, exercise protocols, sleep optimization, and stress reduction techniques. Research demonstrates that regular aerobic exercise reduces anxiety by 20-30%, while mindfulness meditation shows comparable effects to medication in some studies. These methods address root causes rather than just symptoms, building resilience and coping skills that provide lasting benefits.
-            </p>
-            <p className="text-lg text-[var(--color-muted)] leading-relaxed">
-              Ideal candidates include those with mild to moderate anxiety, individuals who prefer to avoid medication, people committed to active participation in their healing, and those seeking to understand and address underlying patterns. Results typically emerge over 8-12 weeks with consistent practice. The active engagement required becomes a strength, as patients develop agency and confidence in managing their anxiety independently.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-20 px-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-[var(--color-light)] rounded-2xl p-12 animate-fade-up">
-            <h2 className="font-cormorant text-3xl font-light text-[var(--color-ink)] mb-8 text-center">
-              How to Decide: A Framework
-            </h2>
-            
-            <div className="mb-10">
-              <h3 className="text-xl font-semibold text-[var(--color-ink)] mb-4 flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Consider medication if:
-              </h3>
-              <ul className="space-y-3 ml-9">
-                <li className="flex items-start gap-3 text-[var(--color-muted)]">
-                  <svg className="w-5 h-5 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  Your anxiety is severe and significantly impairs daily functioning
-                </li>
-                <li className="flex items-start gap-3 text-[var(--color-muted)]">
-                  <svg className="w-5 h-5 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  You need rapid symptom relief to stabilize and function
-                </li>
-                <li className="flex items-start gap-3 text-[var(--color-muted)]">
-                  <svg className="w-5 h-5 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  You have a family history of anxiety or mood disorders
-                </li>
-                <li className="flex items-start gap-3 text-[var(--color-muted)]">
-                  <svg className="w-5 h-5 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  Non-medication approaches haven't provided sufficient relief
-                </li>
-                <li className="flex items-start gap-3 text-[var(--color-muted)]">
-                  <svg className="w-5 h-5 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  You're experiencing panic attacks, agoraphobia, or debilitating physical symptoms
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="text-xl font-semibold text-[var(--color-ink)] mb-4 flex items-start gap-3">
-                <svg className="w-6 h-6 text-[var(--color-accent)] flex-shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Consider non-medication approaches if:
-              </h3>
-              <ul className="space-y-3 ml-9">
-                <li className="flex items-start gap-3 text-[var(--color-muted)]">
-                  <svg className="w-5 h-5 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  Your anxiety is mild to moderate and manageable most days
-                </li>
-                <li className="flex items-start gap-3 text-[var(--color-muted)]">
-                  <svg className="w-5 h-5 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  You prefer to avoid medication or have concerns about side effects
-                </li>
-                <li className="flex items-start gap-3 text-[var(--color-muted)]">
-                  <svg className="w-5 h-5 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  You're motivated to actively participate in therapy and lifestyle changes
-                </li>
-                <li className="flex items-start gap-3 text-[var(--color-muted)]">
-                  <svg className="w-5 h-5 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  You want to develop long-term coping skills and resilience
-                </li>
-                <li className="flex items-start gap-3 text-[var(--color-muted)]">
-                  <svg className="w-5 h-5 text-[var(--color-accent)] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                  You're interested in addressing root causes and underlying patterns
-                </li>
-              </ul>
-            </div>
-
-            <div className="mt-10 p-6 bg-white rounded-xl border-l-4 border-[var(--color-accent)]">
-              <p className="text-[var(--color-ink)] font-semibold mb-2">Remember: It's Not Either/Or</p>
-              <p className="text-[var(--color-muted)]">
-                Many people benefit from a combined approach—medication for initial stabilization while building skills through therapy and lifestyle changes, then tapering medication as non-medication strategies take effect. This integrated path is often the most effective.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[var(--color-cream)] py-20 px-6">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="font-cormorant text-4xl font-light text-[var(--color-ink)] text-center mb-12 animate-fade-up">
-            Frequently Asked Questions
-          </h2>
-          
-          <div className="space-y-4 animate-fade-up">
-            <details className="bg-white rounded-xl p-6 shadow-sm group">
-              <summary className="font-semibold text-[var(--color-ink)] cursor-pointer list-none flex items-center justify-between">
-                How long does it take to see results with each approach?
-                <svg className="w-5 h-5 text-[var(--color-accent)] transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </summary>
-              <p className="mt-4 text-[var(--color-muted)] leading-relaxed">
-                Medication typically shows initial effects within 2-4 weeks, with full benefits at 6-8 weeks. Benzodiazepines work within 30-60 minutes but are meant for short-term use. Non-medication approaches like CBT usually require 8-12 weeks of consistent practice to see significant improvement, though some people notice changes within a few sessions. Lifestyle modifications may show benefits within 4-6 weeks.
-              </p>
-            </details>
-
-            <details className="bg-white rounded-xl p-6 shadow-sm group">
-              <summary className="font-semibold text-[var(--color-ink)] cursor-pointer list-none flex items-center justify-between">
-                Can I combine medication with therapy and other approaches?
-                <svg className="w-5 h-5 text-[var(--color-accent)] transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </summary>
-              <p className="mt-4 text-[var(--color-muted)] leading-relaxed">
-                Absolutely. Research consistently shows that combining medication with therapy produces better outcomes than either approach alone. Many patients use medication for initial stabilization while learning coping skills through therapy, then taper medication as they build confidence in managing anxiety independently. This integrated approach is often ideal for moderate to severe anxiety.
-              </p>
-            </details>
-
-            <details className="bg-white rounded-xl p-6 shadow-sm group">
-              <summary className="font-semibold text-[var(--color-ink)] cursor-pointer list-none flex items-center justify-between">
-                What if I start medication and want to stop later?
-                <svg className="w-5 h-5 text-[var(--color-accent)] transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </summary>
-              <p className="mt-4 text-[var(--color-muted)] leading-relaxed">
-                Discontinuing anxiety medication should always be done gradually under medical supervision to minimize withdrawal symptoms and prevent relapse. A typical taper takes 4-8 weeks or longer, depending on the medication and duration of use. Many people successfully discontinue medication after 12-24 months once they've built strong coping skills and addressed underlying factors. Your prescriber will create a personalized tapering plan when you're ready.
-              </p>
-            </details>
-
-            <details className="bg-white rounded-xl p-6 shadow-sm group">
-              <summary className="font-semibold text-[var(--color-ink)] cursor-pointer list-none flex items-center justify-between">
-                Are non-medication approaches as effective as medication?
-                <svg className="w-5 h-5 text-[var(--color-accent)] transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </summary>
-              <p className="mt-4 text-[var(--color-muted)] leading-relaxed">
-                For mild to moderate anxiety, research shows that cognitive-behavioral therapy is as effective as medication, with the added benefit of lower relapse rates after treatment ends. Studies comparing CBT to SSRIs find similar short-term outcomes, but CBT provides lasting skills that continue to benefit patients years later. For severe anxiety, medication may provide faster initial relief, but adding therapy improves long-term outcomes significantly. The "best" approach depends on symptom severity, personal preferences, and individual circumstances.
-              </p>
-            </details>
-
-            <details className="bg-white rounded-xl p-6 shadow-sm group">
-              <summary className="font-semibold text-[var(--color-ink)] cursor-pointer list-none flex items-center justify-between">
-                How do I know which approach is right for me?
-                <svg className="w-5 h-5 text-[var(--color-accent)] transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </summary>
-              <p className="mt-4 text-[var(--color-muted)] leading-relaxed">
-                The right choice depends on your symptom severity, medical history, personal values, lifestyle, and treatment goals. A thorough evaluation with a qualified provider can help you weigh the benefits and drawbacks of each option for your unique situation. Consider factors like how much anxiety interferes with daily life, your comfort level with medication, time and resources available for therapy, and whether you've tried either approach before. At JROSE WELLNESS, we offer comprehensive assessments to help you make an informed decision aligned with your values and goals.
-              </p>
-            </details>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 px-6">
-        <div className="max-w-3xl mx-auto text-center animate-fade-up">
-          <h2 className="font-cormorant text-4xl font-light text-white mb-6">
-            Ready to Discuss Your Options?
-          </h2>
-          <p className="text-xl text-[var(--color-light)] mb-8 leading-relaxed">
-            Let's create a personalized anxiety treatment plan that aligns with your values, lifestyle, and goals. Whether you're considering medication, therapy, integrative approaches, or a combination, we'll help you find your path forward.
-          </p>
-          <Link 
-            href="/contact" 
-            className="inline-flex items-center gap-2 bg-[var(--color-accent)] text-white px-8 py-4 rounded-full font-semibold hover:bg-[var(--color-accent-dark)] transition-all hover:gap-3 shadow-lg"
-          >
-            Schedule a Consultation
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </Link>
-          <p className="text-[var(--color-light)] mt-6 text-sm">
-            Serving Fairfield, CT and surrounding communities
-          </p>
-        </div>
-      </section>
-    </main>
-  )
+export default function Page() {
+  return <GuideTemplate c={content} />
 }

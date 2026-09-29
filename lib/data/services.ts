@@ -504,7 +504,7 @@ export const SERVICES: ServicePageContent[] = [
     heroImage: PAGE_IMAGES['/services/telepsychiatry'],
     introHeading: 'How video visits work',
     intro: [
-      "Every visit with Jessica happens by secure video. You join from home and talk with her face to face on screen: how you're feeling, your symptoms, your history, and your plan.",
+      "Every visit with Jessica happens by secure video. You join from home and talk with her face to face on screen about how you're feeling, your symptoms, and your plan.",
       `JRose Wellness provides telehealth for patients in ${CONTACT.state}, where Jessica is licensed as an advanced practice registered nurse (APRN).`,
       'Booking works the same way for every visit: through Alma or Headway if you are using insurance, or directly with the practice for self-pay.',
     ],
@@ -567,7 +567,7 @@ export const SERVICES: ServicePageContent[] = [
       {
         heading: 'Is telehealth right for me?',
         body: [
-          'Telehealth works well for outpatient psychiatric care: evaluations, medication management, and supportive therapy from home.',
+          'Telehealth visits are for outpatient psychiatric care: evaluations, medication management, and supportive therapy from home.',
           CRISIS.full,
         ],
       },
@@ -575,7 +575,10 @@ export const SERVICES: ServicePageContent[] = [
     faqHeading: 'Common questions about video visits',
     faqs: [
       FAQ.virtualOnly,
-      { q: 'Who can book a video visit?', a: `${AGES.short}, for patients in ${CONTACT.state}.` },
+      {
+        q: 'Who can book a video visit?',
+        a: `JRose Wellness sees ${AGES.short.toLowerCase()} in ${CONTACT.state}, and every visit is by secure video.`,
+      },
       { q: 'Can I use insurance for video visits?', a: INSURANCE_LINE },
       FAQ.whatPsychNpDoes,
     ],

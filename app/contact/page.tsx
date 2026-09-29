@@ -1,183 +1,181 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
+import { CONTACT, NAV_CTA, NO_MEDICAL_ADVICE, PROVIDER, SITE_NAME, withBrand } from '@/lib/site'
+import { PAGE_IMAGES } from '@/lib/images'
+import PageHero from '@/components/site/PageHero'
+import Container from '@/components/site/Container'
+import SectionHeading from '@/components/site/SectionHeading'
+import ContactForm from '@/components/site/ContactForm'
+import CrisisNotice from '@/components/site/CrisisNotice'
+import SmartLink, { BUTTON } from '@/components/site/SmartLink'
+import { ArrowRight, MailIcon, PhoneIcon, VideoIcon } from '@/components/site/icons'
+
+const TITLE = withBrand('Contact a Telehealth Psychiatric NP in CT')
+const DESCRIPTION = `Contact ${SITE_NAME} for telehealth psychiatric care in Connecticut. Call ${CONTACT.phone} or email us about visits, insurance, or getting started.`
+const HERO = PAGE_IMAGES['/contact']
 
 export const metadata: Metadata = {
-  title: 'Contact JROSE WELLNESS | Schedule Your Appointment in Fairfield, CT',
-  description: 'Contact JROSE WELLNESS for integrative mental health care in Fairfield, CT. Call (914) 916-6376 or schedule your initial psychiatric evaluation online.',
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: '/contact' },
   openGraph: {
-    title: 'Contact JROSE WELLNESS | Schedule Your Appointment in Fairfield, CT',
-    description: 'Contact JROSE WELLNESS for integrative mental health care in Fairfield, CT. Call (914) 916-6376 or schedule your initial psychiatric evaluation online.',
-    url: 'https://jrosewellness.com/contact',
-    siteName: 'JROSE WELLNESS',
+    title: TITLE,
+    description: DESCRIPTION,
+    url: '/contact',
+    siteName: SITE_NAME,
     type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    images: [{ url: HERO.src, alt: HERO.alt }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Contact JROSE WELLNESS | Schedule Your Appointment in Fairfield, CT',
-    description: 'Contact JROSE WELLNESS for integrative mental health care in Fairfield, CT. Call (914) 916-6376 or schedule your initial psychiatric evaluation online.',
-    images: ['/og-image.png'],
-  },
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [HERO.src] },
 }
+
+const CARD =
+  'flex items-start gap-4 rounded-2xl border border-border bg-white p-5 shadow-[0_1px_2px_rgba(46,15,19,0.04),0_12px_32px_-16px_rgba(46,15,19,0.18)] sm:p-6'
+const ICON_WRAP = 'grid h-11 w-11 shrink-0 place-items-center rounded-full bg-light text-accent'
+
+// Short answers to "where do I start?" so a visitor with a simple question can skip the form.
+const HELPFUL_LINKS = [
+  { label: 'Insurance & pricing', href: '/insurance', blurb: 'Plans through Alma and Headway, and self-pay rates' },
+  { label: 'Your first visit', href: '/new-patients', blurb: 'What to expect and how to get started' },
+  { label: 'Frequently asked questions', href: '/faq', blurb: 'Medication, telehealth, and more' },
+]
 
 export default function ContactPage() {
   return (
     <main>
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-28 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h1 className="font-cormorant text-6xl font-light mb-6">Get In Touch</h1>
-          <p className="text-xl text-white/90 max-w-2xl mx-auto">
-            We'd love to hear from you. Reach out to schedule an appointment or ask a question.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        size="md"
+        priority
+        eyebrow="Contact"
+        title={`Contact ${SITE_NAME}`}
+        subtitle={`Questions about visits, insurance, or getting started? Call, email, or send a message below. Every visit is by secure video, for patients in ${CONTACT.state}.`}
+        image={HERO}
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Contact' }]}
+        primaryCta={NAV_CTA}
+        secondaryCta={{ label: `Call ${CONTACT.phone}`, href: CONTACT.phoneHref }}
+      />
 
-      <section className="bg-[var(--color-cream)] py-24">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16">
-            <div id="form" className="bg-white rounded-2xl p-10 shadow-sm border border-[var(--color-border)] animate-fade-up">
-              <h2 className="font-cormorant text-3xl mb-8 text-[var(--color-ink)]">Send Us a Message</h2>
-              <form method="POST" action="https://formspree.io/f/placeholder" className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-[var(--color-ink)] mb-2">
-                    Full Name <span className="text-[var(--color-accent)]">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    required
-                    className="border border-[var(--color-border)] rounded-xl px-4 py-3 w-full focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
-                  />
-                </div>
+      <section className="bg-cream py-16 sm:py-20" aria-labelledby="contact-heading">
+        <Container>
+          <div className="mx-auto max-w-4xl">
+            <CrisisNotice />
+          </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-[var(--color-ink)] mb-2">
-                    Email <span className="text-[var(--color-accent)]">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    className="border border-[var(--color-border)] rounded-xl px-4 py-3 w-full focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
-                  />
-                </div>
+          <div className="mt-12 grid gap-10 lg:mt-16 lg:grid-cols-12 lg:gap-12">
+            {/* Ways to reach the practice */}
+            <div className="lg:col-span-5">
+              <SectionHeading
+                id="contact-heading"
+                eyebrow="Get in touch"
+                title="Reach the practice"
+                intro={`${SITE_NAME} is the telehealth practice of ${PROVIDER.byline}. Call or email with scheduling and general questions, or use the form.`}
+              />
 
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-[var(--color-ink)] mb-2">
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    className="border border-[var(--color-border)] rounded-xl px-4 py-3 w-full focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
-                  />
-                </div>
+              <ul className="mt-8 space-y-4">
+                <li className={CARD}>
+                  <span className={ICON_WRAP}>
+                    <PhoneIcon className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Phone</p>
+                    <a
+                      href={CONTACT.phoneHref}
+                      className="mt-1 inline-block font-cormorant text-[1.75rem] font-semibold leading-tight text-primary underline-offset-4 hover:text-accent-dark hover:underline"
+                    >
+                      {CONTACT.phone}
+                    </a>
+                  </div>
+                </li>
+                <li className={CARD}>
+                  <span className={ICON_WRAP}>
+                    <MailIcon className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Email</p>
+                    <a
+                      href={`mailto:${CONTACT.email}`}
+                      className="mt-1 inline-block break-all text-lg font-semibold text-primary underline-offset-4 hover:text-accent-dark hover:underline"
+                    >
+                      {CONTACT.email}
+                    </a>
+                  </div>
+                </li>
+                <li className={CARD}>
+                  <span className={ICON_WRAP}>
+                    <VideoIcon className="h-5 w-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Where care happens</p>
+                    <p className="mt-1 text-lg font-semibold text-primary">{CONTACT.serviceArea}</p>
+                    <p className="mt-1 text-[15px] leading-relaxed text-ink/75">
+                      All visits are by secure video, so you can be seen from the comfort and privacy of your home.
+                    </p>
+                  </div>
+                </li>
+              </ul>
 
-                <div>
-                  <label htmlFor="service" className="block text-sm font-medium text-[var(--color-ink)] mb-2">
-                    Service Interest
-                  </label>
-                  <select
-                    id="service"
-                    name="service"
-                    className="border border-[var(--color-border)] rounded-xl px-4 py-3 w-full focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
-                  >
-                    <option value="">Select a service</option>
-                    <option value="Initial Psychiatric Evaluation">Initial Psychiatric Evaluation</option>
-                    <option value="Anxiety Treatment">Anxiety Treatment</option>
-                    <option value="Depression Care">Depression Care</option>
-                    <option value="Substance Use Disorder Support">Substance Use Disorder Support</option>
-                    <option value="Medication Management">Medication Management</option>
-                    <option value="Follow-Up Appointment">Follow-Up Appointment</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-[var(--color-ink)] mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={5}
-                    className="border border-[var(--color-border)] rounded-xl px-4 py-3 w-full focus:ring-2 focus:ring-[var(--color-primary)] focus:outline-none"
-                  ></textarea>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-white py-4 rounded-xl font-semibold transition-colors mt-2"
-                >
-                  Send Message
-                </button>
-
-                <p className="text-[var(--color-muted)] text-xs mt-4">
-                  Please do not include confidential health information in this form. For secure communication about your care, please contact us directly by phone.
-                </p>
-              </form>
+              <div role="note" className="mt-6 rounded-2xl border border-border bg-light p-5 text-[15px] leading-relaxed text-ink/85 sm:p-6">
+                <p className="font-semibold text-primary">Please keep medical details out of messages</p>
+                <p className="mt-1">{NO_MEDICAL_ADVICE}</p>
+              </div>
             </div>
 
-            <div className="space-y-8">
-              <div className="bg-white rounded-2xl p-8 border border-[var(--color-border)] animate-fade-up">
-                <svg stroke="var(--color-primary)" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-8 h-8 mb-4">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-                </svg>
-                <h3 className="font-cormorant text-2xl mb-3 text-[var(--color-ink)]">Visit Us</h3>
-                <p className="text-[var(--color-ink)] leading-relaxed">
-                  268 Post Road<br />
-                  Fairfield, CT 06824
+            {/* Form */}
+            <div className="lg:col-span-7">
+              <div className="rounded-3xl border border-border bg-white p-6 shadow-[0_1px_2px_rgba(46,15,19,0.04),0_12px_32px_-16px_rgba(46,15,19,0.18)] sm:p-8 lg:p-10">
+                <h2 className="font-cormorant text-[2rem] font-semibold leading-tight text-primary sm:text-4xl">Send a message</h2>
+                <p className="mt-3 mb-8 leading-relaxed text-muted">
+                  For scheduling and general questions. Tell us how you would like us to get back to you, and we will
+                  reply that way.
                 </p>
-              </div>
-
-              <div className="bg-white rounded-2xl p-8 border border-[var(--color-border)] animate-fade-up">
-                <svg stroke="var(--color-primary)" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-8 h-8 mb-4">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                </svg>
-                <h3 className="font-cormorant text-2xl mb-3 text-[var(--color-ink)]">Call or Email</h3>
-                <a
-                  href="tel:(914) 916-6376"
-                  className="font-cormorant text-2xl text-[var(--color-primary)] hover:text-[var(--color-dark)] transition-colors block mb-2"
-                >
-                  (914) 916-6376
-                </a>
-                <a
-                  href="mailto:jrosewellnesspllc@gmail.com"
-                  className="text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] transition-colors"
-                >
-                  jrosewellnesspllc@gmail.com
-                </a>
-              </div>
-
-              <div className="bg-[var(--color-light)] rounded-2xl p-8 animate-fade-up">
-                <svg stroke="var(--color-primary)" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-8 h-8 mb-4">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <h3 className="font-cormorant text-2xl mb-3 text-[var(--color-ink)]">Hours</h3>
-                <p className="text-[var(--color-ink)]">Call for availability</p>
-              </div>
-
-              <div className="bg-[var(--color-primary)] text-white rounded-2xl p-8 animate-fade-up">
-                <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-8 h-8 mb-4">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5a2.25 2.25 0 002.25-2.25m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
-                </svg>
-                <h3 className="font-cormorant text-2xl mb-3">Book an Appointment</h3>
-                <p className="mb-6 text-white/90">
-                  Ready to begin your wellness journey? Fill out the form and we'll be in touch to schedule your initial evaluation.
-                </p>
-                <a
-                  href="#form"
-                  className="inline-block bg-white text-[var(--color-primary)] px-8 py-3 rounded-xl font-semibold hover:bg-white/90 transition-colors"
-                >
-                  Get Started
-                </a>
+                <ContactForm source="contact" />
               </div>
             </div>
           </div>
-        </div>
+        </Container>
+      </section>
+
+      {/* Booking handoff */}
+      <section className="bg-light py-16 sm:py-20" aria-labelledby="ready-heading">
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-12">
+            <div className="lg:col-span-6">
+              <SectionHeading
+                id="ready-heading"
+                eyebrow="Ready to book?"
+                title="Book with insurance or as self-pay"
+                intro="Use your insurance by booking through Alma or Headway, or request a self-pay appointment. The booking page lays out all three options side by side."
+              />
+              <div className="mt-8 flex flex-wrap gap-3">
+                <SmartLink href={NAV_CTA.href} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.accent}`}>
+                  See booking options
+                  <ArrowRight />
+                </SmartLink>
+                <SmartLink href={CONTACT.phoneHref} className={`${BUTTON.base} ${BUTTON.lg} ${BUTTON.outlineDark}`}>
+                  <PhoneIcon />
+                  Call {CONTACT.phone}
+                </SmartLink>
+              </div>
+            </div>
+
+            <ul className="grid gap-4 lg:col-span-6">
+              {HELPFUL_LINKS.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="group flex items-center justify-between gap-4 rounded-2xl border border-border bg-white p-5 transition hover:border-accent/40 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:p-6"
+                  >
+                    <span>
+                      <span className="block font-cormorant text-2xl font-semibold leading-tight text-primary">{l.label}</span>
+                      <span className="mt-1 block text-[15px] text-muted">{l.blurb}</span>
+                    </span>
+                    <ArrowRight className="h-5 w-5 shrink-0 text-accent transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Container>
       </section>
     </main>
   )

@@ -1,320 +1,453 @@
-import type { Metadata } from 'next'
 import Link from 'next/link'
+import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
+import {
+  AGES,
+  BOOKING,
+  CONTACT,
+  NAV_CTA,
+  NO_MEDICAL_ADVICE,
+  PRACTICE_FAQS,
+  PRICING,
+  PROVIDER,
+  SITE_NAME,
+  withBrand,
+} from '@/lib/site'
+import { PAGE_IMAGES } from '@/lib/images'
+import PageHero from '@/components/site/PageHero'
+import Container from '@/components/site/Container'
+import SectionHeading from '@/components/site/SectionHeading'
+import BookingOptions from '@/components/site/BookingOptions'
+import FaqList from '@/components/site/FaqList'
+import CrisisNotice from '@/components/site/CrisisNotice'
+import CtaBand from '@/components/site/CtaBand'
+import SmartLink from '@/components/site/SmartLink'
+import { ArrowRight, CheckIcon, ExternalIcon, PhoneIcon, VideoIcon } from '@/components/site/icons'
+
+const PATH = '/new-patients'
+const HERO = PAGE_IMAGES[PATH]
+const TITLE = withBrand('Your First Telehealth Psychiatric Visit')
+const DESCRIPTION = `New to ${SITE_NAME}? See how to book, what happens at your first telehealth psychiatric visit, what to have ready, and how follow-up care works in CT.`
 
 export const metadata: Metadata = {
-  title: 'New Patient Information | JROSE WELLNESS',
-  description: 'Everything you need to know before your first visit to JROSE WELLNESS. Learn about our initial evaluation process, what to bring, patient forms, telehealth options, and practice policies.',
-  alternates: { canonical: '/new-patients' },
+  title: TITLE,
+  description: DESCRIPTION,
+  alternates: { canonical: PATH },
   openGraph: {
-    title: 'New Patient Information | JROSE WELLNESS',
-    description: 'Everything you need to know before your first visit to JROSE WELLNESS. Learn about our initial evaluation process, what to bring, patient forms, telehealth options, and practice policies.',
-    url: 'https://jrosewellness.com/new-patients',
-    siteName: 'JROSE WELLNESS',
     type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }]
+    url: PATH,
+    siteName: SITE_NAME,
+    locale: 'en_US',
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [{ url: HERO.src, alt: HERO.alt }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'New Patient Information | JROSE WELLNESS',
-    description: 'Everything you need to know before your first visit to JROSE WELLNESS. Learn about our initial evaluation process, what to bring, patient forms, telehealth options, and practice policies.',
-    images: ['/og-image.png']
-  }
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [HERO.src] },
 }
+
+/* ------------------------------------------------------------------ */
+/* Page data                                                           */
+/* ------------------------------------------------------------------ */
+
+const FIRST_NAME = PROVIDER.name.split(' ')[0]
+const LINK = 'font-semibold text-accent underline-offset-4 hover:underline'
+
+const STEPS: { title: string; body: ReactNode }[] = [
+  {
+    title: 'Choose how to book',
+    body: (
+      <>
+        Using insurance? Book through{' '}
+        <SmartLink href={BOOKING.alma.href} className={`inline-flex items-center gap-1 ${LINK}`}>
+          Alma
+          <ExternalIcon className="h-3 w-3" />
+        </SmartLink>{' '}
+        or{' '}
+        <SmartLink href={BOOKING.headway.href} className={`inline-flex items-center gap-1 ${LINK}`}>
+          Headway
+          <ExternalIcon className="h-3 w-3" />
+        </SmartLink>
+        , whichever lists your plan. Paying directly?{' '}
+        <Link href={BOOKING.request.href} className={LINK}>
+          Send a self-pay request
+        </Link>{' '}
+        or call{' '}
+        <a href={CONTACT.phoneHref} className={LINK}>
+          {CONTACT.phone}
+        </a>
+        .
+      </>
+    ),
+  },
+  {
+    title: 'Get ready for your visit',
+    body: (
+      <>
+        Gather your insurance card (if you&rsquo;re using insurance), a list of your medications, and your
+        treatment history. Plan to be somewhere private.{' '}
+        <a href="#what-to-have-ready" className={LINK}>
+          See the checklist
+        </a>
+        .
+      </>
+    ),
+  },
+  {
+    title: `Meet ${FIRST_NAME} by video`,
+    body: `Your first visit is a full psychiatric evaluation. You leave with a clearer picture of next steps, and ${FIRST_NAME} follows up with you by video from there.`,
+  },
+]
+
+const READY = [
+  {
+    title: 'Your insurance card',
+    body: 'If you are using insurance, keep your card or plan details handy when you book and at your visit.',
+  },
+  {
+    title: 'Your current medications',
+    body: 'A list of what you take now, plus any medications you have tried before and how they worked for you.',
+  },
+  {
+    title: 'Your treatment history',
+    body: 'Any past diagnoses, therapy, or psychiatric care. Rough dates are fine.',
+  },
+  {
+    title: 'A private space and a device',
+    body: 'A quiet spot where you can talk openly, and a phone, tablet, or computer with a camera, a microphone, and a steady internet connection.',
+  },
+]
+
+// What the first appointment covers, in Jessica's words (Headway profile).
+const EVAL_TOPICS = [
+  'What brings you in',
+  'Your current concerns and symptoms',
+  'Relevant medical and mental health history',
+  'Lifestyle factors',
+  'Any goals you have for treatment',
+]
+
+// Answers are the practice's own (PRACTICE_FAQS) or built from lib/site.ts values (FACTS.md section 10).
+const FAQS = [
+  PRACTICE_FAQS[0],
+  {
+    q: 'How long is the first visit?',
+    a: `${BOOKING.alma.note} If you book another way, ask about visit length when you schedule.`,
+  },
+  { q: 'What ages do you see?', a: `${FIRST_NAME} sees ${AGES.short.toLowerCase()}.` },
+  {
+    q: 'Do you take insurance?',
+    a: 'Yes, by booking through Alma or Headway. Plans are listed on our Insurance & Pricing page.',
+  },
+  {
+    q: 'How much does it cost?',
+    a: `Self-pay visits are ${PRICING.initialEvaluation.price} for the initial evaluation and ${PRICING.followUp.price} for follow-up and medication management. With insurance through Alma or Headway, your cost depends on your plan.`,
+  },
+  PRACTICE_FAQS[5],
+  PRACTICE_FAQS[2],
+]
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
 
 export default function NewPatientsPage() {
   return (
     <main>
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-24 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h1 className="font-cormorant text-5xl md:text-6xl font-light mb-6">New Patients</h1>
-          <p className="text-xl text-white/90">Everything you need to know before your first visit</p>
-        </div>
+      <PageHero
+        priority
+        eyebrow="Your First Visit"
+        title="Your First Visit: Getting Started With Telehealth Psychiatric Care"
+        subtitle={`How to book, what to have ready, and what happens at your first appointment with ${FIRST_NAME}. Every visit is by secure video, for patients in ${CONTACT.state}.`}
+        image={HERO}
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Your First Visit' }]}
+        primaryCta={NAV_CTA}
+        secondaryCta={{ label: 'Insurance & Pricing', href: '/insurance' }}
+      />
+
+      {/* 1. STEPS */}
+      <section className="bg-white py-16 sm:py-24" aria-labelledby="np-steps-heading">
+        <Container>
+          <SectionHeading
+            id="np-steps-heading"
+            eyebrow="Getting started"
+            title="Three steps to your first visit"
+            intro="Everything happens online, and every visit is by secure video."
+            align="center"
+          />
+
+          <ol className="mt-12 grid gap-6 md:grid-cols-3">
+            {STEPS.map((s, i) => (
+              <li key={s.title} className="flex flex-col rounded-3xl border border-border bg-cream p-7 sm:p-8">
+                <span className="grid h-12 w-12 place-items-center rounded-full bg-peach font-cormorant text-2xl font-semibold text-primary">
+                  {i + 1}
+                </span>
+                <h3 className="mt-5 font-cormorant text-2xl font-semibold leading-tight text-primary">{s.title}</h3>
+                <p className="mt-3 leading-relaxed text-ink/80">{s.body}</p>
+              </li>
+            ))}
+          </ol>
+        </Container>
       </section>
 
-      <section className="bg-[var(--color-cream)] py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl md:text-5xl text-center text-[var(--color-ink)] mb-20">Your First Visit</h2>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-white rounded-xl p-8 shadow-sm animate-fade-up">
-              <div className="font-cormorant text-6xl font-light text-[var(--color-primary)] mb-4">01</div>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-3">Schedule</h3>
-              <p className="text-[var(--color-muted)] leading-relaxed">Book your initial evaluation online through our secure scheduling system or give us a call. We'll find a time that works best for you.</p>
+      {/* 2. WHAT TO HAVE READY */}
+      <section
+        id="what-to-have-ready"
+        className="scroll-mt-24 bg-cream py-16 sm:py-24"
+        aria-labelledby="np-ready-heading"
+      >
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-14">
+            <div className="lg:col-span-5">
+              <SectionHeading
+                id="np-ready-heading"
+                eyebrow="Before your visit"
+                title="What to have ready"
+                intro="A little preparation helps your first visit go smoothly."
+              />
             </div>
-
-            <div className="bg-white rounded-xl p-8 shadow-sm animate-fade-up">
-              <div className="font-cormorant text-6xl font-light text-[var(--color-primary)] mb-4">02</div>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-3">Complete Paperwork</h3>
-              <p className="text-[var(--color-muted)] leading-relaxed">Patient forms can be completed online before your appointment or arrive 15 minutes early to fill them out in our office.</p>
-            </div>
-
-            <div className="bg-white rounded-xl p-8 shadow-sm animate-fade-up">
-              <div className="font-cormorant text-6xl font-light text-[var(--color-primary)] mb-4">03</div>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-3">Initial Evaluation</h3>
-              <p className="text-[var(--color-muted)] leading-relaxed">Your comprehensive assessment takes 60-90 minutes. We'll discuss your history, current concerns, and wellness goals to understand your complete picture.</p>
-            </div>
-
-            <div className="bg-white rounded-xl p-8 shadow-sm animate-fade-up">
-              <div className="font-cormorant text-6xl font-light text-[var(--color-primary)] mb-4">04</div>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-3">Treatment Plan</h3>
-              <p className="text-[var(--color-muted)] leading-relaxed">Together, we'll create a personalized care plan tailored to your unique needs, lifestyle, and health goals.</p>
-            </div>
+            <ul className="grid gap-4 sm:grid-cols-2 lg:col-span-7">
+              {READY.map((r) => (
+                <li key={r.title} className="flex h-full flex-col rounded-3xl border border-border bg-white p-6">
+                  <span className="grid h-9 w-9 place-items-center rounded-full bg-light text-accent">
+                    <CheckIcon className="h-4 w-4" />
+                  </span>
+                  <h3 className="mt-4 text-[17px] font-semibold leading-snug text-ink">{r.title}</h3>
+                  <p className="mt-2 text-[15px] leading-relaxed text-muted">{r.body}</p>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
+        </Container>
       </section>
 
-      <section className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl md:text-5xl text-center text-[var(--color-ink)] mb-16">What to Bring</h2>
-          
-          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <div className="flex gap-4 items-start p-6 rounded-xl bg-[var(--color-cream)] animate-fade-up">
-              <svg stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24" className="w-8 h-8 text-[var(--color-accent)] flex-shrink-0 mt-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <h3 className="font-semibold text-[var(--color-ink)] text-lg mb-2">Photo ID</h3>
-                <p className="text-[var(--color-muted)]">Valid driver's license or state-issued identification card for identity verification.</p>
-              </div>
-            </div>
+      {/* 3. THE EVALUATION */}
+      <section className="bg-white py-16 sm:py-24" aria-labelledby="np-eval-heading">
+        <Container>
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+            <div>
+              <SectionHeading id="np-eval-heading" eyebrow="Your first appointment" title="What happens at your evaluation" />
+              <p className="mt-6 text-lg leading-relaxed text-ink/80">{PRICING.initialEvaluation.description}</p>
 
-            <div className="flex gap-4 items-start p-6 rounded-xl bg-[var(--color-cream)] animate-fade-up">
-              <svg stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24" className="w-8 h-8 text-[var(--color-accent)] flex-shrink-0 mt-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <h3 className="font-semibold text-[var(--color-ink)] text-lg mb-2">Insurance Card</h3>
-                <p className="text-[var(--color-muted)]">Both front and back of your current insurance card so we can verify your coverage and benefits.</p>
-              </div>
-            </div>
-
-            <div className="flex gap-4 items-start p-6 rounded-xl bg-[var(--color-cream)] animate-fade-up">
-              <svg stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24" className="w-8 h-8 text-[var(--color-accent)] flex-shrink-0 mt-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <h3 className="font-semibold text-[var(--color-ink)] text-lg mb-2">Medication List</h3>
-                <p className="text-[var(--color-muted)]">Complete list of current medications including dosages, supplements, and over-the-counter medications you take regularly.</p>
-              </div>
-            </div>
-
-            <div className="flex gap-4 items-start p-6 rounded-xl bg-[var(--color-cream)] animate-fade-up">
-              <svg stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24" className="w-8 h-8 text-[var(--color-accent)] flex-shrink-0 mt-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <h3 className="font-semibold text-[var(--color-ink)] text-lg mb-2">Prior Medical Records</h3>
-                <p className="text-[var(--color-muted)]">Any relevant previous treatment records, lab results, or consultation notes from other healthcare providers if available.</p>
-              </div>
-            </div>
-
-            <div className="flex gap-4 items-start p-6 rounded-xl bg-[var(--color-cream)] animate-fade-up md:col-span-2">
-              <svg stroke="currentColor" strokeWidth={2} fill="none" viewBox="0 0 24 24" className="w-8 h-8 text-[var(--color-accent)] flex-shrink-0 mt-1">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <h3 className="font-semibold text-[var(--color-ink)] text-lg mb-2">Emergency Contact Information</h3>
-                <p className="text-[var(--color-muted)]">Name and phone number of someone we can contact on your behalf in case of an emergency.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-[var(--color-cream)] py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="bg-[var(--color-light)] rounded-2xl p-12 max-w-3xl mx-auto animate-fade-up">
-            <h2 className="font-cormorant text-3xl md:text-4xl text-[var(--color-ink)] mb-6">Patient Forms</h2>
-            <p className="text-[var(--color-muted)] text-lg mb-8">
-              To streamline your first visit, you can complete patient forms at our office or during your first appointment. We understand your time is valuable and aim to make the process as smooth as possible.
-            </p>
-            
-            <div className="space-y-4">
-              <div className="flex gap-3 items-start">
-                <div className="w-2 h-2 rounded-full bg-[var(--color-accent)] mt-2 flex-shrink-0"></div>
-                <div>
-                  <h4 className="font-semibold text-[var(--color-ink)] mb-1">Patient Intake Form</h4>
-                  <p className="text-[var(--color-muted)]">Comprehensive health history and current symptoms</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 items-start">
-                <div className="w-2 h-2 rounded-full bg-[var(--color-accent)] mt-2 flex-shrink-0"></div>
-                <div>
-                  <h4 className="font-semibold text-[var(--color-ink)] mb-1">Consent for Treatment</h4>
-                  <p className="text-[var(--color-muted)]">Understanding and agreement to receive care</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 items-start">
-                <div className="w-2 h-2 rounded-full bg-[var(--color-accent)] mt-2 flex-shrink-0"></div>
-                <div>
-                  <h4 className="font-semibold text-[var(--color-ink)] mb-1">HIPAA Authorization</h4>
-                  <p className="text-[var(--color-muted)]">Privacy practices and health information protection</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 items-start">
-                <div className="w-2 h-2 rounded-full bg-[var(--color-accent)] mt-2 flex-shrink-0"></div>
-                <div>
-                  <h4 className="font-semibold text-[var(--color-ink)] mb-1">Insurance Information</h4>
-                  <p className="text-[var(--color-muted)]">Coverage details and payment responsibility</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl md:text-5xl text-center text-[var(--color-ink)] mb-6">Telehealth Appointments</h2>
-          <p className="text-center text-[var(--color-muted)] text-lg max-w-3xl mx-auto mb-16">
-            We offer secure video appointments from the comfort of your home. Telehealth provides the same quality care with added convenience and privacy.
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-            <div className="animate-fade-up">
-              <div className="flex items-center gap-3 mb-4">
-                <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-8 h-8 text-[var(--color-primary)]">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <h3 className="font-cormorant text-2xl text-[var(--color-ink)]">What You Need</h3>
-              </div>
-              <ul className="space-y-3 text-[var(--color-muted)]">
-                <li className="flex gap-2">
-                  <span className="text-[var(--color-accent)] font-semibold">•</span>
-                  <span>Computer, tablet, or smartphone with camera and microphone</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[var(--color-accent)] font-semibold">•</span>
-                  <span>Reliable internet connection</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[var(--color-accent)] font-semibold">•</span>
-                  <span>Updated web browser (Chrome, Safari, Firefox, or Edge)</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[var(--color-accent)] font-semibold">•</span>
-                  <span>Quiet, private space for your appointment</span>
-                </li>
+              <h3 className="mt-8 text-[17px] font-semibold text-ink">What you&rsquo;ll talk about</h3>
+              <ul className="mt-4 space-y-3">
+                {EVAL_TOPICS.map((t) => (
+                  <li key={t} className="flex items-start gap-3 leading-relaxed text-ink/85">
+                    <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-sage" />
+                    {t}
+                  </li>
+                ))}
               </ul>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <p className="inline-flex items-center gap-2 rounded-full border border-border bg-cream px-4 py-2 text-sm text-ink">
+                  <VideoIcon className="h-4 w-4 text-accent" />
+                  {BOOKING.alma.note}
+                </p>
+                <p className="inline-flex items-center gap-2 rounded-full border border-border bg-cream px-4 py-2 text-sm text-ink">
+                  Self-pay: <strong className="font-semibold text-primary">{PRICING.initialEvaluation.price}</strong>
+                </p>
+              </div>
             </div>
 
-            <div className="animate-fade-up">
-              <div className="flex items-center gap-3 mb-4">
-                <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-8 h-8 text-[var(--color-primary)]">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <h3 className="font-cormorant text-2xl text-[var(--color-ink)]">Privacy Tips</h3>
+            <div className="space-y-6">
+              <figure className="rounded-3xl border border-border bg-light/60 p-7 sm:p-8">
+                <figcaption className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
+                  In {FIRST_NAME}&rsquo;s words
+                </figcaption>
+                <blockquote className="mt-4 space-y-4 font-cormorant text-[1.35rem] leading-snug text-ink">
+                  <p>
+                    &ldquo;I know starting therapy or psychiatric care can feel intimidating, so I approach each session
+                    with compassion, curiosity, and openness.&rdquo;
+                  </p>
+                  <p>
+                    &ldquo;If medication management is appropriate, we will discuss options thoughtfully, including
+                    benefits, risks, and your comfort level with treatment. I believe clients should feel informed and
+                    actively involved in decisions about their care.&rdquo;
+                  </p>
+                </blockquote>
+              </figure>
+
+              <div className="rounded-3xl border border-border bg-white p-7 shadow-[0_1px_2px_rgba(46,15,19,0.04),0_12px_32px_-16px_rgba(46,15,19,0.18)] sm:p-8">
+                <h3 className="font-cormorant text-2xl font-semibold leading-tight text-primary">What you&rsquo;ll leave with</h3>
+                <p className="mt-3 leading-relaxed text-ink/80">
+                  A clearer understanding of possible next steps, initial treatment goals, and practical strategies or
+                  recommendations to begin working toward feeling better.
+                </p>
+                <Link
+                  href="/services/psychiatric-evaluation"
+                  className={`mt-5 inline-flex items-center gap-1.5 ${LINK}`}
+                >
+                  More about the psychiatric evaluation
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
-              <ul className="space-y-3 text-[var(--color-muted)]">
-                <li className="flex gap-2">
-                  <span className="text-[var(--color-accent)] font-semibold">•</span>
-                  <span>Choose a private room where you won't be interrupted</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[var(--color-accent)] font-semibold">•</span>
-                  <span>Use headphones for additional confidentiality</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[var(--color-accent)] font-semibold">•</span>
-                  <span>Close doors and windows to minimize background noise</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="text-[var(--color-accent)] font-semibold">•</span>
-                  <span>Test your connection 10 minutes before your appointment</span>
-                </li>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* 4. AFTER THE FIRST VISIT */}
+      <section className="bg-light py-16 sm:py-24" aria-labelledby="np-after-heading">
+        <Container>
+          <SectionHeading
+            id="np-after-heading"
+            eyebrow="After your first visit"
+            title="Ongoing care, at your pace"
+            intro={`${FIRST_NAME} meets with you regularly by video to monitor your progress, make adjustments, and provide continuous support.`}
+            align="center"
+          />
+
+          <div className="mt-12 grid gap-6 lg:grid-cols-3">
+            <article className="flex h-full flex-col rounded-3xl border border-border bg-white p-7 sm:p-8 lg:col-span-2">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Follow-up visits</p>
+                  <h3 className="mt-2 font-cormorant text-[1.75rem] font-semibold leading-tight text-primary">
+                    {PRICING.followUp.name}
+                  </h3>
+                </div>
+                <p className="rounded-full bg-cream px-4 py-1.5 text-sm text-ink">
+                  Self-pay <strong className="font-semibold text-primary">{PRICING.followUp.price}</strong>
+                </p>
+              </div>
+              <p className="mt-5 flex-1 leading-relaxed text-ink/80">{PRICING.followUp.description}</p>
+              <Link href="/services/medication-management" className={`mt-6 inline-flex items-center gap-1.5 ${LINK}`}>
+                More about medication management
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </article>
+
+            <div className="grid gap-6">
+              <article className="rounded-3xl border border-border bg-white p-7">
+                <h3 className="font-cormorant text-2xl font-semibold leading-tight text-primary">Medication is optional</h3>
+                <p className="mt-3 leading-relaxed text-ink/80">{PRACTICE_FAQS[5].a}</p>
+              </article>
+              <article className="rounded-3xl border border-border bg-white p-7">
+                <h3 className="font-cormorant text-2xl font-semibold leading-tight text-primary">Support in every visit</h3>
+                <p className="mt-3 leading-relaxed text-ink/80">{PRACTICE_FAQS[2].a}</p>
+                <Link href="/services/supportive-therapy" className={`mt-4 inline-flex items-center gap-1.5 text-sm ${LINK}`}>
+                  Supportive therapy
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </article>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* 5. AGES & GUARDIANS + TELEHEALTH REQUIREMENTS */}
+      <section className="bg-white py-16 sm:py-24" aria-label="Ages and telehealth requirements">
+        <Container>
+          <div className="grid gap-6 md:grid-cols-2">
+            <article className="flex h-full flex-col rounded-3xl border border-border bg-cream p-7 sm:p-9" aria-labelledby="np-ages-heading">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Ages and guardians</p>
+              <h2 id="np-ages-heading" className="mt-2 font-cormorant text-[2rem] font-semibold leading-[1.1] text-primary">
+                {AGES.short}
+              </h2>
+              <p className="mt-4 leading-relaxed text-ink/80">
+                Booking for a teen aged {AGES.minimum} to 17? Call{' '}
+                <a href={CONTACT.phoneHref} className={LINK}>
+                  {CONTACT.phone}
+                </a>{' '}
+                with any questions about how a parent or guardian takes part in booking and consent.
+              </p>
+              <p className="mt-4 leading-relaxed text-ink/80">{AGES.smsNote}</p>
+              <div className="mt-auto flex flex-wrap gap-x-6 gap-y-2 pt-6 text-sm">
+                <Link href="/who-we-help/teens" className={`inline-flex items-center gap-1.5 ${LINK}`}>
+                  Care for teens
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+                <Link href="/who-we-help/adults" className={`inline-flex items-center gap-1.5 ${LINK}`}>
+                  Adults
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+                <Link href="/who-we-help/older-adults" className={`inline-flex items-center gap-1.5 ${LINK}`}>
+                  Older adults
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </article>
+
+            <article className="flex h-full flex-col rounded-3xl border border-border bg-cream p-7 sm:p-9" aria-labelledby="np-tech-heading">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Telehealth requirements</p>
+              <h2 id="np-tech-heading" className="mt-2 font-cormorant text-[2rem] font-semibold leading-[1.1] text-primary">
+                What you need for a video visit
+              </h2>
+              <p className="mt-4 leading-relaxed text-ink/80">
+                All sessions are conducted securely through telehealth, so you get care from the comfort and privacy of
+                your home.
+              </p>
+              <ul className="mt-5 space-y-3">
+                {[
+                  'A phone, tablet, or computer with a camera and a microphone',
+                  'A steady internet connection',
+                  'A private space where you can talk openly',
+                  CONTACT.serviceArea,
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3 leading-relaxed text-ink/85">
+                    <CheckIcon className="mt-1 h-4 w-4 shrink-0 text-sage" />
+                    {item}
+                  </li>
+                ))}
               </ul>
-            </div>
+              <div className="mt-auto pt-6 text-sm">
+                <Link href="/services/telepsychiatry" className={`inline-flex items-center gap-1.5 ${LINK}`}>
+                  How video visits work
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </article>
           </div>
-
-          <div className="mt-12 p-6 bg-[var(--color-cream)] rounded-xl max-w-3xl mx-auto">
-            <p className="text-[var(--color-ink)] text-center">
-              <strong>Secure Platform:</strong> All telehealth sessions are conducted through HIPAA-compliant video conferencing software to protect your privacy and health information.
-            </p>
-          </div>
-        </div>
+        </Container>
       </section>
 
-      <section className="bg-[var(--color-cream)] py-20">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl md:text-5xl text-center text-[var(--color-ink)] mb-16">Practice Policies</h2>
-          
-          <div className="space-y-8">
-            <div className="bg-white rounded-xl p-8 shadow-sm animate-fade-up">
-              <div className="flex items-start gap-4">
-                <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-8 h-8 text-[var(--color-primary)] flex-shrink-0">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                  <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-3">Cancellation Policy</h3>
-                  <p className="text-[var(--color-muted)] leading-relaxed">
-                    We understand that schedules change. If you need to cancel or reschedule your appointment, please provide at least <strong>24 hours notice</strong>. This allows us to offer your appointment time to another patient in need. Cancellations made with less than 24 hours notice may be subject to a fee.
-                  </p>
-                </div>
-              </div>
-            </div>
+      <BookingOptions heading="Ready to book?" />
 
-            <div className="bg-white rounded-xl p-8 shadow-sm animate-fade-up">
-              <div className="flex items-start gap-4">
-                <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-8 h-8 text-[var(--color-primary)] flex-shrink-0">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                  <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-3">Late Arrivals</h3>
-                  <p className="text-[var(--color-muted)] leading-relaxed">
-                    Please arrive (or log in for telehealth) on time for your scheduled appointment. If you arrive more than 15 minutes late, we may need to reschedule your appointment to ensure all patients receive their full session time. Your appointment time is reserved exclusively for you.
-                  </p>
-                </div>
-              </div>
+      {/* 6. FAQ */}
+      <section className="bg-white py-16 sm:py-24" aria-labelledby="np-faq-heading">
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16">
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <SectionHeading
+                id="np-faq-heading"
+                eyebrow="FAQ"
+                title="Questions before your first visit"
+                intro="Quick answers about visits, ages, insurance, and cost."
+              />
+              <Link href="/faq" className={`mt-6 inline-flex items-center gap-1.5 ${LINK}`}>
+                See all questions
+                <ArrowRight />
+              </Link>
             </div>
-
-            <div className="bg-white rounded-xl p-8 shadow-sm animate-fade-up">
-              <div className="flex items-start gap-4">
-                <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-8 h-8 text-[var(--color-primary)] flex-shrink-0">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                <div>
-                  <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-3">No-Show Policy</h3>
-                  <p className="text-[var(--color-muted)] leading-relaxed">
-                    Missing an appointment without notice impacts both your care continuity and prevents another patient from being seen. No-show appointments will be charged a fee. Repeated no-shows may result in discharge from the practice. We're here to support your wellness journey and ask for your partnership in keeping scheduled appointments.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-8 shadow-sm animate-fade-up">
-              <div className="flex items-start gap-4">
-                <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-8 h-8 text-[var(--color-primary)] flex-shrink-0">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                </svg>
-                <div>
-                  <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-3">Payment & Insurance</h3>
-                  <p className="text-[var(--color-muted)] leading-relaxed">
-                    Payment is due at the time of service. We accept most major insurance plans and will verify your benefits before your first appointment. Co-pays, deductibles, and any out-of-pocket expenses are collected at each visit. For patients without insurance, self-pay rates are available.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <FaqList faqs={FAQS} />
           </div>
-        </div>
+        </Container>
       </section>
 
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="font-cormorant text-4xl md:text-5xl text-white mb-6">Ready to Begin Your Wellness Journey?</h2>
-          <p className="text-white/90 text-lg mb-10 leading-relaxed">
-            We're here to support you every step of the way. Schedule your initial evaluation today and take the first step toward whole-person wellness.
-          </p>
-          <Link 
-            href="/contact" 
-            className="inline-block bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-white font-semibold px-10 py-4 rounded-lg transition-all shadow-lg hover:shadow-xl"
-          >
-            Schedule Your Evaluation
-          </Link>
-        </div>
+      {/* 7. QUESTIONS + CRISIS */}
+      <section className="bg-cream pt-16 sm:pt-20" aria-label="Questions and crisis information">
+        <Container size="medium" className="space-y-6">
+          <div className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+            <div>
+              <p className="font-semibold text-primary">Questions before you book?</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted">{NO_MEDICAL_ADVICE}</p>
+            </div>
+            <a
+              href={CONTACT.phoneHref}
+              className="inline-flex shrink-0 items-center gap-2 font-semibold text-accent underline-offset-4 hover:underline"
+            >
+              <PhoneIcon />
+              {CONTACT.phone}
+            </a>
+          </div>
+          <CrisisNotice />
+        </Container>
       </section>
+
+      <CtaBand
+        heading="Take the first step"
+        body={`Book with your insurance through Alma or Headway, or request a self-pay visit. Every visit is by secure video, for patients in ${CONTACT.state}.`}
+      />
     </main>
   )
 }

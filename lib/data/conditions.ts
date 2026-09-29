@@ -5,12 +5,12 @@
 //
 // Rules for anyone editing this file:
 // - Plain, non-stigmatizing language. Signs lists are general education, never a diagnosis.
-// - Medication is always optional and discussed collaboratively. No stimulant or benzodiazepine
-//   promises; the controlled-substances answer is the practice's verbatim FAQ answer.
-// - Therapy techniques come only from PROVIDER.techniques (her own list). No ERP, exposure, PE, CPT
-//   or DBT programs, and no "trauma-informed" designation, until Jessica confirms them.
-// - No statistics, no outcome promises, no lab monitoring details, no MAT, no detox offered,
-//   no autism diagnostic evaluations.
+// - Medication is always optional and discussed collaboratively. No promises about controlled
+//   medications; the controlled-substances answer is the practice's verbatim FAQ answer.
+// - Therapy techniques come only from PROVIDER.techniques (her own list). FACTS.md section 11 lists
+//   the named protocols and designations that stay off the site until Jessica confirms them.
+// - No statistics, no outcome promises, no lab monitoring details, no withdrawal management or
+//   addiction medications offered, no autism diagnostic evaluations.
 // - ADHD lives at /services/adhd-evaluation, not here.
 
 import type { ConditionPageContent, FAQ, IconCard, RelatedLink } from '@/components/templates/ConditionPageTemplate'

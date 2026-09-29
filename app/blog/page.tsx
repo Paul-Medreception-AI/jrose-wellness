@@ -1,286 +1,242 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
+import { PROVIDER, SITE_NAME, SITE_URL, withBrand } from '@/lib/site'
+import { PAGE_IMAGES, imageFor } from '@/lib/images'
+import { POSTS, POST_CATEGORIES, REAL_POST_SLUGS, categoryId, postHref, type PostMeta } from '@/lib/posts'
+import { formatDate, formatMonth } from '@/components/blog/ArticleLayout'
+import PageHero from '@/components/site/PageHero'
+import Container from '@/components/site/Container'
+import SectionHeading from '@/components/site/SectionHeading'
+import CtaBand from '@/components/site/CtaBand'
+import JsonLd from '@/components/site/JsonLd'
+import { ArrowRight } from '@/components/site/icons'
+
+const TITLE = withBrand('Psychiatric Care Blog, Connecticut')
+const DESCRIPTION =
+  'Articles from JRose Wellness on psychiatric nurse practitioner care, medication management, and telehealth mental health treatment for Connecticut patients.'
+const HERO_IMAGE = PAGE_IMAGES['/blog']
 
 export const metadata: Metadata = {
-  title: 'Resources & Patient Education | JROSE WELLNESS',
-  description: 'Evidence-based information and articles to support your mental health journey. Learn about anxiety, depression, medication management, and integrative wellness care.',
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: '/blog' },
   openGraph: {
-    title: 'Resources & Patient Education | JROSE WELLNESS',
-    description: 'Evidence-based information and articles to support your mental health journey. Learn about anxiety, depression, medication management, and integrative wellness care.',
-    url: 'https://jrosewellness.com/blog',
-    siteName: 'JROSE WELLNESS',
+    title: TITLE,
+    description: DESCRIPTION,
+    url: '/blog',
+    siteName: SITE_NAME,
     type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }]
+    images: [{ url: HERO_IMAGE.src, alt: HERO_IMAGE.alt }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Resources & Patient Education | JROSE WELLNESS',
-    description: 'Evidence-based information and articles to support your mental health journey. Learn about anxiety, depression, medication management, and integrative wellness care.',
-    images: ['/og-image.png']
-  }
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [HERO_IMAGE.src] },
+}
+
+const isReal = (p: PostMeta) => (REAL_POST_SLUGS as readonly string[]).includes(p.slug)
+
+/** The route's image from lib/images.ts, unless the post names a different one (then decorative). */
+function cardImage(p: PostMeta) {
+  const fromRoute = imageFor(postHref(p.slug))
+  return !p.image || p.image === fromRoute.src ? fromRoute : { src: p.image, alt: '' }
+}
+
+function PostDates({ post }: { post: PostMeta }) {
+  if (!post.date && !post.updated) return null
+  return (
+    <p className="text-sm text-muted">
+      {post.date && (
+        <>
+          Published <time dateTime={post.date}>{formatDate(post.date)}</time>
+        </>
+      )}
+      {post.date && post.updated && (
+        <span aria-hidden="true" className="mx-2 text-muted/50">
+          &middot;
+        </span>
+      )}
+      {post.updated && (
+        <>
+          Updated <time dateTime={post.updated}>{formatMonth(post.updated)}</time>
+        </>
+      )}
+    </p>
+  )
+}
+
+function FeaturedCard({ post }: { post: PostMeta }) {
+  const img = cardImage(post)
+  return (
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-white shadow-[0_1px_2px_rgba(46,15,19,0.04),0_12px_32px_-16px_rgba(46,15,19,0.18)] transition-shadow hover:shadow-[0_1px_2px_rgba(46,15,19,0.06),0_18px_40px_-16px_rgba(46,15,19,0.28)]">
+      <div className="relative h-56 overflow-hidden bg-light sm:h-60">
+        <Image
+          src={img.src}
+          alt={img.alt}
+          fill
+          sizes="(min-width: 1024px) 400px, (min-width: 768px) 50vw, 100vw"
+          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+        />
+      </div>
+      <div className="flex flex-1 flex-col p-6 sm:p-7">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">{post.category}</p>
+        <h3 className="mt-3 font-cormorant text-[1.75rem] font-semibold leading-tight text-primary">
+          <Link
+            href={postHref(post.slug)}
+            className="after:absolute after:inset-0 after:rounded-3xl focus-visible:outline-none focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-accent"
+          >
+            {post.title}
+          </Link>
+        </h3>
+        <p className="mt-3 flex-1 leading-relaxed text-ink/80">{post.description}</p>
+        <div className="mt-5">
+          <PostDates post={post} />
+        </div>
+        <span className="mt-4 inline-flex items-center gap-1.5 text-[15px] font-semibold text-accent">
+          Read article
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </span>
+      </div>
+    </article>
+  )
+}
+
+function PostCard({ post }: { post: PostMeta }) {
+  return (
+    <article className="group relative flex h-full flex-col rounded-2xl border border-border bg-cream p-6 transition-colors hover:border-accent/40 hover:bg-white">
+      <h4 className="font-cormorant text-[1.45rem] font-semibold leading-snug text-primary">
+        <Link
+          href={postHref(post.slug)}
+          className="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none focus-visible:after:outline focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-accent"
+        >
+          {post.title}
+        </Link>
+      </h4>
+      <p className="mt-3 flex-1 text-[15px] leading-relaxed text-ink/75">{post.description}</p>
+      <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+        Read article
+        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+      </span>
+    </article>
+  )
 }
 
 export default function BlogPage() {
+  const featured = POSTS.filter(isReal)
+  const others = POSTS.filter((p) => !isReal(p))
+
+  // Known categories in their set order, then any category not in POST_CATEGORIES.
+  const known = POST_CATEGORIES as readonly string[]
+  const extra = Array.from(new Set(others.map((p) => p.category))).filter((c) => !known.includes(c))
+  const groups = [...known, ...extra]
+    .map((category) => ({ category, posts: others.filter((p) => p.category === category) }))
+    .filter((g) => g.posts.length > 0)
+
+  const blogSchema = {
+    '@type': 'Blog',
+    '@id': `${SITE_URL}/blog#blog`,
+    name: `${SITE_NAME} Blog`,
+    url: `${SITE_URL}/blog`,
+    description: DESCRIPTION,
+    inLanguage: 'en-US',
+    publisher: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+    blogPost: POSTS.map((p) => ({
+      '@type': 'BlogPosting',
+      headline: p.title,
+      url: `${SITE_URL}${postHref(p.slug)}`,
+      ...(p.date ? { datePublished: p.date } : {}),
+      ...(p.updated ? { dateModified: p.updated } : {}),
+    })),
+  }
+
   return (
-    <main>
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-24 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h1 className="font-cormorant text-5xl font-light mb-6">
-            Resources & Patient Education
-          </h1>
-          <p className="text-xl text-white/90">
-            Evidence-based information to support your mental health journey
-          </p>
-        </div>
-      </section>
+    <>
+      <JsonLd data={blogSchema} />
+      <PageHero
+        size="md"
+        eyebrow="Blog"
+        title="Psychiatric Care Blog"
+        subtitle="Plain-language articles on seeing a psychiatric nurse practitioner, medication management, and telehealth visits, for patients in Connecticut."
+        image={HERO_IMAGE}
+        priority
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Blog' }]}
+      />
 
-      <section className="bg-[var(--color-cream)] py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          <article className="bg-white rounded-2xl p-10 border border-[var(--color-border)] shadow-sm animate-fade-up">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-primary)] font-semibold">
-                Featured
-              </span>
-              <span className="w-1 h-1 rounded-full bg-[var(--color-border)]"></span>
-              <span className="text-xs uppercase tracking-widest text-[var(--color-muted)]">
-                Integrative Wellness
-              </span>
+      {featured.length > 0 && (
+        <section className="bg-cream py-16 sm:py-20" aria-labelledby="featured-heading">
+          <Container>
+            <SectionHeading
+              id="featured-heading"
+              eyebrow="From the practice"
+              title="Featured articles"
+              intro="What a psychiatric nurse practitioner does, how self-pay compares with insurance, and what whole-person medication management looks like."
+            />
+            <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {featured.map((post) => (
+                <FeaturedCard key={post.slug} post={post} />
+              ))}
             </div>
-            <h2 className="font-cormorant text-4xl font-light text-[var(--color-ink)] mb-6">
-              The Mind-Body Connection: How Physical Health Influences Mental Wellness
-            </h2>
-            <div className="prose prose-lg max-w-none text-[var(--color-muted)] space-y-4 mb-8">
-              <p>
-                Modern psychiatric care increasingly recognizes that mental health cannot be separated from physical health. Sleep quality, nutrition, inflammation, hormonal balance, and chronic pain all profoundly impact mood, anxiety levels, and cognitive function. An integrative approach considers the whole person, not just isolated symptoms.
-              </p>
-              <p>
-                When patients present with depression or anxiety, a comprehensive evaluation includes understanding their physical health history, lifestyle factors, and potential underlying medical contributors. For example, thyroid dysfunction, vitamin deficiencies, and gut health issues can all manifest as psychiatric symptoms. Addressing these root causes alongside traditional mental health treatment often leads to more sustainable, meaningful improvements.
-              </p>
-              <p>
-                This whole-person perspective also means empowering patients to understand how their daily choices, stress management practices, movement habits, and sleep hygiene directly influence their mental wellness. Integrative care is collaborative, personalized, and rooted in the understanding that healing happens when we honor the connection between mind and body.
-              </p>
+          </Container>
+        </section>
+      )}
+
+      {groups.length > 0 && (
+        <section className="bg-white py-16 sm:py-20" aria-labelledby="topics-heading">
+          <Container>
+            <SectionHeading
+              id="topics-heading"
+              eyebrow="Browse by topic"
+              title="More articles"
+              intro="General information about mental health and psychiatric care. It is not medical advice for your situation, so bring your questions to your visits."
+            />
+
+            <nav aria-label="Article topics" className="mt-8">
+              <ul className="flex flex-wrap gap-2">
+                {groups.map((g) => (
+                  <li key={g.category}>
+                    <a
+                      href={`#${categoryId(g.category)}`}
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-cream px-4 py-2 text-sm font-medium text-ink transition-colors hover:border-accent/40 hover:bg-light hover:text-primary"
+                    >
+                      {g.category}
+                      <span className="rounded-full bg-white px-2 py-0.5 text-xs text-muted">
+                        {g.posts.length}
+                        <span className="sr-only"> {g.posts.length === 1 ? 'article' : 'articles'}</span>
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <div className="mt-14 space-y-16">
+              {groups.map((g) => (
+                <section key={g.category} id={categoryId(g.category)} aria-labelledby={`${categoryId(g.category)}-heading`}>
+                  <div className="flex items-baseline justify-between gap-4 border-b border-border pb-3">
+                    <h3
+                      id={`${categoryId(g.category)}-heading`}
+                      className="font-cormorant text-3xl font-semibold leading-tight text-primary"
+                    >
+                      {g.category}
+                    </h3>
+                    <p className="text-sm text-muted">
+                      {g.posts.length} {g.posts.length === 1 ? 'article' : 'articles'}
+                    </p>
+                  </div>
+                  <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    {g.posts.map((post) => (
+                      <PostCard key={post.slug} post={post} />
+                    ))}
+                  </div>
+                </section>
+              ))}
             </div>
-            <Link
-              href="/blog/mind-body-connection"
-              className="inline-flex items-center gap-2 text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] font-medium transition-colors"
-            >
-              Read More
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </article>
+          </Container>
+        </section>
+      )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
-            <article className="bg-white rounded-2xl p-8 border border-[var(--color-border)] hover:shadow-lg transition-all animate-fade-up">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-primary)] font-semibold mb-4 block">
-                Mental Health
-              </span>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-4">
-                5 Signs It May Be Time to See a Psychiatric Provider
-              </h3>
-              <p className="text-sm text-[var(--color-muted)] mb-6 leading-relaxed">
-                Knowing when to seek professional support can be challenging. Learn the key indicators that it's time to reach out for comprehensive mental health care.
-              </p>
-              <Link
-                href="/blog/signs-to-see-provider"
-                className="inline-flex items-center gap-2 text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] text-sm font-medium transition-colors"
-              >
-                Read More
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </article>
-
-            <article className="bg-white rounded-2xl p-8 border border-[var(--color-border)] hover:shadow-lg transition-all animate-fade-up">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-primary)] font-semibold mb-4 block">
-                Anxiety
-              </span>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-4">
-                Understanding the Different Types of Anxiety Disorders
-              </h3>
-              <p className="text-sm text-[var(--color-muted)] mb-6 leading-relaxed">
-                Anxiety isn't one-size-fits-all. Explore the spectrum of anxiety disorders, from generalized anxiety to panic disorder, and how each is treated.
-              </p>
-              <Link
-                href="/blog/types-of-anxiety"
-                className="inline-flex items-center gap-2 text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] text-sm font-medium transition-colors"
-              >
-                Read More
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </article>
-
-            <article className="bg-white rounded-2xl p-8 border border-[var(--color-border)] hover:shadow-lg transition-all animate-fade-up">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-primary)] font-semibold mb-4 block">
-                Depression
-              </span>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-4">
-                When Sadness Becomes Depression: Recognizing the Difference
-              </h3>
-              <p className="text-sm text-[var(--color-muted)] mb-6 leading-relaxed">
-                Everyone feels sad sometimes, but clinical depression is different. Learn how to recognize when low mood requires professional intervention.
-              </p>
-              <Link
-                href="/blog/sadness-vs-depression"
-                className="inline-flex items-center gap-2 text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] text-sm font-medium transition-colors"
-              >
-                Read More
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </article>
-
-            <article className="bg-white rounded-2xl p-8 border border-[var(--color-border)] hover:shadow-lg transition-all animate-fade-up">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-primary)] font-semibold mb-4 block">
-                Medication
-              </span>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-4">
-                What to Expect When Starting Psychiatric Medication
-              </h3>
-              <p className="text-sm text-[var(--color-muted)] mb-6 leading-relaxed">
-                Starting medication for mental health can feel uncertain. This guide walks you through what to expect in the first weeks and months of treatment.
-              </p>
-              <Link
-                href="/blog/starting-medication"
-                className="inline-flex items-center gap-2 text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] text-sm font-medium transition-colors"
-              >
-                Read More
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </article>
-
-            <article className="bg-white rounded-2xl p-8 border border-[var(--color-border)] hover:shadow-lg transition-all animate-fade-up">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-primary)] font-semibold mb-4 block">
-                Lifestyle
-              </span>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-4">
-                The Role of Sleep in Mental Health Recovery
-              </h3>
-              <p className="text-sm text-[var(--color-muted)] mb-6 leading-relaxed">
-                Quality sleep is foundational to mental wellness. Discover how sleep impacts mood, anxiety, and cognitive function, and practical strategies for better rest.
-              </p>
-              <Link
-                href="/blog/sleep-mental-health"
-                className="inline-flex items-center gap-2 text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] text-sm font-medium transition-colors"
-              >
-                Read More
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </article>
-
-            <article className="bg-white rounded-2xl p-8 border border-[var(--color-border)] hover:shadow-lg transition-all animate-fade-up">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-primary)] font-semibold mb-4 block">
-                Substance Use
-              </span>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-4">
-                Understanding the Connection Between Trauma and Substance Use
-              </h3>
-              <p className="text-sm text-[var(--color-muted)] mb-6 leading-relaxed">
-                Many people struggling with substance use have experienced trauma. Learn how addressing underlying trauma supports lasting recovery.
-              </p>
-              <Link
-                href="/blog/trauma-substance-use"
-                className="inline-flex items-center gap-2 text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] text-sm font-medium transition-colors"
-              >
-                Read More
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </article>
-
-            <article className="bg-white rounded-2xl p-8 border border-[var(--color-border)] hover:shadow-lg transition-all animate-fade-up">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-primary)] font-semibold mb-4 block">
-                ADHD
-              </span>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-4">
-                ADHD in Adults: More Than Just Focus Challenges
-              </h3>
-              <p className="text-sm text-[var(--color-muted)] mb-6 leading-relaxed">
-                Adult ADHD often goes undiagnosed. Explore the full spectrum of symptoms, from executive dysfunction to emotional regulation difficulties.
-              </p>
-              <Link
-                href="/blog/adhd-adults"
-                className="inline-flex items-center gap-2 text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] text-sm font-medium transition-colors"
-              >
-                Read More
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </article>
-
-            <article className="bg-white rounded-2xl p-8 border border-[var(--color-border)] hover:shadow-lg transition-all animate-fade-up">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-primary)] font-semibold mb-4 block">
-                Wellness
-              </span>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-4">
-                Nutrition and Mental Health: The Gut-Brain Connection
-              </h3>
-              <p className="text-sm text-[var(--color-muted)] mb-6 leading-relaxed">
-                Emerging research shows how gut health influences mood and cognition. Learn how dietary choices can support your mental wellness journey.
-              </p>
-              <Link
-                href="/blog/nutrition-mental-health"
-                className="inline-flex items-center gap-2 text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] text-sm font-medium transition-colors"
-              >
-                Read More
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </article>
-
-            <article className="bg-white rounded-2xl p-8 border border-[var(--color-border)] hover:shadow-lg transition-all animate-fade-up">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-primary)] font-semibold mb-4 block">
-                Telehealth
-              </span>
-              <h3 className="font-cormorant text-2xl text-[var(--color-ink)] mb-4">
-                The Benefits of Virtual Mental Health Care
-              </h3>
-              <p className="text-sm text-[var(--color-muted)] mb-6 leading-relaxed">
-                Telehealth has transformed access to psychiatric care. Discover how virtual appointments offer convenience, privacy, and consistent support.
-              </p>
-              <Link
-                href="/blog/telehealth-benefits"
-                className="inline-flex items-center gap-2 text-[var(--color-accent)] hover:text-[var(--color-accent-dark)] text-sm font-medium transition-colors"
-              >
-                Read More
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-24 text-white">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="font-cormorant text-4xl font-light mb-6">
-            Ready to Begin Your Wellness Journey?
-          </h2>
-          <p className="text-xl text-white/90 mb-10">
-            Schedule a comprehensive evaluation and discover personalized care that honors the whole you.
-          </p>
-          <Link
-            href="/contact"
-            className="inline-block bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-white px-10 py-4 rounded-full font-medium transition-colors"
-          >
-            Schedule Your Evaluation
-          </Link>
-        </div>
-      </section>
-    </main>
+      <CtaBand
+        heading="Ready to talk with someone?"
+        body={`Secure video visits with ${PROVIDER.name}, a ${PROVIDER.title.toLowerCase()}. Book with insurance through Alma or Headway, or request a self-pay appointment.`}
+      />
+    </>
   )
 }

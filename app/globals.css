@@ -2,28 +2,112 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * JRose Wellness brand tokens. The variable names are kept from the autobuild so legacy markup
+ * that reads var(--color-*) picks up the new palette automatically. tailwind.config.js mirrors
+ * these values as named colors (primary, dark, ink, accent, light, peach, cream, sage, muted,
+ * border) so opacity modifiers like bg-primary/10 work.
+ *
+ * accent (rose-wine) is for CTA buttons and small accents only, never a large section background.
+ */
 :root {
-  --color-primary: #0070c0;
-  --color-dark: #00497d;
-  --color-light: #d9eaf6;
-  --color-ink: #1a2030;
-  --color-cream: #f7fbfd;
-  --color-muted: #64748b;
-  --color-border: #cce5f7;
-  --color-accent: #0070c0;
-  --color-accent-dark: #00497d;
+  --color-primary: #531f26; /* deep wine: headings, dark sections */
+  --color-dark: #2e0f13; /* darkest wine: footer, hero scrim */
+  --color-ink: #2e0f13; /* body text */
+  --color-accent: #913f4a; /* rose-wine: CTA buttons, small accents */
+  --color-accent-dark: #7a3440; /* CTA hover */
+  --color-light: #f4ebeb; /* blush: soft section backgrounds */
+  --color-peach: #f8dacf; /* logo peach: highlights */
+  --color-cream: #fefaf0; /* page background */
+  --color-sage: #495450; /* leaf green-gray: quiet accents */
+  --color-muted: #6b5a5d; /* secondary text (6.2:1 on cream) */
+  --color-border: #eadbd6; /* hairlines and card borders */
 }
 
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { background-color: var(--color-cream); color: var(--color-ink); }
+* {
+  box-sizing: border-box;
+}
 
+html {
+  scroll-behavior: smooth;
+  /* Anchor targets (#request, #faq) land below the sticky header instead of under it. */
+  scroll-padding-top: 6rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-peach);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* <details> accordions: hide the default marker; FaqList draws its own chevron. */
+summary::-webkit-details-marker {
+  display: none;
+}
+summary {
+  list-style: none;
+}
+
+/*
+ * Entrance motion. Content is always visible without animation support: nothing sets
+ * opacity:0 outside a keyframe, and the scroll-linked variant only moves elements (it never
+ * hides them), so a browser with scroll timelines but a viewport that has not reached an
+ * element still paints it.
+ */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(32px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.animate-fade-up {
-  animation: fadeUp 0.65s cubic-bezier(0.22,1,0.36,1) forwards;
-  animation-timeline: view();
-  animation-range: entry 0% entry 35%;
+
+@keyframes riseIn {
+  from {
+    transform: translateY(24px);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-fade-up {
+    animation: fadeUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @supports (animation-timeline: view()) {
+    .animate-fade-up {
+      animation-name: riseIn;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

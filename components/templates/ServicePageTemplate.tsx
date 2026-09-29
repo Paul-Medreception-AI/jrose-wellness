@@ -1,13 +1,34 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import type { Metadata } from 'next'
+import { Fragment, type ReactNode } from 'react'
+import { NAV_CTA, SITE_NAME, withBrand } from '@/lib/site'
+import { imageFor } from '@/lib/images'
+import PageHero from '@/components/site/PageHero'
+import Container from '@/components/site/Container'
+import SectionHeading from '@/components/site/SectionHeading'
+import CrisisNotice from '@/components/site/CrisisNotice'
+import FaqList from '@/components/site/FaqList'
+import BookingOptions from '@/components/site/BookingOptions'
+import CtaBand from '@/components/site/CtaBand'
+import { ArrowRight, CheckIcon } from '@/components/site/icons'
 
 export type FAQ = { q: string; a: string }
 export type RelatedLink = { href: string; label: string; eyebrow?: string; body?: string }
 export type IconCard = { title: string; body: string; iconPath?: string }
 export type MediaVideo = { videoId: string; title: string }
 
-// Canonical silo schema (required core) + optional rich sections.
+/**
+ * Content for a service, condition or audience (/who-we-help/*) page. The required core is kept
+ * from the autobuild schema so existing data files still type-check; everything else is optional
+ * and a section only renders when its data is present.
+ *
+ * Notes for content authors:
+ * - headline is the H1; title is the short name used in breadcrumbs and "Common questions about".
+ * - heroImage defaults to imageFor(`${hubHref}/${slug}`) from lib/images.ts.
+ * - crisis: true adds the CRISIS notice near the top (required on depression, bipolar, PTSD,
+ *   schizophrenia/psychosis and substance-use pages).
+ * - stats is accepted for backwards compatibility but never rendered (no statistics on this site).
+ */
 export type ServicePageContent = {
   slug: string
   siteUrl: string
@@ -26,6 +47,7 @@ export type ServicePageContent = {
   faqs?: FAQ[]
   relatedLinks?: RelatedLink[]
   metaTitle?: string
+  heroEyebrow?: string
   heroSubhead?: string
   heroImage?: { src: string; alt: string }
   featuredVideo?: { videoId: string; title: string; heading?: string; subhead?: string }
@@ -33,37 +55,58 @@ export type ServicePageContent = {
   intro?: string[]
   signsHeading?: string
   signsList?: string[]
+  bulletsHeading?: string
   approachHeading?: string
   approachSubhead?: string
   approach?: IconCard[]
   premiumHeading?: string
   premiumIntro?: string
   premiumOptions?: { title: string; body: string }[]
+  benefitsHeading?: string
   timelineHeading?: string
   timeline?: { title: string; body: string }[]
   extraSections?: { heading: string; body: string[] }[]
   videoLibraryHeading?: string
   videoLibrarySubhead?: string
   videoLibrary?: MediaVideo[]
+  crisis?: boolean
+  faqHeading?: string
+  relatedHeading?: string
   ctaHeading?: string
   ctaBody?: string
 }
 
+const pagePath = (c: ServicePageContent) => `${c.hubHref}/${c.slug}`
+
 export function buildServiceMetadata(c: ServicePageContent): Metadata {
+  // metaTitle may arrive pre-branded ("X | JRose Wellness"); strip any "| ..." suffix and brand once.
+  const base = (c.metaTitle ?? '').replace(/\s*\|.*$/, '').trim() || c.title
+  const title = withBrand(base)
+  const path = pagePath(c)
+  const img = c.heroImage ?? imageFor(path)
   return {
-    title: c.metaTitle || (c.title + ' | ' + c.siteName),
+    title,
     description: c.description,
-    alternates: { canonical: c.siteUrl + c.hubHref + '/' + c.slug },
+    alternates: { canonical: path },
+    openGraph: {
+      title,
+      description: c.description,
+      url: path,
+      siteName: SITE_NAME,
+      type: 'website',
+      images: [{ url: img.src, alt: img.alt }],
+    },
+    twitter: { card: 'summary_large_image', title, description: c.description, images: [img.src] },
   }
 }
 
-// Server-component YouTube embed. 1080p + captions off + no related videos by default.
+// Server-component YouTube embed. No related videos, captions off by default.
 function Video({ videoId, title }: { videoId: string; title: string }) {
-  const src = 'https://www.youtube-nocookie.com/embed/' + videoId + '?rel=0&vq=hd1080&cc_load_policy=0&iv_load_policy=3'
+  const src = 'https://www.youtube-nocookie.com/embed/' + videoId + '?rel=0&cc_load_policy=0&iv_load_policy=3'
   return (
-    <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-lg bg-black">
+    <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-lg">
       <iframe
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 h-full w-full"
         src={src}
         title={title}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -74,248 +117,345 @@ function Video({ videoId, title }: { videoId: string; title: string }) {
   )
 }
 
-const CHECK = (
-  <svg className="w-6 h-6 text-[var(--color-primary)] flex-shrink-0 mt-1" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-  </svg>
-)
-const DEFAULT_ICON = 'M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z'
+const DEFAULT_ICON =
+  'M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z'
+
+type Tone = 'cream' | 'white'
+const SECTION_BG: Record<Tone, string> = { cream: 'bg-cream', white: 'bg-white' }
+// Cards sit on the opposite surface so they always read as cards.
+const CARD_BG: Record<Tone, string> = { cream: 'bg-white', white: 'bg-cream' }
+
+const has = <T,>(a?: T[] | null): a is T[] => Array.isArray(a) && a.length > 0
+
+function Section({ tone, children, className = '' }: { tone: Tone; children: ReactNode; className?: string }) {
+  return <section className={`${SECTION_BG[tone]} py-16 sm:py-20 ${className}`}>{children}</section>
+}
 
 export function ServicePageTemplate({ c }: { c: ServicePageContent }) {
-  const schemaBreadcrumb = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: c.siteUrl },
-      { '@type': 'ListItem', position: 2, name: c.hubLabel, item: c.siteUrl + c.hubHref },
-      { '@type': 'ListItem', position: 3, name: c.title, item: c.siteUrl + c.hubHref + '/' + c.slug },
-    ],
-  }
-  const schemaFaq = c.faqs && c.faqs.length ? {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: c.faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
-  } : null
+  const path = pagePath(c)
+  const image = c.heroImage ?? imageFor(path)
 
-  return (
-    <main className="min-h-screen">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaBreadcrumb) }} />
-      {schemaFaq && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaFaq) }} />}
+  // Each optional block renders only when it has data; backgrounds alternate cream/white over
+  // whatever is present so two sections of the same color never touch.
+  const blocks: { key: string; render: (tone: Tone) => ReactNode }[] = []
 
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-center">
-            <div className="w-full lg:w-3/5">
-              <nav className="text-sm mb-6 opacity-90">
-                <a href="/" className="hover:underline">Home</a>
-                <span className="mx-2">›</span>
-                <a href={c.hubHref} className="hover:underline">{c.hubLabel}</a>
-                <span className="mx-2">›</span>
-                <span>{c.title}</span>
-              </nav>
-              <h1 className="text-4xl md:text-5xl font-semibold mb-6 leading-tight">{c.headline}</h1>
-              <p className="text-xl opacity-95 max-w-3xl leading-relaxed">{c.heroSubhead || c.description}</p>
+  if (has(c.intro) || has(c.signsList)) {
+    blocks.push({
+      key: 'intro',
+      render: (tone) => (
+        <Section tone={tone}>
+          <Container>
+            <div className={has(c.intro) && has(c.signsList) ? 'grid items-start gap-10 lg:grid-cols-12 lg:gap-14' : 'max-w-3xl'}>
+              {has(c.intro) && (
+                <div className="lg:col-span-7">
+                  {c.introHeading && <SectionHeading title={c.introHeading} />}
+                  <div className={`space-y-5 text-lg leading-relaxed text-ink/85 ${c.introHeading ? 'mt-6' : ''}`}>
+                    {c.intro.map((p, i) => (
+                      <p key={i}>{p}</p>
+                    ))}
+                  </div>
+                  {c.crisis && (
+                    <div className="mt-8">
+                      <CrisisNotice />
+                    </div>
+                  )}
+                </div>
+              )}
+              {has(c.signsList) && (
+                <aside
+                  className={`rounded-3xl border border-border ${CARD_BG[tone]} p-6 shadow-[0_12px_32px_-18px_rgba(46,15,19,0.25)] sm:p-8 lg:sticky lg:top-28 lg:col-span-5`}
+                >
+                  <h2 className="font-cormorant text-[1.75rem] font-semibold leading-tight text-primary">
+                    {c.signsHeading ?? 'Signs to look for'}
+                  </h2>
+                  <ul className="mt-5 space-y-3.5">
+                    {c.signsList.map((s, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-light text-accent">
+                          <CheckIcon className="h-3.5 w-3.5" />
+                        </span>
+                        <span className="leading-relaxed text-ink/85">{s}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </aside>
+              )}
             </div>
-            {c.heroImage && (
-              <div className="relative w-full max-w-md lg:w-2/5 lg:max-w-none h-96 lg:h-[28rem] rounded-2xl overflow-hidden shadow-2xl">
-                <Image src={c.heroImage.src} alt={c.heroImage.alt} fill priority quality={90} sizes="(max-width: 768px) 100vw, 384px" className="object-cover" />
+            {c.crisis && !has(c.intro) && (
+              <div className="mt-8 max-w-3xl">
+                <CrisisNotice />
               </div>
             )}
-          </div>
-        </div>
-      </section>
+          </Container>
+        </Section>
+      ),
+    })
+  } else if (c.crisis) {
+    blocks.push({
+      key: 'crisis',
+      render: (tone) => (
+        <Section tone={tone} className="!py-10">
+          <Container size="medium">
+            <CrisisNotice />
+          </Container>
+        </Section>
+      ),
+    })
+  }
 
-      {c.featuredVideo && (
-        <section className="bg-white py-16">
-          <div className="max-w-4xl mx-auto px-6">
-            {c.featuredVideo.heading && <h2 className="text-3xl md:text-4xl font-semibold mb-3 text-[var(--color-ink)] text-center">{c.featuredVideo.heading}</h2>}
-            {c.featuredVideo.subhead && <p className="text-center text-[var(--color-muted)] mb-8 max-w-2xl mx-auto">{c.featuredVideo.subhead}</p>}
-            <Video videoId={c.featuredVideo.videoId} title={c.featuredVideo.title} />
-          </div>
-        </section>
-      )}
+  if (c.featuredVideo) {
+    const v = c.featuredVideo
+    blocks.push({
+      key: 'video',
+      render: (tone) => (
+        <Section tone={tone}>
+          <Container size="medium">
+            {v.heading && <SectionHeading title={v.heading} intro={v.subhead} align="center" />}
+            <div className="mt-10">
+              <Video videoId={v.videoId} title={v.title} />
+            </div>
+          </Container>
+        </Section>
+      ),
+    })
+  }
 
-      {(c.intro && c.intro.length) || (c.signsList && c.signsList.length) ? (
-        <section className="bg-[var(--color-cream)] py-20">
-          <div className="max-w-4xl mx-auto px-6">
-            {c.introHeading && <h2 className="text-3xl md:text-4xl font-semibold mb-8 text-[var(--color-ink)]">{c.introHeading}</h2>}
-            {c.intro && c.intro.length ? (
-              <div className="space-y-6 text-lg leading-relaxed text-[var(--color-ink)]">
-                {c.intro.map((p, i) => <p key={i}>{p}</p>)}
-              </div>
-            ) : null}
-            {c.signsList && c.signsList.length ? (
-              <div className="mt-12 bg-white rounded-xl p-8 shadow-sm">
-                {c.signsHeading && <h3 className="text-2xl font-semibold mb-6 text-[var(--color-ink)]">{c.signsHeading}</h3>}
-                <ul className="space-y-4">
-                  {c.signsList.map((s, i) => <li key={i} className="flex items-start gap-3">{CHECK}<span className="text-[var(--color-ink)]">{s}</span></li>)}
-                </ul>
-              </div>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
-
-      {c.bullets && c.bullets.length ? (
-        <section className="bg-white py-16">
-          <div className="max-w-4xl mx-auto px-6">
-            <h2 className="text-3xl md:text-4xl font-semibold mb-8 text-[var(--color-ink)] text-center">What to Expect</h2>
-            <ul className="space-y-4 max-w-2xl mx-auto">
-              {c.bullets.map((b, i) => <li key={i} className="flex items-start gap-3">{CHECK}<span className="text-[var(--color-ink)] text-lg">{b}</span></li>)}
+  if (has(c.bullets)) {
+    blocks.push({
+      key: 'bullets',
+      render: (tone) => (
+        <Section tone={tone}>
+          <Container size="medium">
+            <SectionHeading title={c.bulletsHeading ?? 'What to expect'} align="center" />
+            <ul className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-2">
+              {c.bullets.map((b, i) => (
+                <li key={i} className={`flex items-start gap-3 rounded-2xl border border-border ${CARD_BG[tone]} p-5`}>
+                  <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-light text-accent">
+                    <CheckIcon className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="leading-relaxed text-ink/85">{b}</span>
+                </li>
+              ))}
             </ul>
-          </div>
-        </section>
-      ) : null}
+          </Container>
+        </Section>
+      ),
+    })
+  }
 
-      {c.approach && c.approach.length ? (
-        <section className="bg-white py-20">
-          <div className="max-w-7xl mx-auto px-6">
-            {c.approachHeading && <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-[var(--color-ink)] text-center">{c.approachHeading}</h2>}
-            {c.approachSubhead && <p className="text-xl text-[var(--color-muted)] text-center mb-16 max-w-3xl mx-auto">{c.approachSubhead}</p>}
-            <div className="grid md:grid-cols-3 gap-8">
+  if (has(c.approach)) {
+    const n = c.approach.length
+    const cols = n === 2 || n === 4 ? 'md:grid-cols-2' : 'md:grid-cols-2 lg:grid-cols-3'
+    blocks.push({
+      key: 'approach',
+      render: (tone) => (
+        <Section tone={tone}>
+          <Container>
+            {c.approachHeading && <SectionHeading title={c.approachHeading} intro={c.approachSubhead} align="center" />}
+            <div className={`mt-12 grid gap-6 ${cols}`}>
               {c.approach.map((card, i) => (
-                <div key={i} className="bg-[var(--color-cream)] rounded-xl p-8 hover:shadow-lg transition-shadow animate-fade-up">
-                  <div className="mb-6">
-                    <svg className="w-12 h-12 text-[var(--color-primary)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <div key={i} className={`animate-fade-up rounded-3xl border border-border ${CARD_BG[tone]} p-7 sm:p-8`}>
+                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-light text-accent">
+                    <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.6} viewBox="0 0 24 24" aria-hidden="true">
                       <path strokeLinecap="round" strokeLinejoin="round" d={card.iconPath || DEFAULT_ICON} />
                     </svg>
-                  </div>
-                  <h3 className="text-2xl font-semibold mb-4 text-[var(--color-ink)]">{card.title}</h3>
-                  <p className="text-[var(--color-muted)] leading-relaxed">{card.body}</p>
+                  </span>
+                  <h3 className="mt-5 font-cormorant text-2xl font-semibold leading-tight text-primary">{card.title}</h3>
+                  <p className="mt-3 leading-relaxed text-ink/80">{card.body}</p>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-      ) : null}
+          </Container>
+        </Section>
+      ),
+    })
+  }
 
-      {c.premiumOptions && c.premiumOptions.length ? (
-        <section className="bg-white pb-20">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="bg-[var(--color-light)] rounded-2xl p-10 max-w-4xl mx-auto">
-              {c.premiumHeading && <h3 className="text-3xl font-semibold mb-6 text-[var(--color-ink)]">{c.premiumHeading}</h3>}
-              {c.premiumIntro && <p className="text-lg text-[var(--color-ink)] mb-8 leading-relaxed">{c.premiumIntro}</p>}
-              <div className="grid md:grid-cols-2 gap-6">
+  if (has(c.premiumOptions)) {
+    blocks.push({
+      key: 'premium',
+      render: (tone) => (
+        <Section tone={tone}>
+          <Container size="medium">
+            <div className="rounded-3xl bg-light p-8 sm:p-10">
+              {c.premiumHeading && (
+                <h2 className="font-cormorant text-3xl font-semibold leading-tight text-primary">{c.premiumHeading}</h2>
+              )}
+              {c.premiumIntro && <p className="mt-4 text-lg leading-relaxed text-ink/85">{c.premiumIntro}</p>}
+              <div className="mt-8 grid gap-5 md:grid-cols-2">
                 {c.premiumOptions.map((o, i) => (
-                  <div key={i} className="bg-white rounded-lg p-6">
-                    <h4 className="text-xl font-semibold mb-3 text-[var(--color-ink)]">{o.title}</h4>
-                    <p className="text-[var(--color-muted)]">{o.body}</p>
+                  <div key={i} className="rounded-2xl bg-white p-6">
+                    <h3 className="text-lg font-semibold text-ink">{o.title}</h3>
+                    <p className="mt-2 leading-relaxed text-muted">{o.body}</p>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
-        </section>
-      ) : null}
+          </Container>
+        </Section>
+      ),
+    })
+  }
 
-      {c.benefits && c.benefits.length ? (
-        <section className="bg-[var(--color-cream)] py-20">
-          <div className="max-w-5xl mx-auto px-6">
-            <h2 className="text-3xl md:text-4xl font-semibold mb-12 text-[var(--color-ink)] text-center">Benefits</h2>
-            <div className="grid md:grid-cols-2 gap-6">
+  if (has(c.benefits)) {
+    blocks.push({
+      key: 'benefits',
+      render: (tone) => (
+        <Section tone={tone}>
+          <Container size="medium">
+            <SectionHeading title={c.benefitsHeading ?? 'How care can help'} align="center" />
+            <div className="mt-12 grid gap-5 md:grid-cols-2">
               {c.benefits.map((b, i) => (
-                <div key={i} className="bg-white rounded-xl p-8 shadow-sm animate-fade-up">
-                  <h3 className="text-xl font-semibold mb-3 text-[var(--color-ink)]">{b.title}</h3>
-                  <p className="text-[var(--color-muted)] leading-relaxed">{b.body}</p>
+                <div key={i} className={`animate-fade-up rounded-2xl border border-border border-l-4 border-l-accent ${CARD_BG[tone]} p-6 sm:p-7`}>
+                  <h3 className="text-lg font-semibold text-primary">{b.title}</h3>
+                  <p className="mt-2 leading-relaxed text-ink/80">{b.body}</p>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
-      ) : null}
+          </Container>
+        </Section>
+      ),
+    })
+  }
 
-      {c.timeline && c.timeline.length ? (
-        <section className="bg-white py-20">
-          <div className="max-w-3xl mx-auto px-6">
-            <div className="bg-[var(--color-light)] rounded-2xl p-12">
-              {c.timelineHeading && <h2 className="text-3xl md:text-4xl font-semibold mb-8 text-[var(--color-ink)] text-center">{c.timelineHeading}</h2>}
-              <div className="space-y-8">
-                {c.timeline.map((step, i) => (
-                  <div key={i} className="border-l-4 border-[var(--color-primary)] pl-6">
-                    <h3 className="text-2xl font-semibold mb-3 text-[var(--color-ink)]">{step.title}</h3>
-                    <p className="text-[var(--color-muted)] leading-relaxed">{step.body}</p>
+  if (has(c.timeline)) {
+    blocks.push({
+      key: 'timeline',
+      render: (tone) => (
+        <Section tone={tone}>
+          <Container size="narrow">
+            {c.timelineHeading && <SectionHeading title={c.timelineHeading} align="center" />}
+            <ol className="relative mt-12 space-y-8 before:absolute before:bottom-6 before:left-5 before:top-6 before:w-px before:bg-border">
+              {c.timeline.map((step, i) => (
+                <li key={i} className="relative flex gap-5">
+                  <span className="relative z-10 grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary font-cormorant text-lg font-semibold text-white">
+                    {i + 1}
+                  </span>
+                  <div className={`flex-1 rounded-2xl border border-border ${CARD_BG[tone]} p-5 sm:p-6`}>
+                    <h3 className="text-lg font-semibold text-primary">{step.title}</h3>
+                    <p className="mt-2 leading-relaxed text-ink/80">{step.body}</p>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-      ) : null}
+                </li>
+              ))}
+            </ol>
+          </Container>
+        </Section>
+      ),
+    })
+  }
 
-      {c.extraSections && c.extraSections.length ? (
-        <section className="bg-[var(--color-cream)] py-20">
-          <div className="max-w-4xl mx-auto px-6 space-y-14">
+  if (has(c.extraSections)) {
+    blocks.push({
+      key: 'extra',
+      render: (tone) => (
+        <Section tone={tone}>
+          <Container size="narrow" className="space-y-14">
             {c.extraSections.map((s, i) => (
               <div key={i}>
-                <h2 className="text-3xl md:text-4xl font-semibold mb-6 text-[var(--color-ink)]">{s.heading}</h2>
-                <div className="space-y-4 text-lg leading-relaxed text-[var(--color-ink)]">
-                  {s.body.map((p, j) => <p key={j}>{p}</p>)}
+                <SectionHeading title={s.heading} />
+                <div className="mt-5 space-y-4 text-lg leading-relaxed text-ink/85">
+                  {s.body.map((p, j) => (
+                    <p key={j}>{p}</p>
+                  ))}
                 </div>
               </div>
             ))}
-          </div>
-        </section>
-      ) : null}
+          </Container>
+        </Section>
+      ),
+    })
+  }
 
-      {c.videoLibrary && c.videoLibrary.length ? (
-        <section className="bg-white py-20">
-          <div className="max-w-6xl mx-auto px-6">
-            {c.videoLibraryHeading && <h2 className="text-3xl md:text-4xl font-semibold mb-4 text-[var(--color-ink)] text-center">{c.videoLibraryHeading}</h2>}
-            {c.videoLibrarySubhead && <p className="text-center text-[var(--color-muted)] mb-12 max-w-2xl mx-auto">{c.videoLibrarySubhead}</p>}
-            <div className="grid md:grid-cols-3 gap-6">
-              {c.videoLibrary.map((v, i) => <Video key={i} videoId={v.videoId} title={v.title} />)}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {c.faqs && c.faqs.length ? (
-        <section className="bg-[var(--color-cream)] py-20">
-          <div className="max-w-4xl mx-auto px-6">
-            <h2 className="text-3xl md:text-4xl font-semibold mb-12 text-[var(--color-ink)] text-center">Common Questions About {c.title}</h2>
-            <div className="space-y-4">
-              {c.faqs.map((f, i) => (
-                <details key={i} className="bg-white rounded-lg shadow-sm group">
-                  <summary className="cursor-pointer list-none p-6 font-semibold text-lg text-[var(--color-ink)] hover:text-[var(--color-primary)] transition-colors">
-                    <div className="flex items-center justify-between">
-                      <span>{f.q}</span>
-                      <svg className="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </div>
-                  </summary>
-                  <div className="px-6 pb-6 text-[var(--color-muted)] leading-relaxed"><p>{f.a}</p></div>
-                </details>
+  if (has(c.videoLibrary)) {
+    blocks.push({
+      key: 'videos',
+      render: (tone) => (
+        <Section tone={tone}>
+          <Container>
+            {c.videoLibraryHeading && (
+              <SectionHeading title={c.videoLibraryHeading} intro={c.videoLibrarySubhead} align="center" />
+            )}
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              {c.videoLibrary.map((v, i) => (
+                <Video key={i} videoId={v.videoId} title={v.title} />
               ))}
             </div>
-          </div>
-        </section>
-      ) : null}
+          </Container>
+        </Section>
+      ),
+    })
+  }
 
-      {c.relatedLinks && c.relatedLinks.length ? (
-        <section className="bg-white py-16">
-          <div className="max-w-7xl mx-auto px-6">
-            <h3 className="text-3xl font-semibold mb-10 text-[var(--color-ink)] text-center">Related {c.hubLabel}</h3>
-            <div className="grid md:grid-cols-3 gap-8">
+  if (has(c.faqs)) {
+    blocks.push({
+      key: 'faq',
+      render: (tone) => (
+        <Section tone={tone}>
+          <Container size="narrow">
+            <FaqList faqs={c.faqs} withSchema heading={c.faqHeading ?? `Common questions about ${c.title}`} />
+          </Container>
+        </Section>
+      ),
+    })
+  }
+
+  if (has(c.relatedLinks)) {
+    blocks.push({
+      key: 'related',
+      render: (tone) => (
+        <Section tone={tone}>
+          <Container>
+            <SectionHeading title={c.relatedHeading ?? 'Keep exploring'} align="center" />
+            <div className="mt-12 grid gap-5 md:grid-cols-3">
               {c.relatedLinks.map((r, i) => (
-                <a key={i} href={r.href} className="group bg-[var(--color-cream)] rounded-xl p-8 hover:shadow-xl transition-all hover:-translate-y-1">
-                  {r.eyebrow && <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)] mb-2">{r.eyebrow}</p>}
-                  <h4 className="text-xl font-semibold mb-3 text-[var(--color-ink)] group-hover:text-[var(--color-primary)] transition-colors">{r.label}</h4>
-                  {r.body && <p className="text-[var(--color-muted)] leading-relaxed">{r.body}</p>}
-                </a>
+                <Link
+                  key={i}
+                  href={r.href}
+                  className={`group flex h-full flex-col rounded-3xl border border-border ${CARD_BG[tone]} p-7 transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-[0_16px_40px_-20px_rgba(46,15,19,0.35)]`}
+                >
+                  {r.eyebrow && (
+                    <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">{r.eyebrow}</span>
+                  )}
+                  <span className="mt-2 font-cormorant text-2xl font-semibold leading-tight text-primary">{r.label}</span>
+                  {r.body && <span className="mt-3 flex-1 leading-relaxed text-ink/75">{r.body}</span>}
+                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                    Learn more
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </Link>
               ))}
             </div>
-          </div>
-        </section>
-      ) : null}
+          </Container>
+        </Section>
+      ),
+    })
+  }
 
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-20 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-semibold mb-6">{c.ctaHeading || 'Ready to Get Started?'}</h2>
-          {c.ctaBody && <p className="text-xl mb-8 opacity-95 leading-relaxed">{c.ctaBody}</p>}
-          <a href={c.ctaHref} className="inline-block bg-white text-[var(--color-primary)] px-8 py-4 rounded-lg font-semibold text-lg hover:bg-[var(--color-cream)] transition-colors">{c.ctaLabel}</a>
-        </div>
-      </section>
+  return (
+    <main>
+      <PageHero
+        size="md"
+        priority
+        eyebrow={c.heroEyebrow ?? c.badge ?? c.hubLabel}
+        title={c.headline || c.title}
+        subtitle={c.heroSubhead || c.description}
+        image={image}
+        crumbs={[{ label: 'Home', href: '/' }, { label: c.hubLabel, href: c.hubHref }, { label: c.title }]}
+        primaryCta={NAV_CTA}
+        secondaryCta={{ label: 'Insurance & Pricing', href: '/insurance' }}
+      />
+
+      {blocks.map((b, i) => (
+        <Fragment key={b.key}>{b.render(i % 2 === 0 ? 'cream' : 'white')}</Fragment>
+      ))}
+
+      <BookingOptions />
+
+      <CtaBand
+        heading={c.ctaHeading || 'Ready to take the first step?'}
+        body={c.ctaBody}
+        primary={{ label: c.ctaLabel || NAV_CTA.label, href: c.ctaHref || NAV_CTA.href }}
+      />
     </main>
   )
 }

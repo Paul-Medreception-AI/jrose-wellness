@@ -1,195 +1,290 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
+import { AGES, BOOKING, CONTACT, NAV, NAV_CTA, PRACTICE_FAQS, PRICING, PROVIDER, SITE_NAME, withBrand } from '@/lib/site'
+import { PAGE_IMAGES } from '@/lib/images'
+import { SERVICES } from '@/lib/data/services'
+import PageHero from '@/components/site/PageHero'
+import Container from '@/components/site/Container'
+import SectionHeading from '@/components/site/SectionHeading'
+import BookingOptions from '@/components/site/BookingOptions'
+import CtaBand from '@/components/site/CtaBand'
+import CrisisNotice from '@/components/site/CrisisNotice'
+import { ArrowRight, CheckIcon, VideoIcon } from '@/components/site/icons'
+
+const TITLE = withBrand('Telehealth Psychiatric Services in CT')
+const DESCRIPTION =
+  'Explore telehealth psychiatric services in Connecticut: psychiatric evaluations, medication management, supportive therapy, and ADHD care by secure video.'
+const HERO = PAGE_IMAGES['/services']
 
 export const metadata: Metadata = {
-  title: 'Our Services – Comprehensive Mental Health Care | JROSE WELLNESS',
-  description: 'Board-certified psychiatric and family nurse practitioner offering anxiety treatment, depression care, substance use disorder support, medication management, and personalized mental health services in Fairfield, CT.',
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: '/services' },
   openGraph: {
-    title: 'Our Services – Comprehensive Mental Health Care | JROSE WELLNESS',
-    description: 'Board-certified psychiatric and family nurse practitioner offering anxiety treatment, depression care, substance use disorder support, medication management, and personalized mental health services in Fairfield, CT.',
-    url: 'https://jrosewellness.com/services',
-    siteName: 'JROSE WELLNESS',
+    title: TITLE,
+    description: DESCRIPTION,
+    url: '/services',
+    siteName: SITE_NAME,
     type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    images: [{ url: HERO.src, alt: HERO.alt }],
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Our Services – Comprehensive Mental Health Care | JROSE WELLNESS',
-    description: 'Board-certified psychiatric and family nurse practitioner offering anxiety treatment, depression care, substance use disorder support, medication management, and personalized mental health services in Fairfield, CT.',
-    images: ['/og-image.png'],
+  twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: [HERO.src] },
+}
+
+// One or two sentences per service for the hub cards, keyed by slug. Card order follows SERVICES.
+const CARD_COPY: Record<string, { blurb: string; price?: string }> = {
+  'psychiatric-evaluation': {
+    blurb:
+      'Your first session is all about you: your history, current concerns, symptoms, lifestyle, and goals. You leave with a personalized plan, not a one-size-fits-all approach.',
+    price: PRICING.initialEvaluation.price,
+  },
+  'medication-management': {
+    blurb:
+      'Follow-up visits check on your progress and how your plan is working. If medication is part of your care, it is carefully managed and adjusted when needed.',
+    price: PRICING.followUp.price,
+  },
+  'supportive-therapy': {
+    blurb:
+      'Supportive therapy during your visits, using cognitive behavioral techniques, mindfulness, and practical coping strategies, with a referral to a therapist if needed.',
+  },
+  telepsychiatry: {
+    blurb:
+      'Every visit is by secure video, so you can receive care from the comfort and privacy of your home. No commuting or long waiting rooms.',
+  },
+  'adhd-evaluation': {
+    blurb:
+      'Evaluation and management of attention difficulties, distractibility, impulsivity, and disorganization, for teens and adults, with support at school, work, and home.',
   },
 }
 
-export default function ServicesPage() {
-  const services = [
-    {
-      name: "Initial Psychiatric Evaluation",
-      description: "Comprehensive first session focused entirely on understanding your history, current concerns, and wellness goals. We take the time to create a complete picture of your mental and physical health to develop your personalized treatment plan.",
-      icon: (
-        <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-10 h-10">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
-        </svg>
-      )
-    },
-    {
-      name: "Anxiety Treatment",
-      description: "Support for excessive worry, panic attacks, social anxiety, and stress that interferes with daily life, relationships, or sleep. Evidence-based approaches tailored to your unique symptoms and lifestyle.",
-      icon: (
-        <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-10 h-10">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-        </svg>
-      )
-    },
-    {
-      name: "Depression Care",
-      description: "Treatment for persistent sadness, low energy, loss of motivation, mood changes, or difficulty finding joy in everyday activities. Whole-person approach addressing emotional and physical contributors to depression.",
-      icon: (
-        <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-10 h-10">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-        </svg>
-      )
-    },
-    {
-      name: "Substance Use Disorder Support",
-      description: "Non-judgmental, compassionate support for individuals struggling with alcohol or substance use. Includes comprehensive treatment planning and ongoing recovery support in a safe, supportive environment.",
-      icon: (
-        <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-10 h-10">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-        </svg>
-      )
-    },
-    {
-      name: "Medication Management",
-      description: "Careful, individualized psychiatric medication evaluation and ongoing management. Regular monitoring to ensure optimal effectiveness while minimizing side effects.",
-      icon: (
-        <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-10 h-10">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-        </svg>
-      )
-    },
-    {
-      name: "Follow-Up Sessions",
-      description: "Regular virtual appointments to monitor progress, adjust treatment plans, and provide continuous support. You're never left to figure things out alone on your wellness journey.",
-      icon: (
-        <svg stroke="currentColor" strokeWidth={1.5} fill="none" viewBox="0 0 24 24" className="w-10 h-10">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-        </svg>
-      )
-    }
-  ]
+// Layout for five cards: two wide cards on top, three below (lg); the last card spans the row on md.
+const CARD_LAYOUT = [
+  { span: 'lg:col-span-3', img: 'h-60 sm:h-64', sizes: '(min-width: 1024px) 600px, (min-width: 768px) 50vw, 100vw' },
+  { span: 'lg:col-span-3', img: 'h-60 sm:h-64', sizes: '(min-width: 1024px) 600px, (min-width: 768px) 50vw, 100vw' },
+  { span: 'lg:col-span-2', img: 'h-52', sizes: '(min-width: 1024px) 400px, (min-width: 768px) 50vw, 100vw' },
+  { span: 'lg:col-span-2', img: 'h-52', sizes: '(min-width: 1024px) 400px, (min-width: 768px) 50vw, 100vw' },
+  { span: 'md:col-span-2 lg:col-span-2', img: 'h-52', sizes: '(min-width: 1024px) 400px, 100vw' },
+]
 
-  const steps = [
-    {
-      number: "01",
-      title: "Discovery Call",
-      description: "This is a safe space for you to share what you've been experiencing so we can fully understand your needs. We listen carefully to your concerns, history, and wellness goals to ensure we're the right fit for your care."
-    },
-    {
-      number: "02",
-      title: "Personalized Care Plan",
-      description: "After your comprehensive consultation, we create a treatment plan tailored specifically to you. Your plan addresses your unique symptoms, lifestyle factors, and health goals with evidence-based approaches that honor the whole person."
-    },
-    {
-      number: "03",
-      title: "Ongoing Sessions & Support",
-      description: "We meet with you regularly through convenient virtual sessions to monitor progress, make adjustments, and provide continuous support. You're never left alone to navigate your wellness journey, with regular check-ins and accessible care when you need it."
-    }
-  ]
+// Factors from the practice's own FAQ answer ("How do you decide which medication is right for me?").
+const MEDICATION_FACTORS = [
+  'Symptoms',
+  'History',
+  'Past medication responses',
+  'Side-effect sensitivity',
+  'Lifestyle',
+  'Preferences',
+]
+
+const CONDITION_LINKS = (NAV.find((n) => n.href === '/conditions')?.children ?? []).filter((c) => c.href !== '/conditions')
+
+export default function ServicesPage() {
+  const choosingMedication = PRACTICE_FAQS[4]
+  const noMedication = PRACTICE_FAQS[5]
+  const therapyOrMedication = PRACTICE_FAQS[2]
 
   return (
-    <>
-      <section className="bg-gradient-to-br from-[var(--color-dark)] to-[var(--color-primary)] py-28 text-white text-center">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-white/60 text-sm mb-6">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <span className="mx-2">›</span>
-            <span>Services</span>
-          </div>
-          <h1 className="font-cormorant text-6xl font-light mb-4">Our Services</h1>
-          <p className="text-xl text-white/80 max-w-xl mx-auto mt-4">
-            Comprehensive mental health care tailored to your unique needs and wellness goals
-          </p>
-        </div>
+    <main>
+      <PageHero
+        size="md"
+        priority
+        eyebrow="Services"
+        title="Telehealth Psychiatric Services in Connecticut"
+        subtitle={`Psychiatric evaluation, medication management, and supportive therapy by secure video, for ${AGES.short.toLowerCase()} in ${CONTACT.state}.`}
+        image={HERO}
+        crumbs={[{ label: 'Home', href: '/' }, { label: 'Services' }]}
+        primaryCta={NAV_CTA}
+        secondaryCta={{ label: 'Insurance & Pricing', href: '/insurance' }}
+      />
+
+      {/* Services */}
+      <section className="bg-cream py-16 sm:py-20" aria-labelledby="services-heading">
+        <Container>
+          <SectionHeading
+            id="services-heading"
+            eyebrow="How Jessica can help"
+            title="Care from your first evaluation to every follow-up"
+            intro={`Every service is provided by ${PROVIDER.byline}, by secure video, for patients in ${CONTACT.state}. Care combines medication management and supportive therapy, so it stays thoughtful, balanced, and centered around you.`}
+          />
+
+          <ul className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-6">
+            {SERVICES.map((s, i) => {
+              const copy = CARD_COPY[s.slug]
+              const layout = CARD_LAYOUT[i] ?? CARD_LAYOUT[CARD_LAYOUT.length - 1]
+              const img = s.heroImage ?? PAGE_IMAGES[`/services/${s.slug}`] ?? HERO
+              return (
+                <li key={s.slug} className={layout.span}>
+                  <Link
+                    href={`/services/${s.slug}`}
+                    className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-white shadow-[0_1px_2px_rgba(46,15,19,0.04),0_12px_32px_-16px_rgba(46,15,19,0.18)] transition hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-[0_16px_40px_-20px_rgba(46,15,19,0.35)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                  >
+                    <div className={`relative w-full overflow-hidden bg-light ${layout.img}`}>
+                      <Image
+                        src={img.src}
+                        alt=""
+                        fill
+                        sizes={layout.sizes}
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      />
+                      {copy?.price && (
+                        <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-primary shadow-sm">
+                          Self-pay {copy.price}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex flex-1 flex-col p-6 sm:p-7">
+                      <h3 className="font-cormorant text-[1.75rem] font-semibold leading-tight text-primary">{s.title}</h3>
+                      <p className="mt-3 flex-1 leading-relaxed text-ink/80">{copy?.blurb ?? s.description}</p>
+                      <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-accent">
+                        Learn more
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                      </span>
+                    </div>
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        </Container>
       </section>
 
-      <section className="bg-[var(--color-cream)] py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl text-center mb-4 text-[var(--color-ink)]">
-            Comprehensive Care for Every Need
-          </h2>
-          <p className="text-[var(--color-muted)] text-center mb-16 max-w-2xl mx-auto">
-            Evidence-based treatment approaches that honor the connection between your mind, body, and lifestyle
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-2xl p-8 border border-[var(--color-border)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 animate-fade-up group"
-              >
-                <div className="text-[var(--color-primary)]">
-                  {service.icon}
-                </div>
-                <h3 className="font-cormorant text-2xl font-semibold text-[var(--color-ink)] mt-5">
-                  {service.name}
-                </h3>
-                <p className="text-[var(--color-muted)] text-sm leading-relaxed mt-3">
-                  {service.description}
+      {/* Medication is your choice */}
+      <section className="bg-white py-16 sm:py-20" aria-labelledby="medication-choice-heading">
+        <Container>
+          <div className="grid items-start gap-10 lg:grid-cols-12 lg:gap-14">
+            <div className="lg:col-span-7">
+              <SectionHeading id="medication-choice-heading" eyebrow="Your care, your choice" title="Medication is always your choice" />
+              <blockquote className="mt-8 border-l-4 border-accent pl-5 sm:pl-6">
+                <p className="font-cormorant text-2xl leading-snug text-primary sm:text-[1.75rem]">&ldquo;{noMedication.a}&rdquo;</p>
+              </blockquote>
+              <div className="mt-8 space-y-5 text-lg leading-relaxed text-ink/85">
+                <p>
+                  Supportive therapy is part of your visits either way. In Jessica&apos;s words: &ldquo;{therapyOrMedication.a}&rdquo;
                 </p>
-                <div className="block mt-6 text-[var(--color-primary)] font-semibold text-sm group-hover:underline">
-                  Learn More →
-                </div>
+                <p>
+                  <Link
+                    href="/services/supportive-therapy"
+                    className="inline-flex items-center gap-1.5 font-semibold text-accent underline-offset-4 hover:underline"
+                  >
+                    How supportive therapy works
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </p>
               </div>
-            ))}
+            </div>
+
+            <aside className="rounded-3xl border border-border bg-cream p-6 shadow-[0_12px_32px_-18px_rgba(46,15,19,0.25)] sm:p-8 lg:col-span-5">
+              <h3 className="font-cormorant text-[1.75rem] font-semibold leading-tight text-primary">
+                How medication decisions are made
+              </h3>
+              <p className="mt-3 leading-relaxed text-ink/80">{choosingMedication.a}</p>
+              <ul className="mt-5 grid gap-3 sm:grid-cols-2">
+                {MEDICATION_FACTORS.map((f) => (
+                  <li key={f} className="flex items-start gap-3">
+                    <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-light text-accent">
+                      <CheckIcon className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="leading-relaxed text-ink/85">{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </aside>
           </div>
-        </div>
+        </Container>
       </section>
 
-      <section className="bg-white py-24">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl text-center mb-4 text-[var(--color-ink)]">
-            How It Works
-          </h2>
-          <p className="text-[var(--color-muted)] text-center mb-16 max-w-2xl mx-auto">
-            A simple, supportive process designed to meet you where you are
-          </p>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-0">
-            {steps.map((step, index) => (
-              <div key={index} className="relative animate-fade-up">
-                <div className="lg:px-8">
-                  <div className="font-cormorant text-7xl text-[var(--color-primary)] opacity-50 leading-none mb-4">
-                    {step.number}
-                  </div>
-                  <h3 className="font-cormorant text-2xl font-semibold text-[var(--color-ink)] mb-3">
-                    {step.title}
-                  </h3>
-                  <p className="text-[var(--color-muted)] leading-relaxed">
-                    {step.description}
+      {/* Pricing */}
+      <section className="bg-cream py-16 sm:py-20" aria-labelledby="pricing-heading">
+        <Container size="medium">
+          <SectionHeading
+            id="pricing-heading"
+            eyebrow="Pricing"
+            title="Pricing at a glance"
+            intro="Self-pay rates for visits booked directly with the practice. With insurance, your cost depends on your plan when you book through Alma or Headway."
+            align="center"
+          />
+
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            {[PRICING.initialEvaluation, PRICING.followUp].map((p) => (
+              <div
+                key={p.name}
+                className="flex h-full flex-col rounded-3xl border border-border bg-white p-6 shadow-[0_1px_2px_rgba(46,15,19,0.04),0_12px_32px_-16px_rgba(46,15,19,0.18)] sm:p-8"
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+                  <h3 className="font-cormorant text-[1.75rem] font-semibold leading-tight text-primary">{p.name}</h3>
+                  <p className="whitespace-nowrap">
+                    <span className="font-cormorant text-4xl font-semibold text-primary">{p.price}</span>
+                    <span className="ml-1.5 text-sm text-muted">self-pay</span>
                   </p>
                 </div>
-                {index < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-12 right-0 w-px h-32 bg-[var(--color-border)]" />
-                )}
+                <p className="mt-4 leading-relaxed text-ink/80">{p.description}</p>
               </div>
             ))}
           </div>
-        </div>
+
+          <ul className="mx-auto mt-8 grid max-w-4xl gap-4 sm:grid-cols-2">
+            <li className="flex items-start gap-3 rounded-2xl border border-border bg-white p-5">
+              <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-light text-accent">
+                <CheckIcon className="h-4 w-4" />
+              </span>
+              <span className="leading-relaxed text-ink/85">{PRICING.slidingScale}</span>
+            </li>
+            <li className="flex items-start gap-3 rounded-2xl border border-border bg-white p-5">
+              <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-light text-accent">
+                <VideoIcon className="h-4 w-4" />
+              </span>
+              <span className="leading-relaxed text-ink/85">{BOOKING.alma.note}</span>
+            </li>
+          </ul>
+
+          <p className="mx-auto mt-6 max-w-3xl text-center text-sm leading-relaxed text-muted">{PRICING.goodFaithEstimate}</p>
+        </Container>
       </section>
 
-      <section className="bg-[var(--color-ink)] text-white py-20 text-center">
-        <div className="max-w-3xl mx-auto px-6">
-          <h2 className="font-cormorant text-4xl mb-4">Ready to Begin?</h2>
-          <p className="text-white/80 mb-8 text-lg">
-            Schedule your comprehensive evaluation and take the first step toward whole-person wellness
+      <BookingOptions />
+
+      {/* Conditions */}
+      <section className="bg-white py-16 sm:py-20" aria-labelledby="conditions-heading">
+        <Container>
+          <SectionHeading
+            id="conditions-heading"
+            eyebrow="Conditions"
+            title="Conditions we treat"
+            intro="Each of these services can be part of care for the conditions below."
+            align="center"
+          />
+          <ul className="mx-auto mt-10 flex max-w-4xl flex-wrap justify-center gap-3">
+            {CONDITION_LINKS.map((c) => (
+              <li key={c.href}>
+                <Link
+                  href={c.href}
+                  className="inline-flex items-center rounded-full border border-border bg-cream px-4 py-2 text-[15px] font-medium text-primary transition-colors hover:border-accent/50 hover:bg-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                >
+                  {c.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-8 text-center">
+            <Link
+              href="/conditions"
+              className="inline-flex items-center gap-1.5 font-semibold text-accent underline-offset-4 hover:underline"
+            >
+              See all conditions
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </p>
-          <Link
-            href="/contact"
-            className="inline-block bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 hover:shadow-lg"
-          >
-            Schedule Your Evaluation
-          </Link>
-        </div>
+          <div className="mx-auto mt-12 max-w-3xl">
+            <CrisisNotice variant="compact" />
+          </div>
+        </Container>
       </section>
-    </>
+
+      <CtaBand
+        heading="Ready to take the first step?"
+        body="Book with insurance through Alma or Headway, or request a self-pay visit. Every visit is by secure video."
+      />
+    </main>
   )
 }

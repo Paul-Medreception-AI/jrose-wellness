@@ -1,158 +1,720 @@
 import type { ServicePageContent } from '@/components/templates/ServicePageTemplate'
+import {
+  AGES,
+  BOOKING,
+  CONTACT,
+  CRISIS,
+  INSURANCE_HEADLINE,
+  NAV_CTA,
+  NO_MEDICAL_ADVICE,
+  PRACTICE_FAQS,
+  PRICING,
+  PROVIDER,
+  SITE_NAME,
+  SITE_URL,
+} from '@/lib/site'
+import { PAGE_IMAGES } from '@/lib/images'
 
-const BASE = {"siteUrl":"https://www.jrosewellness.com","siteName":"JROSE WELLNESS","ctaLabel":"Book an Appointment","ctaHref":"/contact","hubLabel":"Services","hubHref":"/services"};
+// Service pages for a telehealth psychiatry practice (Jessica Logel, MSN, PMHNP-BC, FNP; patients
+// in Connecticut). Every practice fact comes from lib/site.ts; copy follows FACTS.md (PUBLISH items
+// only). No visit lengths except the Alma 45-minute intake, no testing methods, no stimulant or
+// benzodiazepine promises, no stand-alone therapy programs, no school-forms page.
+
+const BASE = {
+  siteUrl: SITE_URL,
+  siteName: SITE_NAME,
+  ctaLabel: NAV_CTA.label,
+  ctaHref: NAV_CTA.href,
+  hubLabel: 'Services',
+  hubHref: '/services',
+}
+
+// The practice's own FAQ answers, by question, so a page can quote them without retyping.
+const FAQ = {
+  virtualOnly: PRACTICE_FAQS[0],
+  whatPsychNpDoes: PRACTICE_FAQS[1],
+  therapyOrMedication: PRACTICE_FAQS[2],
+  controlledSubstances: PRACTICE_FAQS[3],
+  choosingMedication: PRACTICE_FAQS[4],
+  noMedication: PRACTICE_FAQS[5],
+}
+
+/** "a, b, and c" */
+function listSentence(items: readonly string[]): string {
+  if (items.length <= 1) return items.join('')
+  if (items.length === 2) return `${items[0]} and ${items[1]}`
+  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`
+}
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
+const INSURANCE_LINE = `Yes, by booking through Alma or Headway. Plans on both include ${listSentence(INSURANCE_HEADLINE)}. Your cost depends on your plan.`
+
+// Outline icons (24px grid) for the approach cards.
+const ICON = {
+  clipboardCheck:
+    'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
+  document:
+    'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+  user: 'M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z',
+  chat: 'M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z',
+  refresh:
+    'M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99',
+  adjustments:
+    'M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75',
+  heart:
+    'M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z',
+  video:
+    'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z',
+  sun: 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.708.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z',
+  book: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+  lightbulb:
+    'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
+  trendingUp: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
+  home: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+} as const
+
+// What each of Jessica's own techniques (PROVIDER.techniques, from her Headway profile) looks like
+// in a visit. Plain descriptions only: no outcome claims.
+type Technique = (typeof PROVIDER.techniques)[number]
+const TECHNIQUE_NOTES: Record<Technique, { body: string; iconPath: string }> = {
+  'supportive therapy': {
+    body: 'A steady space to talk openly, feel heard, and work through what is in front of you right now.',
+    iconPath: ICON.heart,
+  },
+  'cognitive behavioral techniques': {
+    body: 'Noticing the thoughts and habits that keep you stuck, and practicing new ways to respond to them.',
+    iconPath: ICON.lightbulb,
+  },
+  mindfulness: {
+    body: 'Simple ways to slow down, notice what is happening in the moment, and respond instead of react.',
+    iconPath: ICON.sun,
+  },
+  psychoeducation: {
+    body: 'Clear, plain explanations of what you are experiencing, your options, and what to expect from treatment.',
+    iconPath: ICON.book,
+  },
+  'practical coping strategies': {
+    body: 'Concrete tools for stress, worry, sleep, and daily routines that you can use between visits.',
+    iconPath: ICON.adjustments,
+  },
+  'motivational interviewing': {
+    body: 'A collaborative conversation that helps you find your own reasons for change and decide on next steps.',
+    iconPath: ICON.trendingUp,
+  },
+}
+
+const INSURANCE_COST =
+  'With insurance, your cost depends on your plan: booking through Alma or Headway lets you check your coverage first.'
 
 export const SERVICES: ServicePageContent[] = [
+  // ─────────────────────────────────────────────────────────────── Psychiatric evaluation
   {
     ...BASE,
-    slug: "initial-psychiatric-evaluation",
-    badge: "Services",
-    title: "Initial Psychiatric Evaluation",
-    metaTitle: "Initial Psychiatric Evaluation in Fairfield, CT | JROSE WELLNESS",
-    headline: "Initial Psychiatric Evaluation in Fairfield",
-    description: "Comprehensive initial psychiatric evaluation in Fairfield, CT. Integrative assessment for mental health concerns, personalized treatment planning, and holistic care at JROSE WELLNESS.",
-    heroSubhead: "Our comprehensive initial psychiatric evaluation provides a thorough assessment of your mental health, establishing a foundation for personalized integrative care. Through detailed history-taking, symptom analysis, and collaborative discussion, we develop a holistic understanding of your unique needs and create a tailored treatment plan that addresses both immediate concerns and long-term wellness goals.",
-    introHeading: "What is an Initial Psychiatric Evaluation?",
-    intro: ["An initial psychiatric evaluation is a comprehensive assessment that serves as the cornerstone of mental health care. This in-depth consultation typically spans 60-90 minutes and involves a detailed exploration of your current symptoms, medical and psychiatric history, family background, social circumstances, and personal goals. Unlike a brief check-in, this evaluation allows sufficient time to understand the full context of your mental health concerns, identify underlying factors contributing to your symptoms, and explore how various aspects of your life interact with your emotional and psychological well-being.","At JROSE WELLNESS, our initial psychiatric evaluation takes an integrative approach that goes beyond traditional diagnostic assessment. We examine not only psychiatric symptoms but also lifestyle factors, nutritional status, sleep patterns, stress levels, relationship dynamics, and physical health conditions that may impact mental wellness. This holistic perspective allows us to identify root causes rather than simply treating surface symptoms. We recognize that mental health exists within a complex web of biological, psychological, social, and environmental factors, and our evaluation process reflects this comprehensive understanding.","The evaluation process is collaborative and patient-centered, creating a safe space for open dialogue about your concerns, experiences, and treatment preferences. We gather information about previous treatments you've tried, medications that have been helpful or problematic, and your personal goals for therapy. This thorough foundation enables us to develop a personalized treatment plan that aligns with your values, lifestyle, and specific needs. Whether you're seeking help for anxiety, depression, mood instability, attention difficulties, trauma-related symptoms, or other mental health concerns, the initial evaluation establishes a roadmap for your healing journey."],
-    signsHeading: "An Initial Psychiatric Evaluation May Be Right For You If:",
-    signsList: ["You're experiencing persistent anxiety, depression, or mood changes that interfere with daily life","You're struggling with focus, attention, or cognitive difficulties affecting work or relationships","You've noticed changes in sleep patterns, energy levels, or appetite","You're dealing with trauma, grief, or significant life transitions","Previous treatments haven't provided lasting relief and you're seeking a fresh perspective","You want to understand your mental health patterns and develop effective coping strategies","You're experiencing stress-related physical symptoms or psychosomatic concerns","You need medication management combined with a holistic treatment approach","You're seeking preventive mental health care to optimize wellness before problems escalate"],
-    bullets: ["Comprehensive 60-90 minute assessment exploring symptoms, history, and personal goals","Integrative evaluation of lifestyle factors, nutritional status, and physical health impact","Collaborative development of personalized treatment plans aligned with your values","Thorough review of previous treatments and medication history","Foundation for ongoing care with regular monitoring and treatment adjustments","Holistic approach addressing root causes rather than surface symptoms"],
-    approachHeading: "Our Approach to Initial Psychiatric Evaluation",
-    approach: [{"title":"Comprehensive Assessment","body":"We conduct a thorough evaluation of your mental health history, current symptoms, medical background, lifestyle factors, and personal goals. This includes reviewing previous treatments, exploring family history, assessing social support systems, and understanding how your symptoms impact daily functioning.","iconPath":"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"},{"title":"Personalized Treatment Plan","body":"Based on our findings, we develop an individualized treatment plan that may include medication management, psychotherapy recommendations, lifestyle modifications, nutritional support, stress management techniques, and integrative interventions tailored to your specific needs and preferences.","iconPath":"M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"},{"title":"Ongoing Collaborative Care","body":"Your evaluation establishes a foundation for continuous care. We schedule follow-up appointments to monitor progress, adjust treatment as needed, and provide ongoing support. Our collaborative approach ensures you remain an active participant in your mental health journey.","iconPath":"M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"}],
-    benefits: [{"title":"Thorough Understanding","body":"Extended evaluation time allows for comprehensive exploration of your mental health concerns, ensuring nothing important is overlooked in your assessment."},{"title":"Personalized Care Plan","body":"Individualized treatment strategies tailored to your unique symptoms, preferences, lifestyle, and goals rather than one-size-fits-all approaches."},{"title":"Root Cause Focus","body":"Integrative assessment identifies underlying biological, psychological, and lifestyle factors contributing to symptoms for more effective treatment."},{"title":"Collaborative Partnership","body":"Patient-centered approach ensures you remain an active participant in decision-making and treatment planning throughout your care journey."}],
-    timelineHeading: "What to Expect: Your Evaluation Journey",
-    timeline: [{"title":"First Visit (60-90 minutes)","body":"Your initial evaluation involves comprehensive discussion of your concerns, symptoms, medical history, and goals. We'll explore what brings you in, review previous treatments, discuss family history, and begin forming a diagnostic understanding. You'll leave with preliminary recommendations and a clear next steps plan."},{"title":"Week 2-4","body":"Follow-up appointment to review your complete treatment plan, discuss any additional testing results, initiate recommended interventions (such as medication if appropriate), and address questions. We'll establish monitoring protocols and schedule regular check-ins to track your progress."},{"title":"Month 1-3","body":"Regular follow-up appointments (typically every 2-4 weeks initially) to monitor treatment response, adjust interventions as needed, provide ongoing support, and refine your care plan. Most patients begin experiencing improvement during this period, though timelines vary based on individual circumstances."},{"title":"Long-term Care","body":"Once stabilized, appointments typically space to monthly or as-needed visits for medication management, ongoing monitoring, and wellness maintenance. Our goal is sustainable mental health with the least intensive intervention necessary, empowering you with tools and strategies for long-term resilience."}],
-    extraSections: [{"heading":"Integrative Treatment Modalities","body":["Our psychiatric evaluations inform treatment plans that may incorporate multiple evidence-based approaches:","Medical Interventions: Psychiatric medication management when appropriate; Nutritional psychiatry and supplement recommendations; Laboratory testing to identify underlying imbalances; Collaboration with medical providers for comprehensive care.","Therapeutic Approaches: Cognitive-behavioral therapy (CBT) techniques; Mindfulness and stress reduction practices; Lifestyle medicine and behavioral modifications; Psychoeducation and self-management strategies."]},{"heading":"Important Note About Treatment Timelines","body":["Every individual's journey is unique. Some patients experience rapid improvement while others require more time to find the right treatment approach. We remain committed to working collaboratively with you throughout your healing process, adjusting our approach as needed to achieve optimal outcomes."]}],
-    faqs: [{"q":"How long does an initial psychiatric evaluation take?","a":"Initial psychiatric evaluations at JROSE WELLNESS typically last 60-90 minutes. This extended time allows us to conduct a thorough assessment without rushing, explore your concerns in depth, review complex medical and psychiatric history, and develop a comprehensive understanding of your unique situation. We believe this investment of time upfront leads to more accurate diagnosis, better treatment planning, and ultimately more effective outcomes. Follow-up appointments are typically 30-45 minutes, with frequency determined by your individual needs."},{"q":"Do I need to prepare anything before my evaluation?","a":"To maximize the value of your evaluation, we recommend gathering relevant medical records, a list of current medications and supplements, previous psychiatric treatment history, and any recent laboratory test results. It's helpful to think about what symptoms concern you most, when they started, and what you've tried that has or hasn't helped. You may want to jot down questions you'd like to address. However, don't let lack of preparation prevent you from scheduling—we can work with whatever information you bring, and can request records on your behalf if needed."},{"q":"Will I be prescribed medication during my first visit?","a":"Medication decisions are made collaboratively and depend entirely on your specific situation, symptoms, preferences, and treatment goals. Some patients begin medication during their initial evaluation if there's a clear indication and they feel comfortable proceeding, while others prefer to explore lifestyle interventions, therapy, or other approaches first. We take an integrative approach that considers all treatment options, and medication is just one tool in our toolkit. When medication is appropriate, we thoroughly discuss the rationale, expected benefits, potential side effects, and alternatives, ensuring you feel informed and empowered in the decision-making process."},{"q":"How is your integrative approach different from traditional psychiatry?","a":"Our integrative approach expands beyond symptom-focused treatment to address the whole person—mind, body, and lifestyle. During your evaluation, we explore not only psychiatric symptoms but also nutritional status, sleep quality, exercise habits, stress factors, relationship dynamics, and physical health conditions that may contribute to mental wellness. We consider evidence-based complementary interventions alongside conventional treatments, such as nutritional psychiatry, mindfulness practices, lifestyle medicine, and mind-body techniques. This comprehensive perspective often reveals underlying factors that traditional evaluations might miss, leading to more targeted and effective treatment plans that address root causes rather than just managing symptoms."},{"q":"What if I've had evaluations before and nothing has helped?","a":"Many of our patients come to us after previous treatments haven't provided adequate relief. A fresh, comprehensive evaluation can reveal new perspectives—perhaps a diagnosis was incomplete, co-occurring conditions were missed, medication choices weren't optimal for your specific situation, or important lifestyle or biological factors weren't addressed. Our integrative approach specifically looks for these commonly overlooked elements. We review what you've tried, analyze why treatments may not have worked, and explore alternative strategies that might be more effective. Treatment-resistant symptoms often respond when the right comprehensive approach is identified, and our thorough evaluation process is designed to uncover these opportunities for healing."}],
-    relatedLinks: [{"href":"/services/medication-management","label":"Medication Management","eyebrow":"Related","body":"Ongoing psychiatric medication optimization and monitoring for sustained mental health wellness."},{"href":"/services/psychotherapy","label":"Psychotherapy","eyebrow":"Related","body":"Evidence-based therapeutic approaches to address emotional challenges and promote personal growth."},{"href":"/services/integrative-mental-health","label":"Integrative Mental Health","eyebrow":"Related","body":"Holistic mental health care combining conventional psychiatry with complementary wellness approaches."}],
-    ctaHeading: "Ready to Begin Your Mental Health Journey?",
-    ctaBody: "Schedule your comprehensive initial psychiatric evaluation and take the first step toward lasting wellness and mental clarity.",
+    slug: 'psychiatric-evaluation',
+    title: 'Psychiatric Evaluation',
+    metaTitle: 'Online Psychiatric Evaluation in CT',
+    headline: 'Online Psychiatric Evaluation for Teens and Adults in Connecticut',
+    description:
+      'Book an online psychiatric evaluation in Connecticut. A thorough first visit covering your history, symptoms, and goals, with a personalized treatment plan.',
+    heroEyebrow: 'Your first visit',
+    heroSubhead:
+      'Your first session is all about you. Jessica takes time to learn your history, current concerns, symptoms, lifestyle, and goals, then builds a plan that fits you.',
+    heroImage: PAGE_IMAGES['/services/psychiatric-evaluation'],
+    introHeading: 'What your evaluation is',
+    intro: [
+      PRICING.initialEvaluation.description,
+      `Your evaluation is with ${PROVIDER.byline}, a board-certified psychiatric nurse practitioner. It happens by secure video, so you can join from the comfort and privacy of your home.`,
+      'In Jessica\'s words: "I know starting therapy or psychiatric care can feel intimidating, so I approach each session with compassion, curiosity, and openness."',
+    ],
+    signsHeading: 'What we talk about',
+    signsList: [
+      'What brings you in',
+      'Your current concerns and symptoms',
+      'Relevant medical and mental health history',
+      'Medications you take now or have tried before, and how they worked',
+      'Lifestyle factors, such as sleep and stress',
+      'Patterns, stressors, and strengths',
+      'Your goals for treatment',
+    ],
+    crisis: true,
+    bulletsHeading: 'How to prepare',
+    bullets: [
+      'A private, quiet space where you can talk openly',
+      'A phone, tablet, or computer with a camera, and a steady internet connection',
+      'A list of your current and past medications, and how they worked for you',
+      'Your insurance information, if you are booking through Alma or Headway',
+      'A few notes on what you most want help with',
+    ],
+    approachHeading: 'What happens during your evaluation',
+    approachSubhead: 'A welcoming, supportive, and judgment-free first visit.',
+    approach: [
+      {
+        title: 'Getting to know you',
+        body: 'Jessica wants to understand you as a whole person, not just a diagnosis or a list of symptoms. You can talk openly about what feels stuck or overwhelming.',
+        iconPath: ICON.user,
+      },
+      {
+        title: 'Talking through options',
+        body: 'If medication could help, you discuss options thoughtfully, including benefits, risks, and your comfort level. You stay informed and involved in every decision, and medication is optional.',
+        iconPath: ICON.chat,
+      },
+      {
+        title: 'Building your plan',
+        body: 'Together you set initial treatment goals and agree on next steps, which may include medication, supportive therapy, practical strategies, or a mix.',
+        iconPath: ICON.document,
+      },
+    ],
+    benefitsHeading: 'What you leave with',
+    benefits: [
+      {
+        title: 'A clearer picture',
+        body: 'A better understanding of what you are experiencing and the possible next steps.',
+      },
+      {
+        title: 'Initial treatment goals',
+        body: 'Goals you set together, so you know what you are working toward.',
+      },
+      {
+        title: 'Practical strategies',
+        body: 'Recommendations you can start using right away to begin working toward feeling better.',
+      },
+      {
+        title: 'A plan that fits you',
+        body: 'A personalized treatment plan built around your needs, not a one-size-fits-all approach.',
+      },
+    ],
+    timelineHeading: 'Getting started',
+    timeline: [
+      {
+        title: 'Choose how to book',
+        body: 'Book with insurance through Alma or Headway, or request a self-pay appointment directly with the practice.',
+      },
+      {
+        title: 'Meet with Jessica by video',
+        body: `Your evaluation covers your history, symptoms, and goals. ${BOOKING.alma.note}`,
+      },
+      {
+        title: 'Agree on a plan',
+        body: 'You leave with initial treatment goals and clear next steps.',
+      },
+      {
+        title: 'Follow-up visits',
+        body: 'Regular follow-ups check on your progress and adjust your plan when needed.',
+      },
+    ],
+    extraSections: [
+      {
+        heading: 'Length and cost',
+        body: [
+          `The self-pay initial evaluation is ${PRICING.initialEvaluation.price}. ${PRICING.slidingScale}`,
+          `${BOOKING.alma.note} ${INSURANCE_COST}`,
+          PRICING.goodFaithEstimate,
+        ],
+      },
+      {
+        heading: 'Who it is for',
+        body: [
+          `JRose Wellness sees ${AGES.short.toLowerCase()} in ${CONTACT.state}. Every visit is by secure video.`,
+        ],
+      },
+    ],
+    faqHeading: 'Common questions about your evaluation',
+    faqs: [
+      { q: 'How long is the first visit?', a: BOOKING.alma.note },
+      {
+        q: 'How much does the evaluation cost?',
+        a: `The self-pay initial evaluation is ${PRICING.initialEvaluation.price}. ${INSURANCE_COST} ${PRICING.slidingScale}`,
+      },
+      { q: 'What ages do you see?', a: `${AGES.short}.` },
+      FAQ.virtualOnly,
+      FAQ.whatPsychNpDoes,
+      FAQ.choosingMedication,
+    ],
+    relatedHeading: 'Next steps',
+    relatedLinks: [
+      {
+        href: '/services/medication-management',
+        label: 'Medication Management',
+        eyebrow: 'After your evaluation',
+        body: 'Follow-up visits to check on your progress and adjust treatment when needed.',
+      },
+      {
+        href: '/new-patients',
+        label: 'Your First Visit',
+        eyebrow: 'New patients',
+        body: 'What to expect and how to get started.',
+      },
+      {
+        href: '/insurance',
+        label: 'Insurance & Pricing',
+        eyebrow: 'Cost',
+        body: 'Booking through Alma or Headway, and self-pay rates.',
+      },
+    ],
+    ctaHeading: 'Ready to schedule your evaluation?',
+    ctaBody: 'Book with insurance through Alma or Headway, or request a self-pay visit. Every visit is by secure video.',
   },
+
+  // ─────────────────────────────────────────────────────────────── Medication management
   {
     ...BASE,
-    slug: "anxiety-treatment",
-    badge: "Services",
-    title: "Anxiety Treatment",
-    metaTitle: "Anxiety Treatment in Fairfield, CT | JROSE WELLNESS",
-    headline: "Anxiety Treatment in Fairfield",
-    description: "Comprehensive anxiety treatment in Fairfield combining integrative wellness approaches, personalized therapy, and evidence-based care to help you find relief and restore balance.",
-    heroSubhead: "Experience comprehensive, integrative anxiety treatment that addresses the root causes of your symptoms while providing immediate relief. Our personalized approach combines evidence-based therapies with holistic wellness strategies to help you regain control and find lasting peace.",
-    introHeading: "What is Anxiety Treatment?",
-    intro: ["Anxiety treatment encompasses a comprehensive range of therapeutic interventions designed to help individuals manage and overcome persistent worry, fear, and physical symptoms that interfere with daily life. At JROSE WELLNESS, we recognize that anxiety is not simply a mental health challenge—it's a complex interplay of neurological, hormonal, environmental, and emotional factors that requires a multifaceted treatment approach. Our integrative wellness model addresses anxiety from every angle, combining conventional medical understanding with holistic healing modalities to create sustainable, long-term relief.","Anxiety disorders affect nearly 40 million adults in the United States, making them the most common mental health condition in the country. Yet despite how prevalent anxiety is, many people suffer in silence or receive one-dimensional treatment that only addresses surface symptoms. Effective anxiety treatment goes beyond simply prescribing medication or teaching relaxation techniques—it involves understanding your unique triggers, examining lifestyle factors, exploring underlying health conditions, and developing personalized coping strategies that work for your specific situation. Research consistently shows that integrated approaches combining therapeutic modalities with lifestyle medicine produce the most significant and lasting improvements in anxiety symptoms.","Whether you're experiencing generalized anxiety disorder, panic attacks, social anxiety, health anxiety, or situational stress responses, professional anxiety treatment can help you reclaim your quality of life. Our approach is rooted in compassionate, non-judgmental care that honors your individual experience while providing evidence-based interventions proven to reduce anxiety symptoms. We work collaboratively with you to identify the treatment modalities that resonate most deeply and produce the best outcomes for your unique circumstances, creating a path forward that feels both empowering and sustainable."],
-    signsHeading: "Signs You May Benefit from Anxiety Treatment",
-    signsList: ["Persistent worry or fear that feels difficult to control or interferes with daily activities","Physical symptoms including rapid heartbeat, sweating, trembling, or gastrointestinal distress","Avoidance of situations, places, or people due to anxiety or fear of panic attacks","Sleep disturbances, including difficulty falling asleep or staying asleep due to racing thoughts","Difficulty concentrating or feeling like your mind goes blank during anxious episodes","Muscle tension, restlessness, or feeling constantly on edge without clear reason","Social withdrawal or declining invitations due to overwhelming anxious feelings"],
-    bullets: ["Comprehensive evaluation examining anxiety symptoms, medical history, lifestyle factors, and underlying health conditions","Personalized treatment plans combining cognitive-behavioral strategies, mindfulness practices, nutritional interventions, and medication management when appropriate","Evidence-based modalities including CBT, mindfulness-based stress reduction, and nervous system regulation techniques","Integration of lifestyle medicine addressing sleep, nutrition, exercise, and stress management","Ongoing support with regular follow-up visits to monitor progress and adjust strategies","Access to tools and resources for building resilience and lasting anxiety management skills"],
-    approachHeading: "Our Approach to Anxiety Treatment",
-    approach: [{"title":"Initial Assessment","body":"Your journey begins with a comprehensive evaluation that examines not only your anxiety symptoms but also your medical history, lifestyle factors, sleep patterns, nutritional status, and potential underlying health conditions. We use validated assessment tools and in-depth conversation to understand your unique anxiety presentation and identify contributing factors that may include hormonal imbalances, nutritional deficiencies, or chronic stress patterns.","iconPath":"M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"},{"title":"Personalized Plan","body":"Based on your assessment, we develop a customized treatment plan that may include cognitive-behavioral strategies, mindfulness practices, nutritional interventions, supplement recommendations, stress management techniques, and when appropriate, medication management. Your plan is designed to be flexible and responsive, evolving as you progress and as we gather more information about what works best for your body and mind.","iconPath":"M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"},{"title":"Ongoing Support","body":"Anxiety treatment is not a one-time intervention but an ongoing partnership. We provide regular follow-up visits to monitor your progress, adjust treatment strategies as needed, celebrate your victories, and problem-solve challenges together. You'll have access to evidence-based tools, educational resources, and compassionate guidance as you build resilience and develop lasting skills for managing anxiety in your daily life.","iconPath":"M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"}],
-    benefits: [{"title":"Comprehensive Care","body":"Our integrative approach addresses anxiety from every angle—physical, mental, emotional, and lifestyle—creating sustainable, long-term relief rather than just symptom suppression."},{"title":"Personalized Treatment","body":"Every treatment plan is customized to your unique anxiety presentation, preferences, and goals, ensuring the interventions resonate and produce meaningful results."},{"title":"Evidence-Based Modalities","body":"We utilize proven therapeutic approaches including CBT, mindfulness practices, nutritional psychiatry, and medication management backed by scientific research."},{"title":"Lasting Skill Development","body":"Beyond immediate relief, you'll develop practical tools and resilience-building skills that serve you throughout life's challenges and stressors."}],
-    timelineHeading: "What to Expect: Your Treatment Timeline",
-    timeline: [{"title":"First Visit","body":"During your initial 60-90 minute consultation, we'll conduct a thorough assessment of your anxiety symptoms, medical history, lifestyle factors, and treatment goals. You'll leave with a clear understanding of your diagnosis, initial coping strategies you can implement immediately, and a comprehensive treatment plan tailored to your needs. Many patients report feeling heard and hopeful after this first appointment."},{"title":"Weeks 2-4","body":"In the early weeks of treatment, you'll begin implementing your personalized strategies and may start experiencing subtle improvements in anxiety frequency or intensity. This period involves learning new skills, establishing healthy routines, and potentially adjusting to any medications or supplements. We'll have frequent check-ins to ensure you're feeling supported and to make any necessary modifications to your treatment plan."},{"title":"Months 1-3","body":"Most patients begin experiencing noticeable improvement in anxiety symptoms during this timeframe, including reduced frequency of anxious episodes, better ability to manage symptoms when they arise, improved sleep quality, and greater confidence in daily activities. This is when the various elements of your treatment plan begin working synergistically, and you start developing lasting skills and insights that support ongoing wellness."},{"title":"Long-term Maintenance","body":"As your symptoms stabilize and you develop mastery over anxiety management techniques, our visits typically become less frequent, transitioning to maintenance care and periodic check-ins. The goal is to help you build resilience and self-efficacy so you feel equipped to handle life's stressors without being overwhelmed by anxiety. We remain available as your partner in wellness, adjusting strategies as your life circumstances evolve."}],
-    extraSections: [{"heading":"Specific Treatment Modalities We Utilize","body":["Our integrative approach to anxiety treatment draws from multiple evidence-based disciplines to create comprehensive, personalized care. We utilize cognitive-behavioral therapy (CBT) techniques to help you identify and reframe anxious thought patterns, teaching practical skills for challenging catastrophic thinking and developing more balanced perspectives. Mindfulness-based stress reduction practices help you cultivate present-moment awareness and reduce reactivity to anxious thoughts and physical sensations.","When appropriate, we may incorporate medication management using both conventional pharmaceuticals and evidence-based natural alternatives, always with careful consideration of your preferences, medical history, and treatment goals. Our nutritional psychiatry approach examines the gut-brain connection and may include recommendations for anti-inflammatory diets, targeted supplementation with omega-3 fatty acids, magnesium, B vitamins, or adaptogenic herbs that support healthy stress response.","We also address lifestyle factors that significantly impact anxiety, including sleep hygiene optimization, exercise prescription tailored to your fitness level and preferences, breathwork and nervous system regulation techniques, and social connection strategies. For some patients, we may recommend lab testing to identify underlying contributors such as thyroid dysfunction, blood sugar imbalances, or hormonal fluctuations that can exacerbate anxiety symptoms."]},{"heading":"Important Timeline Note","body":["Important note: Every individual's response to anxiety treatment is unique and depends on factors including the severity and duration of symptoms, co-occurring conditions, life circumstances, and engagement with treatment recommendations. While many patients experience significant improvement within the first few months, some may require longer-term support, and others may achieve relief more quickly. We're committed to working at your pace and adjusting our approach to meet your evolving needs."]}],
-    faqs: [{"q":"Do I need medication to treat my anxiety?","a":"Not necessarily. Medication can be an effective tool for anxiety treatment, but it's not the only option or always the first choice. Many people find significant relief through therapy, lifestyle modifications, stress management techniques, nutritional interventions, and mind-body practices. We take an individualized approach, discussing the potential benefits and risks of medication in the context of your specific situation, preferences, and symptom severity. If we do recommend medication, we typically view it as one component of a comprehensive treatment plan rather than the sole intervention."},{"q":"How long does anxiety treatment take to work?","a":"The timeline for improvement varies depending on multiple factors including the severity and duration of your anxiety, which treatments you're using, and how consistently you're able to implement recommended strategies. Some patients notice subtle improvements within the first few weeks, particularly from behavioral interventions and lifestyle changes. More significant symptom reduction typically occurs over 6-12 weeks as various treatments take effect and you develop proficiency with coping skills. That said, anxiety management is often an ongoing process, and continued practice of techniques learned in treatment provides cumulative benefits over time."},{"q":"Can anxiety be cured, or will I always struggle with it?","a":"While the concept of \"cure\" is complex when it comes to anxiety, many people achieve complete remission of symptoms and develop skills that allow them to handle life's stressors without significant anxiety interference. Some individuals may experience occasional anxiety flare-ups during particularly stressful periods but have the tools to manage them effectively. The goal of treatment isn't necessarily to eliminate all anxiety—some anxiety is normal and even protective—but rather to reduce anxiety to manageable levels that don't interfere with your quality of life. With comprehensive treatment and ongoing skill-building, most people can expect significant, lasting improvement."},{"q":"What makes your approach to anxiety treatment different?","a":"Our integrative wellness approach recognizes that anxiety affects and is affected by every aspect of your health—physical, mental, emotional, and spiritual. Rather than simply prescribing medication or offering isolated therapy sessions, we examine the whole picture: your sleep, nutrition, movement, stress levels, relationships, underlying health conditions, hormonal status, and more. We combine the best of conventional medicine with evidence-based complementary approaches, creating a personalized treatment plan that addresses root causes rather than just suppressing symptoms. This comprehensive strategy typically leads to more sustainable, meaningful improvement in both anxiety symptoms and overall quality of life."},{"q":"Will my insurance cover anxiety treatment?","a":"Coverage for anxiety treatment varies significantly depending on your specific insurance plan, provider network, and the types of services you receive. Many insurance plans do cover mental health and psychiatric services, including diagnostic assessments, therapy, and medication management. However, some integrative or complementary treatments may not be covered. We recommend contacting your insurance provider to verify your benefits before your first appointment. Our team is happy to provide any documentation you need to submit for reimbursement if you're seeking out-of-network coverage, and we're committed to working with you to make treatment as accessible as possible."}],
-    relatedLinks: [{"href":"/services/depression-treatment","label":"Depression Treatment","eyebrow":"Related","body":"Comprehensive care for depression using integrative approaches that address both symptoms and underlying causes."},{"href":"/services/stress-management","label":"Stress Management","eyebrow":"Related","body":"Learn evidence-based techniques to reduce chronic stress and build resilience for long-term wellness."},{"href":"/services/sleep-disorders","label":"Sleep Disorders","eyebrow":"Related","body":"Specialized treatment for insomnia and sleep disturbances that often accompany anxiety and stress."}],
-    ctaHeading: "Ready to Get Help with Anxiety Treatment?",
-    ctaBody: "Take the first step toward lasting relief. Schedule a consultation to discuss your anxiety symptoms and discover a personalized treatment approach that works for you.",
+    slug: 'medication-management',
+    title: 'Medication Management',
+    metaTitle: 'Online Medication Management in CT',
+    headline: 'Psychiatric Medication Management Online in Connecticut',
+    description:
+      'Psychiatric medication management by secure video in Connecticut. Follow-ups track progress and adjust treatment. Self-pay or insurance through Alma or Headway.',
+    heroEyebrow: 'Follow-up care',
+    heroSubhead:
+      "Care doesn't stop after the first visit. Follow-ups check on your progress, how you're feeling, and how your plan is working, and adjust medication when needed.",
+    heroImage: PAGE_IMAGES['/services/medication-management'],
+    introHeading: 'How follow-up care works',
+    intro: [
+      PRICING.followUp.description,
+      'Medication is optional. If it is part of your care, decisions are based on your symptoms, history, past medication responses, side-effect sensitivity, lifestyle, and preferences.',
+      'Supportive therapy is part of your visits too. In Jessica\'s words: "I will provide supportive therapy during our sessions and may refer you to a therapist if needed."',
+    ],
+    signsHeading: 'Medication management may help if',
+    signsList: [
+      'You have a new diagnosis and want to talk through treatment options',
+      'You take psychiatric medication now and want ongoing care',
+      'Your current medication is not helping the way you hoped',
+      'Side effects are getting in the way of your day',
+      'You want someone to keep track of how treatment is working over time',
+    ],
+    crisis: true,
+    approachHeading: 'How medication decisions are made',
+    approachSubhead: FAQ.choosingMedication.a,
+    approach: [
+      {
+        title: 'Checking in on progress',
+        body: "Each follow-up starts with how you're feeling and how your treatment plan is working for you.",
+        iconPath: ICON.chat,
+      },
+      {
+        title: 'Monitoring and adjusting',
+        body: 'If medication is part of your care, it is carefully managed and adjusted when needed so it stays safe, effective, and supportive of your overall well-being.',
+        iconPath: ICON.adjustments,
+      },
+      {
+        title: 'Benefits and risks, explained',
+        body: 'Options are discussed thoughtfully, including benefits, risks, and your comfort level, so you stay informed and involved in every decision.',
+        iconPath: ICON.clipboardCheck,
+      },
+      {
+        title: 'Support in every visit',
+        body: 'Supportive therapy and practical coping strategies are part of your sessions, with a referral to a therapist if you need one.',
+        iconPath: ICON.heart,
+      },
+    ],
+    bulletsHeading: 'Conditions commonly managed',
+    bullets: [
+      'Anxiety and panic',
+      'Depression',
+      'ADHD',
+      'OCD',
+      'Trauma and PTSD',
+      'Bipolar disorder',
+      'Schizophrenia and psychotic disorders',
+      'Burnout and life transitions',
+    ],
+    benefits: [],
+    extraSections: [
+      {
+        heading: "What if I don't want to take medication?",
+        body: [FAQ.noMedication.a],
+      },
+      {
+        heading: FAQ.controlledSubstances.q,
+        body: [FAQ.controlledSubstances.a],
+      },
+      {
+        heading: 'Visit cost',
+        body: [
+          `Self-pay follow-up and medication management visits are ${PRICING.followUp.price}. ${PRICING.slidingScale}`,
+          INSURANCE_COST,
+        ],
+      },
+    ],
+    faqHeading: 'Common questions about medication management',
+    faqs: [
+      FAQ.choosingMedication,
+      FAQ.therapyOrMedication,
+      {
+        q: 'How much is a follow-up visit?',
+        a: `Self-pay follow-up and medication management visits are ${PRICING.followUp.price}. ${INSURANCE_COST}`,
+      },
+      FAQ.virtualOnly,
+    ],
+    relatedHeading: 'Related care',
+    relatedLinks: [
+      {
+        href: '/services/supportive-therapy',
+        label: 'Supportive Therapy',
+        eyebrow: 'Service',
+        body: 'Coping skills and support built into your visits.',
+      },
+      {
+        href: '/services/psychiatric-evaluation',
+        label: 'Psychiatric Evaluation',
+        eyebrow: 'Start here',
+        body: 'Your first visit: history, symptoms, goals, and a plan.',
+      },
+      {
+        href: '/conditions/anxiety',
+        label: 'Anxiety & Panic',
+        eyebrow: 'Condition',
+        body: 'Care for worry, panic attacks, social anxiety, and stress.',
+      },
+      {
+        href: '/conditions/depression',
+        label: 'Depression',
+        eyebrow: 'Condition',
+        body: 'Care for low mood, low energy, and loss of interest.',
+      },
+      {
+        href: '/conditions/bipolar-disorder',
+        label: 'Bipolar Disorder',
+        eyebrow: 'Condition',
+        body: 'Care aimed at stabilizing mood changes over the long term.',
+      },
+      {
+        href: '/services/adhd-evaluation',
+        label: 'ADHD Evaluation & Treatment',
+        eyebrow: 'Service',
+        body: 'Assessment and ongoing care for teens and adults.',
+      },
+    ],
+    ctaHeading: 'Ready for steady, ongoing care?',
+    ctaBody: 'Book with insurance through Alma or Headway, or request a self-pay visit. Every visit is by secure video.',
   },
+
+  // ─────────────────────────────────────────────────────────────── Supportive therapy
   {
     ...BASE,
-    slug: "depression-care",
-    badge: "Services",
-    title: "Depression Care",
-    metaTitle: "Depression Care in Fairfield, CT | JROSE WELLNESS",
-    headline: "Depression Care in Fairfield",
-    description: "Compassionate, integrative depression care in Fairfield. Personalized treatment plans combining therapy, lifestyle optimization, and evidence-based interventions for lasting relief.",
-    heroSubhead: "Evidence-based, compassionate treatment for depression that addresses the whole person—mind, body, and spirit. Our integrative approach combines proven therapies with lifestyle optimization to help you reclaim joy, energy, and meaning in your life.",
-    introHeading: "What is Depression Care?",
-    intro: ["Depression is far more than temporary sadness—it's a complex medical condition that affects how you think, feel, and function in daily life. Clinical depression involves persistent feelings of hopelessness, loss of interest in activities once enjoyed, changes in sleep and appetite, difficulty concentrating, and sometimes thoughts of self-harm. At JROSE WELLNESS, our depression care goes beyond symptom management to address the underlying biological, psychological, and social factors contributing to your experience.","Our integrative approach recognizes that depression manifests differently in each person and often involves multiple interconnected systems. Research increasingly shows that depression involves inflammation, hormonal imbalances, nutrient deficiencies, gut health disruption, and nervous system dysregulation—not just neurotransmitter imbalances. We combine evidence-based therapies with comprehensive wellness strategies to treat the whole person, not just the diagnosis.","Whether you're experiencing your first depressive episode, managing recurrent depression, dealing with treatment-resistant symptoms, or seeking alternatives to medication-only approaches, our personalized depression care provides hope and healing. We work collaboratively with you to develop a treatment plan that honors your unique circumstances, preferences, and goals while incorporating the latest advances in integrative mental health care."],
-    signsHeading: "Common Signs & Symptoms",
-    signsList: ["Persistent sadness or empty mood","Loss of interest in activities or hobbies","Significant changes in appetite or weight","Sleep disturbances (insomnia or oversleeping)","Fatigue and decreased energy","Difficulty concentrating or making decisions","Feelings of worthlessness or excessive guilt","Physical aches and pains without clear cause","Irritability or restlessness","Withdrawal from social connections","Thoughts of death or self-harm","Reduced productivity at work or home"],
-    bullets: ["Comprehensive evaluation including mental health history, symptom assessment, lifestyle factors, nutrition analysis, sleep patterns, and physical health markers","Custom treatment combining evidence-based psychotherapy, nutritional psychiatry, targeted supplementation, exercise protocols, and stress management techniques","Regular monitoring, treatment adjustments, skill-building sessions, and compassionate support throughout your healing journey","Integration of multiple modalities including CBT, IPT, mindfulness-based interventions, and lifestyle medicine for whole-person care","Personalized wellness plan including relapse prevention strategies and early warning sign recognition","Collaborative approach that honors your unique circumstances, preferences, and goals"],
-    approachHeading: "Our Approach to Depression Care",
-    approachSubhead: "A comprehensive, personalized treatment framework designed to address depression at its roots",
-    approach: [{"title":"Initial Assessment","body":"Comprehensive evaluation including mental health history, symptom assessment, lifestyle factors, nutrition analysis, sleep patterns, and physical health markers that may contribute to depression.","iconPath":"M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"},{"title":"Personalized Plan","body":"Custom treatment combining evidence-based psychotherapy, nutritional psychiatry, targeted supplementation, exercise protocols, stress management techniques, and medication when appropriate.","iconPath":"M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z M15 12a3 3 0 11-6 0 3 3 0 016 0z"},{"title":"Ongoing Support","body":"Regular monitoring, treatment adjustments, skill-building sessions, and compassionate support throughout your healing journey. We celebrate progress and adapt strategies as you evolve.","iconPath":"M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"}],
-    benefits: [{"title":"Whole-Person Healing","body":"Address depression at its roots by treating biological, psychological, and social factors—not just symptoms—for lasting relief and resilience."},{"title":"Personalized Treatment","body":"Receive a custom care plan tailored to your unique symptoms, history, preferences, and goals, combining the most effective modalities for your situation."},{"title":"Evidence-Based Approaches","body":"Benefit from proven therapies including CBT, IPT, mindfulness interventions, and medication when appropriate, all supported by current research."},{"title":"Lifestyle Integration","body":"Learn sustainable wellness practices including nutrition optimization, exercise protocols, sleep hygiene, and stress management that support long-term mental health."},{"title":"Collaborative Care","body":"Work with a compassionate provider who listens, respects your input, and partners with you throughout your healing journey."},{"title":"Relapse Prevention","body":"Develop lasting skills and strategies to recognize early warning signs, manage setbacks, and maintain wellness long after treatment ends."}],
-    timelineHeading: "Your Treatment Timeline",
-    timeline: [{"title":"First Visit","body":"Comprehensive 60-90 minute evaluation covering your symptoms, history, current stressors, physical health, nutrition, sleep, and treatment goals. We'll discuss treatment options and begin creating your personalized care plan. You'll leave with initial recommendations and a clear path forward."},{"title":"Weeks 2-4","body":"Weekly or bi-weekly sessions to implement your treatment plan, learn coping skills, and begin lifestyle modifications. If medication is prescribed, we closely monitor initial response and side effects. Many clients notice subtle improvements in sleep, energy, or anxiety even before mood fully lifts."},{"title":"Months 1-3","body":"Most clients experience significant improvement during this phase as treatments take full effect. We continue therapy sessions, refine your plan based on progress, deepen skill-building, and address underlying patterns. Expect gradual improvements in mood, energy, motivation, and functioning."},{"title":"Long-Term Support","body":"As symptoms improve, we transition to maintenance care with less frequent sessions focused on relapse prevention, continued skill development, and sustained wellness. We develop strategies to recognize early warning signs and respond proactively. Our goal is your long-term flourishing, not just symptom remission."}],
-    extraSections: [{"heading":"Treatment Modalities We Use","body":["Psychotherapy Approaches: We utilize Cognitive Behavioral Therapy (CBT) to identify and reshape negative thought patterns, Interpersonal Therapy (IPT) to improve relationships and social functioning, mindfulness-based interventions to increase present-moment awareness, and Acceptance and Commitment Therapy (ACT) to build psychological flexibility and values-based action.","Nutritional Psychiatry: Research shows that diet profoundly impacts mental health. We assess and optimize omega-3 fatty acids, B vitamins, vitamin D, magnesium, zinc, and other nutrients critical for neurotransmitter production and brain function. We also address gut health through targeted dietary changes and probiotic support, as the gut-brain axis plays a crucial role in mood regulation.","Lifestyle Medicine: Exercise is as effective as medication for mild to moderate depression. We create personalized movement plans, optimize sleep hygiene (poor sleep perpetuates depression), teach stress-reduction techniques including breathwork and progressive relaxation, and support social connection—a powerful protective factor against depression.","Medication Management (When Needed): For moderate to severe depression, medication can be an important part of treatment. We carefully prescribe and monitor antidepressants when appropriate, always in conjunction with therapy and lifestyle interventions. Our goal is the lowest effective dose for the shortest necessary duration, with ongoing assessment of benefits and side effects.","Mind-Body Interventions: We incorporate evidence-based practices like meditation, yoga therapy, progressive muscle relaxation, and biofeedback to help regulate the nervous system, reduce stress hormones, and build resilience. These tools provide lasting skills for managing mood and preventing relapse."]},{"heading":"Timeline Note","body":["Every person's journey is unique. These timelines are general guidelines—your experience may be faster or require more time. We adjust treatment pace to match your individual response and circumstances."]}],
-    faqs: [{"q":"How long does it take to feel better?","a":"Most people notice initial improvements within 2-4 weeks, with significant progress by 6-8 weeks. However, this varies based on depression severity, how long you've been experiencing symptoms, and individual response to treatment. Some aspects improve quickly (like sleep or anxiety), while mood elevation may take longer. Antidepressant medications typically require 4-6 weeks for full effect, while therapy and lifestyle changes often provide earlier benefits. We monitor your progress closely and adjust treatment if you're not improving as expected."},{"q":"Do I definitely need medication for depression?","a":"Not necessarily. For mild to moderate depression, therapy combined with lifestyle interventions (exercise, nutrition, sleep optimization, stress management) can be highly effective without medication. However, for moderate to severe depression, or if you've tried non-medication approaches without sufficient improvement, medication can be an important tool. We take a shared decision-making approach—discussing benefits, risks, and your preferences to determine the best path for your unique situation. Some clients start with therapy alone and add medication later if needed; others begin with both approaches simultaneously."},{"q":"What's different about integrative depression care?","a":"Integrative care treats depression as a whole-person condition, not just a brain chemistry problem. While we use evidence-based treatments like therapy and medication when needed, we also address nutrition, inflammation, gut health, sleep, exercise, stress, relationships, and meaning—all of which profoundly impact mood. Research shows that factors like omega-3 deficiency, vitamin D insufficiency, chronic inflammation, and poor gut health contribute to depression. By addressing these underlying issues alongside traditional treatments, we often achieve better outcomes and help you build lasting resilience."},{"q":"Can you help with treatment-resistant depression?","a":"Yes. If you've tried multiple antidepressants without adequate relief, an integrative approach may be especially beneficial. We look beyond neurotransmitters to identify contributing factors that standard treatment may have missed—such as thyroid dysfunction, nutrient deficiencies, chronic inflammation, undiagnosed sleep disorders, hormonal imbalances, or medication interactions. We also incorporate advanced treatment options including augmentation strategies, genetic testing to guide medication selection, intensive therapy modalities, and evidence-based complementary approaches. Many clients who haven't responded to conventional treatment find relief through comprehensive integrative care."},{"q":"How do I prevent depression from coming back?","a":"Relapse prevention is a key focus of our treatment. We help you develop a personalized wellness plan including ongoing lifestyle practices (regular exercise, sleep hygiene, stress management, nutrition), continued therapy or support as needed, early warning sign recognition, and action plans for managing setbacks. For recurrent depression, maintenance medication may be recommended. Research shows that mindfulness-based cognitive therapy is particularly effective for preventing relapse. We also address underlying vulnerabilities and build psychological resilience so you're better equipped to handle life's challenges without spiraling back into depression. Our goal is not just recovery, but lasting wellness."}],
-    relatedLinks: [{"href":"/services/anxiety-treatment","label":"Anxiety Treatment","eyebrow":"Related","body":"Comprehensive care for generalized anxiety, panic disorder, and chronic worry using integrative approaches."},{"href":"/services/stress-management","label":"Stress Management","eyebrow":"Related","body":"Evidence-based techniques to reduce chronic stress, build resilience, and restore balance to your nervous system."},{"href":"/services/sleep-optimization","label":"Sleep Optimization","eyebrow":"Related","body":"Personalized strategies to improve sleep quality, essential for mental health and mood regulation."}],
-    ctaHeading: "Ready to Get Help with Depression Care?",
-    ctaBody: "Take the first step toward healing. Compassionate, evidence-based depression care in Fairfield is available.",
+    slug: 'supportive-therapy',
+    title: 'Supportive Therapy',
+    metaTitle: 'Therapy + Medication Management in CT',
+    headline: 'Supportive Therapy Alongside Psychiatric Care in Connecticut',
+    description:
+      'Supportive therapy built into telehealth psychiatric visits in Connecticut, using CBT-based skills, motivational interviewing, and practical coping strategies.',
+    heroEyebrow: 'Therapy within your visits',
+    heroSubhead:
+      'Your psychiatric visits make room for talking things through. Jessica provides supportive therapy during your sessions and may refer you to a therapist if needed.',
+    heroImage: PAGE_IMAGES['/services/supportive-therapy'],
+    introHeading: 'Support built into every visit',
+    intro: [
+      `In Jessica's words: "${FAQ.therapyOrMedication.a}"`,
+      'Supportive therapy happens during your psychiatric visits, alongside medication management when that is part of your care.',
+      `Jessica describes her approach as ${PROVIDER.approach[0]}. The goal is for you to leave each visit feeling supported, with tools, insight, and a clearer understanding of yourself.`,
+    ],
+    signsHeading: 'What we can work on together',
+    signsList: [
+      'Anxiety and worry',
+      'Low mood and depression',
+      'ADHD and daily structure',
+      'Stress and burnout',
+      'Relationship challenges',
+      'Trauma',
+      'Self-esteem',
+      'Life transitions',
+    ],
+    crisis: true,
+    approachHeading: 'Techniques Jessica uses',
+    approachSubhead: 'Tailored to your needs and goals, and used within your psychiatric visits.',
+    approach: PROVIDER.techniques.map((t) => ({
+      title: capitalize(t),
+      body: TECHNIQUE_NOTES[t].body,
+      iconPath: TECHNIQUE_NOTES[t].iconPath,
+    })),
+    benefitsHeading: 'What sessions feel like',
+    benefits: [
+      {
+        title: 'Open and judgment-free',
+        body: 'A space where you can talk honestly and be fully yourself.',
+      },
+      {
+        title: 'Warm and direct',
+        body: `Her style is "${PROVIDER.approach[1]}."`,
+      },
+      {
+        title: 'Honest, with humor',
+        body: `Emotional support balanced with ${PROVIDER.approach[2]}.`,
+      },
+      {
+        title: 'Realistic changes',
+        body: 'Working together on realistic, sustainable changes that fit your life.',
+      },
+    ],
+    bullets: [],
+    extraSections: [
+      {
+        heading: 'Everyday habits matter too',
+        body: [
+          'Treatment may include medication management, therapy, education, and lifestyle support. That can mean talking through sleep, stress, and daily routines, and making realistic changes that fit your life.',
+        ],
+      },
+      {
+        heading: 'When a dedicated therapist is a better fit',
+        body: [
+          'Some people need more therapy time than a psychiatric visit allows, or a specific kind of therapy. When that is the case, Jessica may refer you to a therapist.',
+        ],
+      },
+    ],
+    faqHeading: 'Common questions about therapy and medication',
+    faqs: [FAQ.therapyOrMedication, FAQ.noMedication, FAQ.whatPsychNpDoes, FAQ.virtualOnly],
+    relatedHeading: 'Related care',
+    relatedLinks: [
+      {
+        href: '/services/medication-management',
+        label: 'Medication Management',
+        eyebrow: 'Service',
+        body: 'Follow-up visits to monitor progress and adjust treatment.',
+      },
+      {
+        href: '/conditions/burnout-life-transitions',
+        label: 'Burnout & Life Transitions',
+        eyebrow: 'Condition',
+        body: 'Support for stress, burnout, and big life changes.',
+      },
+      {
+        href: '/conditions/anxiety',
+        label: 'Anxiety & Panic',
+        eyebrow: 'Condition',
+        body: 'Care for worry, panic attacks, social anxiety, and stress.',
+      },
+    ],
+    ctaHeading: 'Ready to feel supported?',
+    ctaBody: 'Book with insurance through Alma or Headway, or request a self-pay visit. Every visit is by secure video.',
   },
+
+  // ─────────────────────────────────────────────────────────────── Telepsychiatry
   {
     ...BASE,
-    slug: "substance-use-disorder-support",
-    badge: "Services",
-    title: "Substance Use Disorder Support",
-    metaTitle: "Substance Use Disorder Support in Fairfield, CT | JROSE WELLNESS",
-    headline: "Substance Use Disorder Support in Fairfield",
-    description: "Compassionate, evidence-based substance use disorder support in Fairfield. Integrative treatment plans combining medical care, therapy, and holistic wellness strategies for lasting recovery.",
-    heroSubhead: "JROSE WELLNESS offers compassionate, evidence-based support for individuals navigating substance use challenges through integrative treatment that addresses the whole person—mind, body, and spirit. Our approach combines medical expertise with holistic wellness strategies to support sustainable recovery and long-term health.",
-    introHeading: "What is Substance Use Disorder Support?",
-    intro: ["Substance use disorder (SUD) is a complex medical condition characterized by an inability to control the use of legal or illegal substances despite harmful consequences. It affects millions of Americans and touches every demographic, impacting physical health, mental wellbeing, relationships, employment, and overall quality of life. At JROSE WELLNESS, we recognize that substance use disorder is not a moral failing or a lack of willpower—it is a treatable medical condition that responds to comprehensive, compassionate care.","Our substance use disorder support program takes an integrative approach that goes beyond traditional addiction treatment models. We understand that substance use often develops as a coping mechanism for underlying issues such as chronic pain, trauma, anxiety, depression, or unmet emotional needs. Rather than focusing solely on abstinence, we work to understand the root causes of substance use and develop personalized treatment strategies that address physical dependency, psychological factors, lifestyle patterns, and environmental influences that contribute to addictive behaviors.","Evidence-based research demonstrates that integrated, multidisciplinary treatment approaches yield the highest success rates for long-term recovery. Our program combines medical management when appropriate, behavioral health support, nutritional counseling, stress reduction techniques, and lifestyle modification strategies. We work collaboratively with clients to develop sustainable recovery pathways that honor their individual circumstances, values, and goals. Whether you are seeking support for alcohol use, prescription medication dependence, or other substance-related concerns, our team provides judgment-free, person-centered care designed to support lasting change."],
-    signsHeading: "Signs You May Benefit from Substance Use Disorder Support",
-    signsList: ["Using substances in larger amounts or for longer periods than intended","Unsuccessful efforts to cut down or control substance use","Spending significant time obtaining, using, or recovering from substances","Experiencing cravings or strong urges to use substances","Continued use despite negative impacts on work, school, or relationships","Withdrawal symptoms when not using substances","Developing tolerance requiring more of the substance to achieve the same effect","Giving up important activities or interests because of substance use","Using substances in physically hazardous situations","Continuing use despite awareness of physical or psychological problems"],
-    bullets: ["Comprehensive assessment covering substance use history, medical evaluation, and mental health screening","Personalized treatment plans combining medical management, behavioral health support, and holistic wellness strategies","Medication-assisted treatment (MAT) options when appropriate to reduce cravings and withdrawal symptoms","Integration of co-occurring mental health condition treatment for anxiety, depression, PTSD, or trauma","Nutritional counseling and lifestyle modifications to restore physical health and support brain healing","Ongoing support with relapse prevention strategies, crisis intervention resources, and regular monitoring"],
-    approachHeading: "Our Approach to Substance Use Disorder Support",
-    approach: [{"title":"Comprehensive Assessment","body":"We begin with a thorough evaluation of your substance use history, medical background, mental health status, and current life circumstances. This includes screening for co-occurring conditions, assessment of physical health impacts, and identification of triggers and underlying factors contributing to substance use patterns.","iconPath":"M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"},{"title":"Personalized Treatment Plan","body":"Based on your assessment, we develop an individualized treatment strategy that may include medical management, referrals to specialized addiction services, behavioral interventions, nutritional support, and complementary wellness therapies. Your plan evolves as you progress through recovery.","iconPath":"M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"},{"title":"Ongoing Support & Monitoring","body":"Recovery is a journey that requires sustained support. We provide regular check-ins, medication management when appropriate, relapse prevention strategies, crisis intervention resources, and continuous adjustment of your treatment plan to address emerging challenges and celebrate successes.","iconPath":"M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"}],
-    benefits: [{"title":"Comprehensive Care","body":"Integrated treatment addressing physical dependency, mental health, nutrition, and lifestyle factors for sustainable recovery"},{"title":"Evidence-Based Approaches","body":"Utilizing proven modalities including medication-assisted treatment, cognitive-behavioral therapy, and motivational interviewing"},{"title":"Confidential Support","body":"Strict federal privacy protections and judgment-free environment ensuring your safety and trust throughout treatment"},{"title":"Personalized Recovery Plans","body":"Individualized strategies that honor your circumstances, values, and goals rather than one-size-fits-all approaches"}],
-    timelineHeading: "What to Expect: Your Recovery Timeline",
-    timeline: [{"title":"Initial Visit — Week 1","body":"Comprehensive intake assessment covering substance use history, medical evaluation, mental health screening, and goal-setting. We establish immediate safety measures, provide education about the recovery process, and develop your initial treatment roadmap. You will leave with concrete next steps and resources."},{"title":"Early Stabilization — Weeks 2-4","body":"Focus on physical stabilization and establishing new routines. If medication-assisted treatment is appropriate, we initiate and adjust protocols. You will receive support for managing cravings, identifying triggers, and developing coping strategies. Frequent check-ins ensure safety and progress during this critical phase."},{"title":"Active Recovery — Months 1-6","body":"As physical symptoms stabilize, emphasis shifts to psychological healing, lifestyle restructuring, and building sustainable recovery skills. We address underlying issues contributing to substance use, strengthen coping mechanisms, and help you rebuild relationships and life structures that support long-term wellness."},{"title":"Long-term Maintenance — Months 6+","body":"Transition to maintenance phase with less frequent but ongoing support. Focus on relapse prevention, managing life stressors without substances, continued personal growth, and integration of recovery principles into daily life. We remain available for check-ins, medication management, and support during challenging times."}],
-    extraSections: [{"heading":"Treatment Modalities We Utilize","body":["Medical Management: For clients experiencing physical dependence, we coordinate appropriate medical interventions including medication-assisted treatment (MAT) when indicated. This may involve medications such as buprenorphine, naltrexone, or other FDA-approved therapies that reduce cravings, prevent withdrawal symptoms, and support brain chemistry stabilization during recovery.","Behavioral Health Integration: We collaborate with licensed mental health professionals to address co-occurring anxiety, depression, trauma, or other psychological factors. Evidence-based approaches such as cognitive-behavioral therapy (CBT), motivational interviewing, and dialectical behavior therapy (DBT) form the foundation of our psychological support services.","Nutritional & Lifestyle Support: Substance use often depletes essential nutrients and disrupts metabolic function. Our nutritional counseling focuses on restoring physical health through targeted supplementation, anti-inflammatory nutrition, and lifestyle modifications that support brain healing and overall vitality.","Mind-Body Practices: We incorporate stress reduction techniques including mindfulness training, breathwork, yoga, and other somatic practices that help regulate the nervous system, build distress tolerance, and create healthy coping mechanisms to replace substance use.","Community Connection: Recovery thrives in community. We help clients connect with peer support groups, 12-step programs, or alternative recovery communities that provide accountability, shared experience, and ongoing encouragement throughout the recovery journey."]},{"heading":"Important Note About Recovery Timelines","body":["Recovery timelines vary significantly based on individual circumstances, substance type, duration of use, and presence of co-occurring conditions. Some clients progress quickly while others require extended support. We meet you where you are and adjust our approach to match your unique needs and pace."]}],
-    faqs: [{"q":"Is substance use disorder support confidential?","a":"Yes, absolutely. All substance use disorder treatment is protected by strict federal confidentiality regulations (42 CFR Part 2) in addition to standard HIPAA privacy protections. We cannot disclose that you are receiving substance use services without your explicit written consent, except in very limited emergency circumstances. Your privacy and trust are paramount to successful treatment."},{"q":"Do I need to be completely abstinent to receive treatment?","a":"No. We meet clients wherever they are in their journey. While abstinence is often the ultimate goal for safety and health, we recognize that change happens in stages. Some clients benefit from harm reduction approaches initially, while others are ready for complete abstinence. We work collaboratively with you to set realistic goals that move you toward greater health and wellbeing at a pace that feels sustainable."},{"q":"What if I have tried to quit before and failed?","a":"Most people with substance use disorders attempt to quit multiple times before achieving lasting recovery. Previous unsuccessful attempts are not failures—they are learning experiences that provide valuable information about what works and what does not for you. Each treatment episode builds knowledge and skills. We use evidence-based approaches tailored to your specific situation and help identify what was missing in previous attempts."},{"q":"Will I need medication-assisted treatment?","a":"Not necessarily. Medication-assisted treatment (MAT) is one tool in a comprehensive approach, not a requirement for everyone. For certain substance dependencies—particularly opioids and alcohol—medications can significantly improve success rates by reducing cravings and withdrawal symptoms while you work on behavioral changes. We carefully assess whether MAT is appropriate for your situation and fully involve you in treatment decisions."},{"q":"How do you address underlying mental health conditions?","a":"Co-occurring mental health conditions like anxiety, depression, PTSD, or ADHD are extremely common among individuals with substance use disorders. We screen for these conditions during assessment and integrate treatment for both substance use and mental health simultaneously. This dual-diagnosis approach addresses the complex interplay between mental health and substance use, significantly improving outcomes. We collaborate with mental health specialists when needed to ensure comprehensive care."}],
-    relatedLinks: [{"href":"/services/anxiety-depression-care","label":"Anxiety & Depression Care","eyebrow":"Related","body":"Evidence-based treatment for mood disorders often co-occurring with substance use challenges."},{"href":"/services/chronic-pain-management","label":"Chronic Pain Management","eyebrow":"Related","body":"Integrative approaches to pain relief without dependence on addictive medications."},{"href":"/services/stress-management","label":"Stress Management","eyebrow":"Related","body":"Build healthy coping mechanisms and resilience to navigate life challenges without substances."}],
-    ctaHeading: "Ready to Get Help with Substance Use Disorder Support?",
-    ctaBody: "Take the first courageous step toward recovery. Our compassionate team is here to support you with evidence-based, judgment-free care in Fairfield.",
+    slug: 'telepsychiatry',
+    title: 'Telepsychiatry',
+    metaTitle: 'Telepsychiatry in Connecticut',
+    headline: 'Telepsychiatry by Secure Video for Patients in Connecticut',
+    description:
+      'Telepsychiatry for patients in Connecticut: psychiatric evaluations and medication management by secure video from home. No commute and no waiting room.',
+    heroEyebrow: 'Telehealth only',
+    heroSubhead:
+      'All sessions are conducted securely through telehealth, so you can receive care from the comfort and privacy of your home.',
+    heroImage: PAGE_IMAGES['/services/telepsychiatry'],
+    introHeading: 'How video visits work',
+    intro: [
+      "Every visit with Jessica happens by secure video. You join from home and talk with her face to face on screen: how you're feeling, your symptoms, your history, and your plan.",
+      `JRose Wellness provides telehealth for patients in ${CONTACT.state}, where Jessica is licensed as an advanced practice registered nurse (APRN).`,
+      'Booking works the same way for every visit: through Alma or Headway if you are using insurance, or directly with the practice for self-pay.',
+    ],
+    signsHeading: 'What you need',
+    signsList: [
+      'A private, quiet space where you can talk openly',
+      'A smartphone, tablet, or computer with a camera and microphone',
+      'A stable internet connection',
+      'Headphones, if others are nearby',
+      'A few minutes before your visit to get settled',
+    ],
+    crisis: true,
+    approachHeading: 'Why telehealth',
+    approach: [
+      {
+        title: 'Convenient care',
+        body: 'Meet with a qualified professional from the comfort of your home. No commuting or long waiting rooms.',
+        iconPath: ICON.home,
+      },
+      {
+        title: 'Truly personalized',
+        body: 'Your treatment plan is tailored to your unique symptoms, lifestyle, and goals.',
+        iconPath: ICON.user,
+      },
+      {
+        title: 'Continuous support',
+        body: "You're not left to figure things out alone. Regular follow-ups include progress tracking.",
+        iconPath: ICON.refresh,
+      },
+    ],
+    benefits: [],
+    bullets: [],
+    timelineHeading: 'Your visit, step by step',
+    timeline: [
+      {
+        title: 'Book your visit',
+        body: 'Book through Alma or Headway with insurance, or request a self-pay appointment.',
+      },
+      {
+        title: 'Get set up',
+        body: 'Find a private spot, check your camera and sound, and make sure your internet connection is steady.',
+      },
+      {
+        title: 'Meet with Jessica',
+        body: "Talk through how you're feeling, what has changed, and what you want from your care.",
+      },
+      {
+        title: 'Keep going',
+        body: 'Follow-up visits are by video too, so staying on track fits into your week.',
+      },
+    ],
+    extraSections: [
+      {
+        heading: 'Privacy',
+        body: [
+          'Sessions are conducted securely through telehealth. Choose a spot where you will not be overheard, and use headphones if others are nearby.',
+          NO_MEDICAL_ADVICE,
+        ],
+      },
+      {
+        heading: 'Is telehealth right for me?',
+        body: [
+          'Telehealth works well for outpatient psychiatric care: evaluations, medication management, and supportive therapy from home.',
+          CRISIS.full,
+        ],
+      },
+    ],
+    faqHeading: 'Common questions about video visits',
+    faqs: [
+      FAQ.virtualOnly,
+      { q: 'Who can book a video visit?', a: `${AGES.short}, for patients in ${CONTACT.state}.` },
+      { q: 'Can I use insurance for video visits?', a: INSURANCE_LINE },
+      FAQ.whatPsychNpDoes,
+    ],
+    relatedHeading: 'Keep exploring',
+    relatedLinks: [
+      {
+        href: '/services/psychiatric-evaluation',
+        label: 'Psychiatric Evaluation',
+        eyebrow: 'Start here',
+        body: 'Your first visit: history, symptoms, goals, and a plan.',
+      },
+      {
+        href: '/services/medication-management',
+        label: 'Medication Management',
+        eyebrow: 'Service',
+        body: 'Follow-up visits to monitor progress and adjust treatment.',
+      },
+      {
+        href: '/new-patients',
+        label: 'Your First Visit',
+        eyebrow: 'New patients',
+        body: 'What to expect and how to get started.',
+      },
+    ],
+    ctaHeading: 'Ready to meet by video?',
+    ctaBody: 'Book with insurance through Alma or Headway, or request a self-pay visit.',
   },
+
+  // ─────────────────────────────────────────────────────────────── ADHD evaluation
   {
     ...BASE,
-    slug: "medication-management",
-    badge: "Services",
-    title: "Medication Management",
-    metaTitle: "Medication Management in Fairfield, CT | JROSE WELLNESS",
-    headline: "Medication Management in Fairfield",
-    description: "Expert medication management services in Fairfield, CT. Personalized medication reviews, optimization, and ongoing monitoring for safe, effective treatment outcomes.",
-    heroSubhead: "Our comprehensive medication management services ensure your medications work safely and effectively together, minimizing side effects while maximizing therapeutic benefits. We provide expert oversight, regular monitoring, and personalized adjustments to optimize your treatment outcomes and overall wellness.",
-    introHeading: "What is Medication Management?",
-    intro: ["Medication management is a comprehensive, clinically-driven service that ensures all prescribed medications—whether for mental health, chronic conditions, pain management, or preventive care—are working together safely and effectively. This specialized service goes far beyond simply writing prescriptions; it involves careful evaluation of drug interactions, side effect monitoring, dosage optimization, and regular assessment of therapeutic outcomes. At JROSE WELLNESS, our integrative approach combines evidence-based pharmacological knowledge with a holistic understanding of how medications affect your entire body, lifestyle, and wellness goals.","Many individuals take multiple medications prescribed by different providers, which can lead to dangerous interactions, duplicate therapies, or conflicting treatment goals. Studies show that medication-related problems account for nearly 275,000 deaths annually in the United States, with many cases stemming from poor medication coordination and lack of proper oversight. Professional medication management addresses these risks by providing centralized oversight, ensuring each medication serves a clear purpose, and regularly evaluating whether your regimen remains appropriate as your health status and needs evolve over time.","Our medication management services are particularly valuable for individuals managing complex health conditions, those taking three or more medications simultaneously, patients experiencing troublesome side effects, or anyone who feels their current medications aren't delivering optimal results. We also work closely with individuals seeking to reduce medication burden through integrative approaches that combine pharmaceutical interventions with lifestyle modifications, nutritional support, and complementary therapies. The goal is always to use the minimum effective medications necessary while maximizing your quality of life and functional wellness."],
-    signsHeading: "You May Benefit from Medication Management If You Experience:",
-    signsList: ["Taking multiple medications from different healthcare providers without coordinated oversight","Bothersome side effects that interfere with daily functioning or quality of life","Uncertainty about what each medication does or whether you still need all of them","Medications that don't seem to be working as well as they should or used to","Difficulty remembering to take medications or confusion about proper dosing schedules","Recent life changes such as pregnancy, aging, weight changes, or new diagnoses affecting medication needs","Interest in reducing medication burden while maintaining therapeutic benefits","Concerns about potential drug interactions or cumulative medication effects"],
-    bullets: ["Comprehensive review of all medications, supplements, and over-the-counter products you're taking","Identification and management of potential drug interactions and side effects","Personalized optimization plans tailored to your unique health profile and goals","Evidence-based deprescribing protocols to safely reduce medication burden when appropriate","Regular monitoring and adjustments to ensure optimal therapeutic outcomes","Collaborative care coordination with all your healthcare providers"],
-    approachHeading: "Our Approach to Medication Management",
-    approachSubhead: "We combine clinical expertise with integrative wellness principles to create medication regimens that support your overall health and life goals.",
-    approach: [{"title":"Comprehensive Medication Review","body":"We begin with a thorough evaluation of all current medications, supplements, and over-the-counter products you're taking. This includes reviewing prescribing history, assessing therapeutic effectiveness, identifying potential interactions, and understanding your experience with each medication including benefits and side effects.","iconPath":"M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"},{"title":"Personalized Optimization Plan","body":"Based on your unique health profile, symptoms, goals, and lifestyle, we develop an individualized medication plan. This may include adjusting dosages, timing, or formulations; deprescribing medications no longer needed; adding targeted treatments; or integrating complementary approaches to reduce medication burden while maintaining therapeutic outcomes.","iconPath":"M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"},{"title":"Ongoing Monitoring & Support","body":"Medication management is not a one-time event but an evolving process. We provide regular follow-up appointments to assess how you're responding to changes, monitor for side effects or interactions, adjust treatments as needed, and ensure your medication regimen continues to align with your health status and wellness objectives over time.","iconPath":"M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"}],
-    benefits: [{"title":"Reduced Medication Burden","body":"Through careful evaluation and evidence-based deprescribing, many patients can safely reduce the number of medications they take while maintaining or improving therapeutic outcomes."},{"title":"Improved Safety","body":"Comprehensive oversight dramatically reduces the risk of dangerous drug interactions, duplicate therapies, and medication-related adverse events."},{"title":"Enhanced Effectiveness","body":"Optimization of dosages, timing, and formulations ensures you get maximum therapeutic benefit from each medication with minimal side effects."},{"title":"Better Quality of Life","body":"By addressing side effects, simplifying regimens, and aligning medications with your wellness goals, medication management improves daily functioning and overall well-being."},{"title":"Coordinated Care","body":"Centralized medication oversight ensures all your healthcare providers are working together, preventing conflicting treatments and communication gaps."},{"title":"Personalized Treatment","body":"Your medication plan is tailored to your unique genetic makeup, health history, lifestyle, and personal preferences for truly individualized care."}],
-    timelineHeading: "What to Expect: Your Medication Management Timeline",
-    timeline: [{"title":"Initial Consultation (60-90 minutes)","body":"During your first appointment, we conduct a comprehensive medication review covering all prescriptions, supplements, and over-the-counter products. We'll discuss your medical history, current symptoms, treatment goals, and any concerns about your medications. Bring all medication bottles, a list of current supplements, and any recent lab work. We'll create an initial optimization plan and may order baseline laboratory tests if needed."},{"title":"Weeks 2-4: Initial Adjustments","body":"You'll begin implementing the medication changes we discussed, which may include dosage adjustments, timing modifications, or introduction of new treatments. We typically schedule a follow-up within 2-4 weeks to assess your response, monitor for side effects, and make any necessary refinements. This is a crucial period for open communication about how you're feeling and any changes you notice."},{"title":"Months 1-3: Stabilization Phase","body":"During this phase, we fine-tune your medication regimen based on your response and any laboratory results. Follow-up appointments are typically scheduled every 4-6 weeks as we work toward finding your optimal medication balance. You should begin noticing improvements in symptoms, reduction in side effects, or better overall functioning. We'll assess whether any further adjustments are needed or if additional integrative approaches would be beneficial."},{"title":"Long-Term Management","body":"Once your medication regimen is optimized and stable, we transition to maintenance care with appointments every 3-6 months or as needed based on your condition and stability. These visits involve ongoing monitoring, periodic laboratory testing, medication renewals, and proactive adjustments in response to life changes, new health concerns, or evolving treatment goals. Our goal is sustained wellness with the most effective, least burdensome medication approach possible."}],
-    extraSections: [{"heading":"Evidence-Based Treatment Methods","body":["Our medication management services integrate multiple evidence-based strategies tailored to your specific needs. We utilize pharmacogenomic testing when appropriate to understand how your genetic makeup affects medication metabolism and response, allowing for more precise prescribing. We conduct regular therapeutic drug monitoring through laboratory testing to ensure medication levels remain within optimal ranges, particularly for medications with narrow therapeutic windows.","We emphasize deprescribing protocols—the systematic reduction or elimination of medications that may no longer be necessary or beneficial—following established clinical guidelines to safely taper medications while monitoring for withdrawal effects or symptom recurrence. For mental health medications, we coordinate closely with any therapists or counselors involved in your care to ensure psychological and pharmacological interventions work synergistically.","Our integrative approach also incorporates lifestyle medicine principles, nutritional support, supplement optimization, and mind-body techniques to address root causes of symptoms and potentially reduce reliance on pharmaceuticals over time. We recognize that medication is one tool among many in supporting wellness, and we work collaboratively with you to find the most effective, least burdensome treatment approach that honors your preferences and values while achieving therapeutic goals."]}],
-    faqs: [{"q":"How is medication management different from just getting prescriptions from my doctor?","a":"Traditional prescribing often focuses on addressing individual symptoms or conditions in isolation, with limited time for comprehensive review of all medications, their interactions, or cumulative effects. Medication management is a specialized service that takes a holistic, systems-based approach to your entire medication regimen. We spend significantly more time reviewing not just what you're taking but why, whether each medication remains appropriate, how medications interact with each other, and whether your regimen aligns with your overall health goals.\n\nWe also focus on medication optimization—ensuring you're on the most effective medications at the right doses with the fewest side effects—and deprescribing when appropriate. Many patients come to us taking medications that were prescribed years ago and may no longer be necessary, or taking multiple medications that could be consolidated or replaced with more effective alternatives. Our integrative approach also considers non-pharmaceutical interventions that might reduce medication burden while maintaining or improving outcomes."},{"q":"Will you work with my other healthcare providers?","a":"Absolutely. Collaborative care is essential to effective medication management, especially when you're seeing multiple specialists. With your permission, we communicate with your other providers to ensure everyone is aware of medication changes, understands the rationale behind adjustments, and coordinates care to avoid conflicting treatments or duplicate therapies. This team-based approach reduces the risk of medication errors and ensures all providers are working toward the same health goals.\n\nWe often serve as the central coordinator for your medication regimen, maintaining a comprehensive medication list and sharing relevant updates with your primary care physician, specialists, therapists, or other practitioners. This is particularly valuable if you're receiving care from providers in different health systems who may not have access to each other's records. Our goal is seamless integration of care that prioritizes your safety and therapeutic success."},{"q":"Can medication management help me reduce the number of medications I'm taking?","a":"In many cases, yes. Deprescribing—the careful, systematic reduction or elimination of medications—is an important component of medication management, particularly for individuals taking multiple medications or experiencing medication-related side effects. Research shows that many patients, especially older adults, are taking medications that no longer provide benefit or that may even be causing harm through interactions or cumulative effects.\n\nWe evaluate each medication to determine whether it's still necessary, whether the benefits outweigh the risks, and whether alternative approaches might be equally or more effective. Deprescribing is always done gradually and carefully, with close monitoring to ensure symptoms don't return and that stopping medications is safe. We also integrate lifestyle modifications, nutritional interventions, and other integrative therapies that may address root causes and reduce the need for certain medications over time. The goal is always the minimum effective medication burden that achieves your health and wellness goals."},{"q":"What should I bring to my first medication management appointment?","a":"Preparation makes your first appointment more productive. Bring all prescription medication bottles (not just a list—the actual bottles help us verify dosages, frequencies, and prescribing information), all over-the-counter medications you take regularly, and all supplements, vitamins, or herbal products you use. Also bring any recent laboratory results, hospital discharge summaries, or specialist reports related to medication changes.\n\nIt's also helpful to prepare a brief history of your medication experience: which medications have worked well, which caused side effects, any allergies or adverse reactions, and any specific concerns or goals you have regarding your medications. If you have questions about specific medications or are interested in alternatives, write those down so we can address them during the appointment. The more information we have, the more comprehensive and personalized your medication management plan will be."},{"q":"How often will I need follow-up appointments for medication management?","a":"Follow-up frequency depends on your individual situation, the complexity of your medication regimen, and how stable your condition is. Initially, when we're making medication adjustments or starting new treatments, we typically schedule follow-ups every 2-4 weeks to closely monitor your response and make timely adjustments. This ensures safety and allows us to optimize your regimen efficiently.\n\nOnce your medications are stable and you're achieving good therapeutic outcomes, appointments often spread to every 3-6 months for ongoing monitoring, medication renewals, and periodic laboratory testing. Some patients with complex conditions or multiple medications may need more frequent visits, while others who are stable on a simple regimen may need less frequent follow-up. We'll work with you to establish an appointment schedule that provides appropriate oversight while respecting your time and resources. You can always schedule an earlier appointment if you experience new symptoms, side effects, or concerns between scheduled visits."}],
-    relatedLinks: [{"href":"/services/anxiety-treatment","label":"Anxiety Treatment","eyebrow":"Related","body":"Comprehensive treatment for anxiety disorders combining therapy, medication when appropriate, and integrative wellness strategies."},{"href":"/services/depression-treatment","label":"Depression Treatment","eyebrow":"Related","body":"Evidence-based depression treatment including psychotherapy, medication management, and lifestyle interventions for lasting recovery."},{"href":"/services/psychiatric-evaluation","label":"Psychiatric Evaluation","eyebrow":"Related","body":"Comprehensive psychiatric assessment to accurately diagnose conditions and develop personalized, effective treatment plans."}],
-    ctaHeading: "Ready to Optimize Your Medication Regimen?",
-    ctaBody: "Take control of your medications with expert guidance. Schedule your comprehensive medication management consultation today.",
-  },
-  {
-    ...BASE,
-    slug: "follow-up-sessions",
-    badge: "Services",
-    title: "Follow-Up Sessions",
-    metaTitle: "Follow-Up Sessions in Fairfield, CT | JROSE WELLNESS",
-    headline: "Follow-Up Sessions in Fairfield",
-    description: "Comprehensive follow-up care in Fairfield to track progress, adjust treatment plans, and ensure lasting wellness results through personalized integrative medicine.",
-    heroSubhead: "Continued care designed to monitor your progress, refine treatment strategies, and ensure sustained improvement in your health journey. Our follow-up sessions provide the accountability and adjustments needed to achieve lasting wellness outcomes through personalized integrative medicine.",
-    introHeading: "What Are Follow-Up Sessions?",
-    intro: ["Follow-up sessions are an essential component of comprehensive integrative wellness care, serving as checkpoints in your healing journey where progress is evaluated, treatments are refined, and new goals are established. Unlike one-time consultations, follow-up appointments create continuity of care that allows your practitioner to track patterns, identify what's working, and make evidence-based adjustments to your personalized treatment plan. These sessions typically occur at strategic intervals—weekly, biweekly, or monthly—depending on your condition severity, treatment complexity, and rate of progress.","At JROSE WELLNESS in Fairfield, follow-up sessions are structured around your unique health trajectory. During each visit, we conduct targeted assessments that may include symptom tracking, functional capacity evaluations, review of lab work or diagnostic imaging, medication adjustments, and discussions about lifestyle modifications. This iterative process ensures that your treatment remains responsive to your changing needs rather than static. Research consistently demonstrates that patients who engage in regular follow-up care achieve better outcomes, experience fewer complications, and maintain improvements longer than those who discontinue care after initial treatment.","Follow-up sessions are appropriate for virtually anyone undergoing treatment for chronic conditions, recovering from acute illness or injury, managing medication regimens, implementing lifestyle changes, or working toward specific wellness goals. They provide a dedicated space to address new symptoms, discuss challenges with treatment adherence, celebrate milestones, and ensure you feel supported throughout your care journey. Whether you're managing hormonal imbalances, addressing digestive issues, recovering from stress-related conditions, or optimizing performance and longevity, consistent follow-up care bridges the gap between initial intervention and sustained wellness."],
-    signsHeading: "Signs You May Benefit from Follow-Up Care",
-    signsList: ["You are currently undergoing treatment for a chronic or complex condition","Your symptoms have improved but you want to ensure lasting results","You are taking medications that require monitoring and adjustment","You have made lifestyle changes and need guidance to maintain them","New symptoms or concerns have emerged since your last visit","You are working toward specific health goals that require tracking","Your initial treatment plan needs modification based on your response","You want to prevent relapse or recurrence of previous conditions"],
-    bullets: ["Comprehensive progress assessment tracking objective measures and subjective experiences","Dynamic treatment adjustments including medication optimization and supplement modifications","Goal setting with clear accountability structures to maintain commitment","Personalized care components from clinical assessments to therapeutic interventions","Flexible scheduling with telehealth options for convenient ongoing support","Collaborative approach ensuring your treatment remains responsive to changing needs"],
-    approachHeading: "Our Approach to Follow-Up Sessions",
-    approach: [{"title":"Comprehensive Progress Assessment","body":"Each follow-up begins with a thorough review of your symptoms, functional improvements, and quality of life changes since your last visit. We track objective measures and subjective experiences to build a complete picture of your response to treatment.","iconPath":"M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"},{"title":"Dynamic Treatment Adjustments","body":"Based on your progress, we refine your treatment plan with precision. This may include medication dose optimization, supplement modifications, new therapeutic modalities, or enhanced lifestyle interventions tailored to your evolving needs.","iconPath":"M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"},{"title":"Goal Setting & Accountability","body":"We establish clear, measurable goals for the period until your next visit and provide the accountability structure that helps you stay committed to your wellness plan, addressing barriers and celebrating achievements along the way.","iconPath":"M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"}],
-    benefits: [{"title":"Continuity of Care","body":"Regular follow-ups create a therapeutic relationship where patterns emerge, trust deepens, and treatment becomes increasingly personalized to your unique response and needs over time."},{"title":"Early Problem Detection","body":"Consistent monitoring allows us to identify side effects, treatment failures, or emerging complications early when they are easiest to address, preventing minor issues from becoming major setbacks."},{"title":"Optimized Outcomes","body":"Research shows patients who engage in regular follow-up care achieve better health outcomes, maintain improvements longer, and experience higher satisfaction with their treatment journey."},{"title":"Treatment Efficiency","body":"Systematic progress tracking eliminates guesswork, reduces trial-and-error, and accelerates your path to wellness by allowing data-driven refinement of your protocol at optimal intervals."}],
-    timelineHeading: "What to Expect During Follow-Up Care",
-    timeline: [{"title":"First Follow-Up Visit (Week 1-2)","body":"Your initial follow-up typically occurs 1-2 weeks after your first appointment or treatment initiation. We assess your immediate response to treatment, identify any side effects or concerns, and make early adjustments if needed. This visit establishes baseline progress metrics and ensures you understand your treatment plan fully. Duration is typically 30-45 minutes."},{"title":"Early Progress Phase (Weeks 2-8)","body":"During this period, follow-ups may occur every 2-4 weeks depending on condition complexity. We track emerging patterns, refine dosages, add complementary interventions, and address adherence challenges. Many patients begin experiencing noticeable improvements during this phase, though timelines vary by condition. Session length is typically 20-30 minutes."},{"title":"Stabilization Phase (Months 2-4)","body":"As your condition stabilizes and improvements consolidate, follow-up intervals may extend to 4-6 weeks. We focus on maintaining progress, preventing relapse, and optimizing long-term management strategies. This phase often involves transitioning from intensive intervention to sustainable maintenance protocols. Sessions typically last 20-30 minutes."},{"title":"Long-Term Maintenance (Month 4+)","body":"Once optimal health is achieved, many patients transition to maintenance follow-ups every 2-3 months or as needed. These visits monitor for changes, provide ongoing support, adjust for life transitions, and ensure sustained wellness. Some patients continue periodic check-ins indefinitely, while others graduate to as-needed care depending on their condition and goals."}],
-    extraSections: [{"heading":"Personalized Follow-Up Care Components","body":["Your follow-up sessions at JROSE WELLNESS may include any combination of the following interventions based on your unique condition and treatment plan:","Clinical Assessments: Symptom severity tracking and functional assessment; Review of laboratory results and biomarkers; Physical examination when indicated; Vital signs monitoring and health metrics","Treatment Optimization: Medication dosage adjustments and side effect management; Supplement protocol refinement; Nutrition and dietary guidance updates; Exercise and movement prescription modifications","Therapeutic Interventions: Mind-body techniques and stress management; Sleep optimization strategies; Behavioral counseling and habit formation; Environmental and lifestyle factor assessment","Education & Support: Patient education about your condition and treatment; Shared decision-making and treatment preferences; Resources and referrals to complementary services; Coordination with other healthcare providers"]},{"heading":"Important Note on Follow-Up Scheduling","body":["Follow-up frequency and duration are highly individualized based on your specific condition, treatment complexity, response rate, and personal needs. We work collaboratively with you to determine the optimal schedule that balances thoroughness with convenience."]}],
-    faqs: [{"q":"How often will I need follow-up appointments?","a":"Follow-up frequency is personalized based on your condition, treatment complexity, and rate of progress. Initially, appointments may occur weekly or biweekly to closely monitor your response and make timely adjustments. As you stabilize, intervals typically extend to monthly, then every 2-3 months for maintenance. Chronic conditions may require more frequent monitoring, while stable patients may need only periodic check-ins. We discuss and adjust your schedule collaboratively throughout your care journey."},{"q":"What should I bring to my follow-up appointment?","a":"Come prepared with notes about your symptoms, including frequency, severity, and any patterns you've noticed. Bring all current medications and supplements (or a list with dosages), records of any home monitoring (blood pressure logs, symptom diaries, etc.), results from outside testing, and questions or concerns that have arisen. If you've seen other providers since your last visit, bring relevant records or summaries. Being prepared helps us maximize the value of your appointment time."},{"q":"Can I schedule follow-ups via telehealth?","a":"Yes, many follow-up appointments can be conducted effectively via secure video consultation, especially once we've established your baseline and treatment plan. Telehealth follow-ups work well for medication management, symptom monitoring, lab review, lifestyle counseling, and treatment adjustments that don't require physical examination. However, some conditions or situations may necessitate in-person visits. We'll discuss which format is most appropriate for each stage of your care."},{"q":"What if I'm not improving as expected?","a":"Lack of expected progress is important clinical information that we use to refine your treatment approach. During follow-ups, we systematically evaluate potential reasons—inadequate dosing, wrong intervention, adherence challenges, unidentified contributing factors, or natural variation in response time. We may adjust medications, add complementary therapies, order additional testing, address lifestyle barriers, or refer for specialized evaluation. Follow-up care is specifically designed to catch these situations early and pivot strategy before frustration and time are wasted."},{"q":"Do I need to keep following up if I feel better?","a":"Feeling better is excellent progress, but premature discontinuation of follow-up care is a common reason for relapse. Many conditions require sustained treatment to maintain improvements, and symptoms can resurface if interventions are stopped too soon. Follow-up visits allow us to determine when your progress is stable enough to reduce treatment intensity, taper medications safely, transition to maintenance protocols, or confidently conclude active care. We guide this process based on clinical evidence and your individual trajectory to ensure lasting results rather than temporary relief."}],
-    relatedLinks: [{"href":"/services/initial-consultation","label":"Initial Consultation","eyebrow":"Related","body":"Comprehensive first visit to assess your health history, current concerns, and create your personalized treatment plan."},{"href":"/services/lab-testing","label":"Lab Testing & Analysis","eyebrow":"Related","body":"Advanced diagnostic testing to identify root causes and monitor biomarkers throughout your treatment journey."},{"href":"/services/wellness-optimization","label":"Wellness Optimization","eyebrow":"Related","body":"Proactive care for high performers seeking to enhance energy, longevity, and peak mental and physical performance."}],
-    ctaHeading: "Ready to Schedule Your Follow-Up Session?",
-    ctaBody: "Consistent follow-up care is the foundation of lasting wellness. Let's track your progress and optimize your treatment together.",
+    slug: 'adhd-evaluation',
+    title: 'ADHD Evaluation & Treatment',
+    metaTitle: 'ADHD Evaluation & Treatment Online, CT',
+    headline: 'ADHD Evaluation and Treatment Online for Teens and Adults in Connecticut',
+    description:
+      'Online ADHD evaluation and treatment for teens and adults in Connecticut. Telehealth assessment, medication management, and support at school and work.',
+    heroEyebrow: 'ADHD care for teens and adults',
+    heroSubhead: `Evaluation and ongoing care for attention difficulties, distractibility, impulsivity, and disorganization, by secure video for teens ${AGES.minimum} and older and adults.`,
+    heroImage: PAGE_IMAGES['/services/adhd-evaluation'],
+    introHeading: 'ADHD care at JRose Wellness',
+    intro: [
+      'Evaluation and management of attention difficulties, distractibility, impulsivity, and disorganization in both adolescents and adults. Treatment supports better focus, productivity, and daily structure at school, work, and home.',
+      `Care is with ${PROVIDER.byline}, for patients in ${CONTACT.state} ages ${AGES.minimum} and older.`,
+      'Your evaluation looks at the full picture, including stress, mood, sleep, and anything else affecting how you focus, so your plan fits you.',
+    ],
+    signsHeading: 'Signs it may be worth an evaluation',
+    signsList: [
+      'Is it hard to keep your attention on tasks, conversations, or reading?',
+      'Are you easily pulled off track by noise, your phone, or your own thoughts?',
+      'Do you act or speak before thinking, then wish you had waited?',
+      'Do deadlines, schedules, and belongings tend to slip through the cracks?',
+      'Is it getting in the way at school, at work, or at home?',
+    ],
+    crisis: true,
+    approachHeading: 'How the evaluation works',
+    approachSubhead: 'Your first visit is a full psychiatric evaluation focused on you.',
+    approach: [
+      {
+        title: 'Your history',
+        body: 'What brings you in, your relevant medical and mental health history, and any treatment you have tried before.',
+        iconPath: ICON.clipboardCheck,
+      },
+      {
+        title: 'Your day-to-day',
+        body: 'How attention, distractibility, impulsivity, and organization show up at school, at work, and at home.',
+        iconPath: ICON.home,
+      },
+      {
+        title: 'Your goals and plan',
+        body: 'What you want to change, and a personalized plan built around it, which may include medication, supportive therapy, practical strategies, or a mix.',
+        iconPath: ICON.document,
+      },
+    ],
+    benefitsHeading: 'Treatment options',
+    benefits: [
+      {
+        title: 'Medication management, when appropriate',
+        body: 'If medication could help, options are discussed thoughtfully, including benefits, risks, and your comfort level. Medication is optional.',
+      },
+      {
+        title: 'Supportive therapy and practical strategies',
+        body: 'Visits include supportive therapy and practical coping strategies for focus, planning, and daily structure.',
+      },
+      {
+        title: 'Ongoing follow-up',
+        body: 'Follow-up visits check on how treatment is working and adjust it when needed.',
+      },
+      {
+        title: 'Care for teens and adults',
+        body: `ADHD care is available for adolescents ${AGES.minimum} and older, adults, and older adults.`,
+      },
+    ],
+    bullets: [],
+    extraSections: [
+      {
+        heading: 'About controlled medications',
+        body: [`${FAQ.controlledSubstances.q} ${FAQ.controlledSubstances.a}`],
+      },
+      {
+        heading: 'Cost',
+        body: [
+          `An ADHD evaluation is an initial evaluation: ${PRICING.initialEvaluation.price} self-pay, with follow-up and medication management visits at ${PRICING.followUp.price}. ${PRICING.slidingScale}`,
+          INSURANCE_COST,
+        ],
+      },
+    ],
+    faqHeading: 'Common questions about ADHD care',
+    faqs: [
+      {
+        q: 'Do you see teens for ADHD?',
+        a: `Yes. JRose Wellness sees ${AGES.short.toLowerCase()}.`,
+      },
+      FAQ.choosingMedication,
+      FAQ.noMedication,
+      FAQ.virtualOnly,
+    ],
+    relatedHeading: 'Keep exploring',
+    relatedLinks: [
+      {
+        href: '/who-we-help/teens',
+        label: 'Teens',
+        eyebrow: 'Who we help',
+        body: `Psychiatric care for adolescents ${AGES.minimum} and older.`,
+      },
+      {
+        href: '/who-we-help/adults',
+        label: 'Adults',
+        eyebrow: 'Who we help',
+        body: 'Care for young adults and adults.',
+      },
+      {
+        href: '/services/medication-management',
+        label: 'Medication Management',
+        eyebrow: 'Service',
+        body: 'Follow-up visits to monitor progress and adjust treatment.',
+      },
+    ],
+    ctaHeading: 'Ready to talk about focus and attention?',
+    ctaBody: 'Book with insurance through Alma or Headway, or request a self-pay visit. Every visit is by secure video.',
   },
 ]

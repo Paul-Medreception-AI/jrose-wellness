@@ -4,6 +4,7 @@ const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
   async redirects() {
     return [
+      { source: '/book-appointment', destination: '/contact', permanent: false }, // interim: page lands in the next push
       { source: '/privacy', destination: '/privacy-sms', permanent: true },
       { source: '/privacy-policy', destination: '/privacy-sms', permanent: true },
       { source: '/terms', destination: '/terms-sms', permanent: true },

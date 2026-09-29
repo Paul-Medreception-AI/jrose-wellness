@@ -5,6 +5,9 @@ import { ServicePageTemplate, buildServiceMetadata } from '@/components/template
 
 type Props = { params: Promise<{ slug: string }> }
 
+// Only the five service slugs in lib/data/services.ts exist; anything else is a 404.
+export const dynamicParams = false
+
 export function generateStaticParams() {
   return SERVICES.map((x) => ({ slug: x.slug }))
 }
@@ -12,7 +15,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const x = SERVICES.find((x) => x.slug === slug)
-  if (!x) return { title: 'Not Found' }
+  if (!x) return {}
   return buildServiceMetadata(x)
 }
 
